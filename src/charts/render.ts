@@ -40,6 +40,7 @@ const palette = (model: ViewModel, kind: ChartType): string[] => {
 };
 
 function baseConfig(model: ViewModel, kind: ChartType): ChartConfiguration {
+  const horizontal = kind === 'hbar' || kind === 'stacked';
   const multiSeries = model.series.length > 1;
   const colours = palette(model, kind);
   const many = model.categories.length > 8;
@@ -64,16 +65,23 @@ function baseConfig(model: ViewModel, kind: ChartType): ChartConfiguration {
   };
   const categoryAxis = {
     grid: { display: false },
+    // Chart.js would otherwise allot the category axis a fraction of the canvas
+    // and clip anything longer. Thirty characters of Montserrat at 12px needs
+    // about this much.
+    ...(horizontal ? { afterFit: (scale: { width: number }) => { scale.width = 205; } } : {}),
     ticks: {
       autoSkip: false,
       maxRotation: many ? 60 : 0,
       // Real answer options are long — "Increased access to essential services
-      // and resources". Chart.js clips them silently at the edge of the canvas,
-      // which loses the start of the label rather than the end. Truncate
-      // deliberately instead; the table underneath carries the full wording.
+      // and resources". Chart.js caps how much width it gives an axis and then
+      // clips what does not fit, losing the *start* of the label, which is the
+      // half that identifies it. Truncate deliberately from the end instead, and
+      // below give the axis enough room for the length we truncate to. The table
+      // underneath carries the full wording either way.
       callback(this: { getLabelForValue(v: number): string }, value: number) {
         const label = this.getLabelForValue(value);
-        return label.length > 34 ? `${label.slice(0, 33)}…` : label;
+        const limit = horizontal ? 28 : 34;
+        return label.length > limit ? `${label.slice(0, limit - 1)}…` : label;
       },
     },
   };

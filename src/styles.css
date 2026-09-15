@@ -1,13 +1,23 @@
 /* Round-zero styling.
-   The palette, the two typefaces and the card treatment are taken from the
-   prototype the client has already approved (afys.vercel.app) rather than
-   invented, so that what they react to here is the structure — the deck's twelve
-   themes, the tile pages, the methodology view — and not a redesign they never
-   asked for. Values read off the deployed stylesheet:
+   Two sources, and where they disagree the client's own brand wins.
 
-     ground  #faf8f4      heading green #1a3a2a     gold   #d4a338
-     ink     #1e293b      card white, 16px radius   pills  100px radius
-     display Instrument Serif   body Plus Jakarta Sans */
+   **Typeface: Montserrat**, from AfricanYS_style.pdf in the asset pack they sent.
+   The approved prototype uses Instrument Serif and Plus Jakarta Sans, which are
+   neither in that guide nor anywhere in the client's published material — they
+   are our own choice from the pitch. Showing the client something off-brand
+   invites the review to be about the brand, and their guide is the more
+   defensible default: it is the thing they formally issued.
+
+   **Palette: the deck's eight brand colours**, which the style guide and the
+   theme accents already agree on — #fff8e9, #fec648, #f1676a, #e82d4e, #0a734d,
+   #6dbf67, #1f2337, #60cbee.
+
+   **Everything else** — the warm ground, the card treatment, the pill controls —
+   follows the approved prototype, read off its deployed stylesheet, so the
+   structure is what gets reviewed rather than a redesign.
+
+   To go back to the prototype's typefaces: change --display and --body below and
+   the font link in index.html. Nothing else depends on them. */
 
 :root {
   --ground: #faf8f4;
@@ -26,8 +36,8 @@
   --accent: var(--green-mid);
   --radius: 16px;
   --shadow: 0 1px 2px rgba(26, 58, 42, 0.04), 0 8px 24px rgba(26, 58, 42, 0.05);
-  --display: "Instrument Serif", Georgia, serif;
-  --body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --body: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -46,9 +56,9 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
 /* Display type is the serif; everything else is the sans. */
 .hero h1, .tile-header h1, .explorer-header h1, .method-header h1, .section-heading {
   font-family: var(--display);
-  font-weight: 400;
+  font-weight: 800;
   color: var(--green);
-  letter-spacing: 0;
+  letter-spacing: -0.02em;
 }
 
 /* The one thing that is ours, not theirs. It stays loud: this prototype's
@@ -76,16 +86,8 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
   flex-wrap: wrap;
 }
 
-.wordmark {
-  font-weight: 700;
-  font-size: 16px;
-  text-decoration: none;
-  color: var(--green);
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-}
-.wordmark .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--gold); }
+.wordmark { display: inline-flex; align-items: center; text-decoration: none; }
+.wordmark img { height: 42px; width: auto; display: block; }
 
 .site-nav { display: flex; align-items: center; gap: 8px; }
 .site-nav a {
@@ -126,6 +128,7 @@ main:focus { outline: none; }
   font-size: 12.5px;
 }
 .site-footer p { margin: 2px 0; }
+.footer-logo { height: 30px; width: auto; display: block; margin-bottom: 10px; opacity: 0.75; }
 
 /* Landing ---------------------------------------------------------------- */
 
@@ -364,7 +367,7 @@ main:focus { outline: none; }
 .coverage td.yes { color: var(--green-mid); font-weight: 700; }
 .coverage td.no { color: var(--faint); }
 .coverage { margin-top: 32px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
-.coverage h2 { font-family: var(--display); font-weight: 400; color: var(--green); font-size: 26px; }
+.coverage h2 { font-family: var(--display); font-weight: 700; color: var(--green); font-size: 26px; }
 
 /* Methodology ------------------------------------------------------------- */
 
@@ -391,7 +394,7 @@ main:focus { outline: none; }
   box-shadow: var(--shadow);
   align-self: start;
 }
-.country-detail h2 { font-family: var(--display); font-weight: 400; color: var(--green); font-size: 24px; margin-bottom: 10px; }
+.country-detail h2 { font-family: var(--display); font-weight: 700; color: var(--green); font-size: 24px; margin-bottom: 10px; }
 .country-detail ul { list-style: none; padding: 0; margin: 0; font-size: 13.5px; }
 .country-detail li { padding: 7px 0; border-bottom: 1px solid var(--line); }
 .country-detail li.asked { color: var(--green-mid); font-weight: 600; }
@@ -401,7 +404,7 @@ main:focus { outline: none; }
 /* Misc -------------------------------------------------------------------- */
 
 .question-list { margin-top: 34px; }
-.question-list h2 { font-family: var(--display); font-weight: 400; color: var(--green); font-size: 26px; margin-bottom: 12px; }
+.question-list h2 { font-family: var(--display); font-weight: 700; color: var(--green); font-size: 26px; margin-bottom: 12px; }
 .question-list ul { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 0; }
 .question-list a {
   display: inline-block;

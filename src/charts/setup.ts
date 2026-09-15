@@ -32,7 +32,7 @@ export const valueLabels: Plugin<'bar'> = {
     const horizontal = chart.options.indexAxis === 'y';
     const stacked = chart.options.scales?.['x']?.stacked === true;
     ctx.save();
-    ctx.font = '600 11px "Plus Jakarta Sans", system-ui, sans-serif';
+    ctx.font = '600 11px Montserrat, system-ui, sans-serif';
     chart.data.datasets.forEach((dataset, i) => {
       const meta = chart.getDatasetMeta(i);
       if (meta.hidden) return;
@@ -62,7 +62,7 @@ export function setupCharts(): void {
     ArcElement, BarController, BarElement, CategoryScale, Filler, Legend,
     LineController, LineElement, LinearScale, PieController, PointElement, Tooltip,
   );
-  Chart.defaults.font.family = '"Plus Jakarta Sans", system-ui, sans-serif';
+  Chart.defaults.font.family = 'Montserrat, system-ui, sans-serif';
   Chart.defaults.font.size = 12;
   Chart.defaults.color = MUTED;
   Chart.defaults.borderColor = GRID;
