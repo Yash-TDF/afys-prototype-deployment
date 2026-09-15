@@ -1,0 +1,222 @@
+{
+ "source": "Portal Content deck, chart data. Unconfirmed by PSB.",
+ "options": {
+  "T01_Q1": [
+   "Right direction",
+   "Wrong direction",
+   "Don't know"
+  ],
+  "T01_Q3": [
+   "International involvement in Africa",
+   "Democratic changes",
+   "Environmental challenges",
+   "Increased access to essential services and resources",
+   "The technological/digital revolution",
+   "Deaths from infectious disease",
+   "Political instability",
+   "The rising cost of living"
+  ],
+  "T01_Q4": [
+   "Creating new, well-paying jobs",
+   "Reducing government corruption",
+   "Increasing access to basic needs and services",
+   "Making it easier to start a business",
+   "Achieving peace and stability in Africa",
+   "Modernizing the education system",
+   "Building a culture of innovation and entrepreneurship",
+   "Encouraging more foreign investment",
+   "Embracing digital and technological innovation",
+   "Limiting the influence of foreign powers"
+  ],
+  "T02_Q2": [
+   "More divided",
+   "More cooperative",
+   "Don't know"
+  ],
+  "T02_Q3": [
+   "United States",
+   "China",
+   "United Kingdom",
+   "Russia",
+   "Germany**",
+   "France",
+   "India",
+   "Brazil**"
+  ],
+  "T03_Q1": [
+   "The African Union",
+   "United Nations**",
+   "World Trade Organisation",
+   "International Monetary Fund**",
+   "The European Union",
+   "G20**"
+  ],
+  "T03_Q2": [
+   "Celebrating and protecting the history and culture of my country",
+   "Addressing climate change and its environmental impacts",
+   "Caring for refugees and displaced people",
+   "Supporting democratic development and free elections",
+   "Providing humanitarian aid",
+   "Supporting economic development and creating opportunities",
+   "Protecting human rights",
+   "Fighting the spread of infectious diseases",
+   "Promoting peace and security"
+  ],
+  "T04_Q1": [
+   "Democracy is always preferable",
+   "Non-democratic government can be preferable",
+   "Don't know"
+  ],
+  "T04_Q2": [
+   "Dem always pref",
+   "Non-dem can be",
+   "Don't Know"
+  ],
+  "T04_Q3": [
+   "National unity and stability",
+   "Regular free and fair elections",
+   "Leaders who deliver jobs and services",
+   "Community decision-making",
+   "Respect for elders and traditional authorities",
+   "A multi-party system with a wide range of political choices",
+   "Strong leadership, even if power is concentrated"
+  ],
+  "T05_Q1": [
+   "Strongly agree",
+   "Somewhat agree",
+   "Disagree / DK"
+  ],
+  "T05_Q3": [
+   "Very concerned",
+   "Somewhat concerned",
+   "Not very concerned",
+   "Not at all concerned",
+   "Don't know"
+  ],
+  "T05_Q5": [
+   "Very confident",
+   "Somewhat confident",
+   "Not confident / DK"
+  ],
+  "T06_Q1": [
+   "Very likely",
+   "Somewhat likely",
+   "Not so likely",
+   "Not at all likely",
+   "Don't Know"
+  ],
+  "T06_Q2": [
+   "Push factors",
+   "Economic reasons",
+   "Education opportunities",
+   "Social connection"
+  ],
+  "T07_Q1": [
+   "Strongly Disgree",
+   "Somewhat Disagree",
+   "Agree / DK"
+  ],
+  "T07_Q3": [
+   "Strongly agree",
+   "Somewhat agree",
+   "T2B"
+  ],
+  "T08_Q1": [
+   "Yes",
+   "No",
+   "Don't know"
+  ],
+  "T08_Q5": [
+   "Strongly support",
+   "Somewhat support",
+   "Neither support or oppose",
+   "Somewhat oppose",
+   "Strongly oppose",
+   "Don't know / DO NOT READ"
+  ],
+  "T09_Q1": [
+   "Facebook",
+   "Television",
+   "TikTok",
+   "WhatsApp",
+   "Friends and family",
+   "Radio",
+   "Instagram",
+   "Online news sources",
+   "X / Twitter",
+   "Telegram",
+   "Newspaper/Magazines",
+   "Religious leaders",
+   "AI",
+   "I'm not interested in news  / DO NOT READ",
+   "Don't know"
+  ],
+  "T09_Q2": [
+   "At least once every day",
+   "2-3 times a week",
+   "Once a week or less",
+   "Once a month or less",
+   "Never",
+   "Don't know"
+  ],
+  "T09_Q3": [
+   "Interest groups and organisations deliberately share fake news to push their agenda",
+   "I worry that misinformation or 'fake news' shared online could lead to real-world violence or conflict in  my community",
+   "Fake news is a serious problem in my community today",
+   "I worry that artifical intelligence (AI) has made is easier to create and spread fake news",
+   "Fake news has led to greater divide within my society",
+   "Fake news impacts my ability to stay informed about issues that matter to me"
+  ],
+  "T10_Q4": [
+   "Maintaining political \nstability",
+   "Tackling government\ncorruption",
+   "Addressing climate change\nand environmental degradation",
+   "Limiting illegal immigration\ninto the country",
+   "Reducing poverty",
+   "Job creation and fighting\nunemployment",
+   "Tackling rising\ncosts"
+  ],
+  "T11_Q1": [
+   "Not at all concerned",
+   "Not very concerned",
+   "Somewhat concerned",
+   "Very concerned",
+   "Don't know"
+  ],
+  "T11_Q2": [
+   "Leading and driving action among a smaller group of countrie",
+   "Pushing discussion and debate on the international stage eve",
+   "Don't know"
+  ],
+  "T11_Q3": [
+   "Developing carbon credit programs to fund climate adaptation",
+   "Investment in early-warning systems for extreme weather",
+   "Relocation assistance for those in at-risk areas",
+   "Adopting green energy sources",
+   "Funding for climate-resilient infrastructure",
+   "Support for improved and sustainable farming methods",
+   "Public education campaigns on climate adaptation"
+  ],
+  "T12_Q1": [
+   "Very concerned",
+   "Somewhat concerned",
+   "Not very concerned",
+   "Not at all concerned",
+   "Don't know/ DO NOT READ"
+  ],
+  "T12_Q2": [
+   "Strongly agree",
+   "Somewhat agree",
+   "T2B"
+  ],
+  "T12_Q3": [
+   "Strongly agree",
+   "Somewhat agree",
+   "T2B"
+  ],
+  "T12_Q4": [
+   "Strongly agree",
+   "Disagree/ don't know"
+  ]
+ }
+}

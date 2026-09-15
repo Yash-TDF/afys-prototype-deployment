@@ -29,9 +29,13 @@ const palette = (model: ViewModel, kind: ChartType): string[] => {
     return Array.from({ length: model.series.length }, (_, i) => SERIES[i % SERIES.length]!);
   }
   const count = model.categories.length;
-  // Countries ranked against each other are one measurement, so one colour. Only
-  // an answer scale earns several.
-  if (model.categoryKind === 'countries') return Array.from({ length: count }, () => SERIES[0]!);
+  // Countries ranked against each other are one measurement, so one colour. So is
+  // a long list of options — eight events cycling four colours reads as four
+  // pairs, which is a grouping the data does not have. Only a short answer scale,
+  // where the colours carry direction, earns several.
+  if (model.categoryKind === 'countries' || count > 5) {
+    return Array.from({ length: count }, () => SERIES[0]!);
+  }
   return Array.from({ length: count }, (_, i) => (count <= 3 ? SCALE_3 : SCALE_4)[i % (count <= 3 ? SCALE_3 : SCALE_4).length]!);
 };
 
@@ -60,7 +64,18 @@ function baseConfig(model: ViewModel, kind: ChartType): ChartConfiguration {
   };
   const categoryAxis = {
     grid: { display: false },
-    ticks: { autoSkip: false, maxRotation: many ? 60 : 0 },
+    ticks: {
+      autoSkip: false,
+      maxRotation: many ? 60 : 0,
+      // Real answer options are long — "Increased access to essential services
+      // and resources". Chart.js clips them silently at the edge of the canvas,
+      // which loses the start of the label rather than the end. Truncate
+      // deliberately instead; the table underneath carries the full wording.
+      callback(this: { getLabelForValue(v: number): string }, value: number) {
+        const label = this.getLabelForValue(value);
+        return label.length > 34 ? `${label.slice(0, 33)}…` : label;
+      },
+    },
   };
 
   const shared = {
