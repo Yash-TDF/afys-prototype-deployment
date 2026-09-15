@@ -1,0 +1,442 @@
+/* Round-zero styling.
+   The palette, the two typefaces and the card treatment are taken from the
+   prototype the client has already approved (afys.vercel.app) rather than
+   invented, so that what they react to here is the structure — the deck's twelve
+   themes, the tile pages, the methodology view — and not a redesign they never
+   asked for. Values read off the deployed stylesheet:
+
+     ground  #faf8f4      heading green #1a3a2a     gold   #d4a338
+     ink     #1e293b      card white, 16px radius   pills  100px radius
+     display Instrument Serif   body Plus Jakarta Sans */
+
+:root {
+  --ground: #faf8f4;
+  --card: #ffffff;
+  --ink: #1e293b;
+  --muted: #7c8794;
+  --faint: #a8b0ba;
+  --green: #1a3a2a;
+  --green-mid: #2f7a5a;
+  --gold: #d4a338;
+  --rose: #e8536a;
+  --line: #ece8e0;
+  --tag: #f0ece4;
+  --warn-bg: #fdf3da;
+  --warn-ink: #8a6314;
+  --accent: var(--green-mid);
+  --radius: 16px;
+  --shadow: 0 1px 2px rgba(26, 58, 42, 0.04), 0 8px 24px rgba(26, 58, 42, 0.05);
+  --display: "Instrument Serif", Georgia, serif;
+  --body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: 15px/1.6 var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; }
+h1, h2, h3 { margin: 0; line-height: 1.2; }
+
+/* Display type is the serif; everything else is the sans. */
+.hero h1, .tile-header h1, .explorer-header h1, .method-header h1, .section-heading {
+  font-family: var(--display);
+  font-weight: 400;
+  color: var(--green);
+  letter-spacing: 0;
+}
+
+/* The one thing that is ours, not theirs. It stays loud: this prototype's
+   numbers are generated, and the last one's were mistaken for findings. */
+.illustrative-banner {
+  background: var(--warn-bg);
+  color: var(--warn-ink);
+  padding: 9px 22px;
+  font-size: 13px;
+  border-bottom: 1px solid #f2e3bd;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 16px 28px;
+  background: rgba(250, 248, 244, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-wrap: wrap;
+}
+
+.wordmark {
+  font-weight: 700;
+  font-size: 16px;
+  text-decoration: none;
+  color: var(--green);
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+.wordmark .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--gold); }
+
+.site-nav { display: flex; align-items: center; gap: 8px; }
+.site-nav a {
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 100px;
+  border: 1px solid transparent;
+}
+.site-nav a:hover { color: var(--ink); background: #fff; border-color: var(--line); }
+.site-nav a.active { color: var(--green); background: #fff; border-color: var(--line); box-shadow: var(--shadow); }
+
+.wave-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: var(--muted);
+  box-shadow: var(--shadow);
+}
+.wave-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green-mid); }
+.wave-pill strong { color: var(--ink); font-weight: 600; }
+
+main { max-width: 1180px; margin: 0 auto; padding: 34px 28px 64px; }
+main:focus { outline: none; }
+
+.site-footer {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 28px 48px;
+  color: var(--faint);
+  font-size: 12.5px;
+}
+.site-footer p { margin: 2px 0; }
+
+/* Landing ---------------------------------------------------------------- */
+
+.hero h1 { font-size: 44px; }
+.hero > p { color: var(--muted); margin: 10px 0 26px; max-width: 62ch; font-size: 15px; }
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.stat {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  box-shadow: var(--shadow);
+  text-decoration: none;
+  display: block;
+}
+.stat .label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+.stat .value { display: block; font-size: 38px; font-weight: 700; letter-spacing: -0.03em; margin: 8px 0 6px; color: var(--ink); }
+.stat .sub { display: block; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.stat .chip { margin-top: 10px; display: inline-block; }
+
+.section-heading { margin: 40px 0 16px; font-size: 30px; }
+.section-heading .count { font-family: var(--body); font-size: 13px; color: var(--faint); font-weight: 500; float: right; margin-top: 14px; }
+
+.tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+
+.tile {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  border-top: 3px solid transparent;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.tile:hover { border-top-color: var(--accent); transform: translateY(-2px); }
+.tile .theme-tag {
+  justify-self: start;
+  /* The deck's accents include a yellow and a pale blue that are unreadable as
+     text on cream. Tint the ground with the accent and darken the ink instead of
+     using the raw colour. */
+  background: color-mix(in srgb, var(--accent) 14%, #ffffff);
+  color: color-mix(in srgb, var(--accent) 62%, #1a3a2a);
+  border-radius: 100px;
+  padding: 5px 12px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.tile h3 { font-size: 19px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+.tile .meta { margin: 0; color: var(--muted); font-size: 13px; }
+.tile .rule { border: 0; border-top: 1px solid var(--line); margin: 4px 0; width: 100%; }
+.tile .arrow {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 14%, #ffffff);
+  color: color-mix(in srgb, var(--accent) 62%, #1a3a2a);
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+}
+.tile:hover .arrow { background: var(--accent); color: #fff; }
+
+/* Tile detail, explorer, methodology headers ------------------------------ */
+
+.crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  padding: 7px 15px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  justify-self: start;
+  box-shadow: var(--shadow);
+}
+
+.tile-header, .explorer-header, .method-header { display: grid; gap: 12px; margin-bottom: 22px; justify-items: start; }
+.tile-header h1, .explorer-header h1, .method-header h1 { font-size: 40px; }
+.tile-header p, .method-header p { margin: 0; color: var(--muted); font-size: 14px; }
+
+.theme-pill {
+  background: color-mix(in srgb, var(--accent) 14%, #ffffff);
+  color: color-mix(in srgb, var(--accent) 62%, #1a3a2a);
+  border-radius: 100px;
+  padding: 7px 15px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+/* Filters ---------------------------------------------------------------- */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: end;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+.field { display: grid; gap: 6px; font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.field-wide { min-width: min(620px, 100%); }
+.field select {
+  font: 500 14px var(--body);
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  min-width: 200px;
+}
+.field-wide select { width: 100%; }
+
+.filter-note, .scope-note { margin: 0 0 16px; color: var(--muted); font-size: 12.5px; }
+.scope-note { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 11px 15px; }
+
+.question-text {
+  margin: 0;
+  padding: 14px 18px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 12px;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 500;
+  max-width: 85ch;
+}
+.base-note { margin: 0; font-size: 13px; color: var(--warn-ink); background: var(--warn-bg); padding: 8px 14px; border-radius: 100px; }
+
+/* Chart-type switch, styled as the approved prototype's pill group. */
+.type-switch {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 18px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  padding: 5px;
+  box-shadow: var(--shadow);
+}
+.type-switch button {
+  font: 600 13px var(--body);
+  padding: 8px 17px;
+  border: 0;
+  background: transparent;
+  border-radius: 100px;
+  cursor: pointer;
+  color: var(--muted);
+}
+.type-switch button:hover { color: var(--ink); }
+.type-switch button.active { background: var(--green); color: #fff; }
+
+/* Charts ------------------------------------------------------------------ */
+
+.chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 18px; }
+.chart-cell, .explorer-figure {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--shadow);
+}
+
+.chart figcaption { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }
+.chart figcaption h3 { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+.chart figcaption .showing { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 12.5px; }
+
+.chip {
+  background: var(--warn-bg);
+  color: var(--warn-ink);
+  border-radius: 100px;
+  padding: 4px 11px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-style: normal;
+}
+
+.canvas { position: relative; height: 300px; }
+.canvas-map { height: 430px; }
+.explorer-figure-map .canvas { height: 540px; }
+
+.chart .note { margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.slide-ref { margin: 12px 0 0; color: var(--faint); font-size: 11.5px; }
+
+/* Tables ------------------------------------------------------------------ */
+
+.chart-table { margin-top: 14px; }
+.chart-table summary { cursor: pointer; font-size: 12.5px; color: var(--accent); font-weight: 600; }
+.chart-table table, .coverage table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+.chart-table caption { text-align: left; color: var(--muted); font-size: 12px; padding-bottom: 8px; }
+.chart-table th, .chart-table td, .coverage th, .coverage td {
+  border-bottom: 1px solid var(--line);
+  padding: 8px 10px;
+  text-align: left;
+}
+.chart-table th, .coverage th { font-weight: 600; }
+.chart-table td, .coverage td { text-align: right; font-variant-numeric: tabular-nums; }
+.coverage td.yes { color: var(--green-mid); font-weight: 700; }
+.coverage td.no { color: var(--faint); }
+.coverage { margin-top: 32px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
+.coverage h2 { font-family: var(--display); font-weight: 400; color: var(--green); font-size: 26px; }
+
+/* Methodology ------------------------------------------------------------- */
+
+.method-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr); gap: 18px; }
+.method-map {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px;
+  height: 560px;
+  position: relative;
+  box-shadow: var(--shadow);
+}
+.method-map canvas { max-height: 470px; }
+
+.map-legend { list-style: none; display: flex; gap: 18px; flex-wrap: wrap; margin: 8px 0 0; padding: 0; font-size: 12px; color: var(--muted); }
+.map-legend span { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 7px; vertical-align: -1px; }
+
+.country-detail {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--shadow);
+  align-self: start;
+}
+.country-detail h2 { font-family: var(--display); font-weight: 400; color: var(--green); font-size: 24px; margin-bottom: 10px; }
+.country-detail ul { list-style: none; padding: 0; margin: 0; font-size: 13.5px; }
+.country-detail li { padding: 7px 0; border-bottom: 1px solid var(--line); }
+.country-detail li.asked { color: var(--green-mid); font-weight: 600; }
+.country-detail li.not-asked { color: var(--faint); }
+.country-detail .note { margin-top: 12px; font-size: 12px; color: var(--muted); }
+
+/* Misc -------------------------------------------------------------------- */
+
+.question-list { margin-top: 34px; }
+.question-list h2 { font-family: var(--display); font-weight: 400; color: var(--green); font-size: 26px; margin-bottom: 12px; }
+.question-list ul { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 0; }
+.question-list a {
+  display: inline-block;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  padding: 7px 15px;
+  font-size: 12.5px;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--muted);
+}
+.question-list a:hover { color: var(--accent); border-color: var(--accent); }
+
+.exports { display: flex; gap: 8px; margin-top: 16px; }
+.exports button {
+  font: 600 12px var(--body);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 9px 18px;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--muted);
+}
+.exports button:hover { color: var(--green); border-color: var(--accent); }
+
+.empty { color: var(--muted); }
+
+@media (max-width: 900px) {
+  main { padding: 24px 18px 48px; }
+  .method-layout { grid-template-columns: 1fr; }
+  .chart-grid { grid-template-columns: 1fr; }
+  .method-map { height: 430px; }
+  .hero h1 { font-size: 34px; }
+  .tile-header h1, .explorer-header h1, .method-header h1 { font-size: 30px; }
+}
