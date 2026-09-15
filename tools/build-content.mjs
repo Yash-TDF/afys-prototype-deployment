@@ -70,10 +70,10 @@ function rows(file) {
 
 const str = (v) => (v === 'NULL' ? null : v.slice(1, -1).replaceAll("''", "'"));
 const num = (v) => (v === 'NULL' ? null : Number(v));
-/** `(SELECT id FROM themes WHERE display_order = 4)` → 4 */
+/** `(SELECT id FROM themes WHERE display_order = 4)` → 4; `… name = 'Côte d''Ivoire')` → "Côte d'Ivoire" */
 const ref = (v) => {
-  const m = v.match(/=\s*(?:'([^']*)'|(\d+))\s*\)/);
-  return m ? (m[1] ?? Number(m[2])) : null;
+  const m = v.match(/=\s*(?:'((?:[^']|'')*)'|(\d+))\s*\)/);
+  return m ? (m[1] !== undefined ? m[1].replaceAll("''", "'") : Number(m[2])) : null;
 };
 const jsonArray = (v) => {
   if (v === 'NULL') return [];
@@ -89,8 +89,20 @@ const waves = rows('002_waves.sql').map(([year, label, , , , order]) => ({
 }));
 
 const membership = new Map(countries.map((c) => [c.name, []]));
+const years = new Set(waves.map((w) => w.year));
+const unresolved = [];
 for (const [country, wave] of rows('003_country_wave.sql')) {
-  membership.get(ref(country))?.push(ref(wave));
+  const list = membership.get(ref(country));
+  const year = ref(wave);
+  if (list && years.has(year)) list.push(year);
+  else unresolved.push(`${country}, ${wave}`);
+}
+if (unresolved.length > 0) {
+  // A row that does not resolve takes a country out of a wave without a sound, and
+  // the map then says "never surveyed" where the seeds say it was asked.
+  console.error(`003_country_wave.sql: ${unresolved.length} row(s) name a country or wave the seeds do not have:`);
+  for (const row of unresolved) console.error(`  (${row})`);
+  process.exit(1);
 }
 for (const c of countries) c.waves = (membership.get(c.name) ?? []).sort();
 
