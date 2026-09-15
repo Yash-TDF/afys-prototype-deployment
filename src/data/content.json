@@ -1,0 +1,2009 @@
+{
+ "generatedAt": "2026-09-15",
+ "source": "afys-portal/db/seeds — structure only, no survey results",
+ "waves": [
+  {
+   "year": 2020,
+   "label": "Wave 1 — Baseline",
+   "order": 1
+  },
+  {
+   "year": 2022,
+   "label": "Wave 2 — Expansion",
+   "order": 2
+  },
+  {
+   "year": 2024,
+   "label": "Wave 3",
+   "order": 3
+  },
+  {
+   "year": 2026,
+   "label": "Wave 4 — Current",
+   "order": 4
+  }
+ ],
+ "countries": [
+  {
+   "name": "Angola",
+   "iso3": "AGO",
+   "region": null,
+   "waves": [
+    2022
+   ]
+  },
+  {
+   "name": "Botswana",
+   "iso3": "BWA",
+   "region": null,
+   "waves": [
+    2024
+   ]
+  },
+  {
+   "name": "Burkina Faso",
+   "iso3": "BFA",
+   "region": null,
+   "waves": [
+    2026
+   ]
+  },
+  {
+   "name": "Cameroon",
+   "iso3": "CMR",
+   "region": null,
+   "waves": [
+    2024
+   ]
+  },
+  {
+   "name": "Chad",
+   "iso3": "TCD",
+   "region": null,
+   "waves": [
+    2024,
+    2026
+   ]
+  },
+  {
+   "name": "Congo Brazzaville",
+   "iso3": "COG",
+   "region": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
+  },
+  {
+   "name": "Côte d'Ivoire",
+   "iso3": "CIV",
+   "region": null,
+   "waves": []
+  },
+  {
+   "name": "DRC",
+   "iso3": "COD",
+   "region": null,
+   "waves": [
+    2022,
+    2026
+   ]
+  },
+  {
+   "name": "Ethiopia",
+   "iso3": "ETH",
+   "region": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
+  },
+  {
+   "name": "Gabon",
+   "iso3": "GAB",
+   "region": null,
+   "waves": [
+    2020,
+    2022,
+    2024
+   ]
+  },
+  {
+   "name": "Ghana",
+   "iso3": "GHA",
+   "region": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
+  },
+  {
+   "name": "Kenya",
+   "iso3": "KEN",
+   "region": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
+  },
+  {
+   "name": "Liberia",
+   "iso3": "LBR",
+   "region": null,
+   "waves": [
+    2026
+   ]
+  },
+  {
+   "name": "Malawi",
+   "iso3": "MWI",
+   "region": null,
+   "waves": [
+    2020,
+    2022,
+    2024
+   ]
+  },
+  {
+   "name": "Mali",
+   "iso3": "MLI",
+   "region": null,
+   "waves": [
+    2020
+   ]
+  },
+  {
+   "name": "Mozambique",
+   "iso3": "MOZ",
+   "region": null,
+   "waves": [
+    2022,
+    2026
+   ]
+  },
+  {
+   "name": "Namibia",
+   "iso3": "NAM",
+   "region": null,
+   "waves": [
+    2024
+   ]
+  },
+  {
+   "name": "Nigeria",
+   "iso3": "NGA",
+   "region": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
+  },
+  {
+   "name": "Rwanda",
+   "iso3": "RWA",
+   "region": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
+  },
+  {
+   "name": "Senegal",
+   "iso3": "SEN",
+   "region": null,
+   "waves": [
+    2020
+   ]
+  },
+  {
+   "name": "Somalia",
+   "iso3": "SOM",
+   "region": null,
+   "waves": [
+    2026
+   ]
+  },
+  {
+   "name": "South Africa",
+   "iso3": "ZAF",
+   "region": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
+  },
+  {
+   "name": "Sudan",
+   "iso3": "SDN",
+   "region": null,
+   "waves": [
+    2022
+   ]
+  },
+  {
+   "name": "Tanzania",
+   "iso3": "TZA",
+   "region": null,
+   "waves": [
+    2024
+   ]
+  },
+  {
+   "name": "Togo",
+   "iso3": "TGO",
+   "region": null,
+   "waves": [
+    2020,
+    2026
+   ]
+  },
+  {
+   "name": "Uganda",
+   "iso3": "UGA",
+   "region": null,
+   "waves": [
+    2022
+   ]
+  },
+  {
+   "name": "Zambia",
+   "iso3": "ZMB",
+   "region": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
+  },
+  {
+   "name": "Zimbabwe",
+   "iso3": "ZWE",
+   "region": null,
+   "waves": [
+    2020,
+    2026
+   ]
+  }
+ ],
+ "themes": [
+  {
+   "name": "Afro-Optimism",
+   "slug": "afro-optimism",
+   "order": 1,
+   "accent": "#0a734d",
+   "questions": [
+    "T01_Q1",
+    "T01_Q2",
+    "T01_Q3",
+    "T01_Q4"
+   ],
+   "charts": [
+    {
+     "theme": 1,
+     "order": 1,
+     "title": "African Continent Direction",
+     "type": "line",
+     "questions": [
+      "T01_Q1"
+     ],
+     "comparison": "tracked",
+     "slide": 3,
+     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries",
+     "showing": null
+    },
+    {
+     "theme": 1,
+     "order": 2,
+     "title": "Optimism and Excitement Towards Future",
+     "type": "bar",
+     "questions": [
+      "T01_Q2"
+     ],
+     "comparison": "country",
+     "slide": 4,
+     "caveat": null,
+     "showing": "Showing % selecting ‘Optimistic’ + ‘Excited’"
+    },
+    {
+     "theme": 1,
+     "order": 3,
+     "title": "Most Impactful Event of Last 5 years",
+     "type": "hbar",
+     "questions": [
+      "T01_Q3"
+     ],
+     "comparison": "none",
+     "slide": 5,
+     "caveat": "Not showing tracked data due to change in answer choices asked",
+     "showing": null
+    },
+    {
+     "theme": 1,
+     "order": 4,
+     "title": "Most Important things for Africa to progress",
+     "type": "hbar",
+     "questions": [
+      "T01_Q4"
+     ],
+     "comparison": "tracked",
+     "slide": 6,
+     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries",
+     "showing": "Showing Top 10 for 2026"
+    }
+   ]
+  },
+  {
+   "name": "Foreign Relations",
+   "slug": "foreign-relations",
+   "order": 2,
+   "accent": "#fec648",
+   "questions": [
+    "T02_Q1",
+    "T02_Q2",
+    "T02_Q3"
+   ],
+   "charts": [
+    {
+     "theme": 2,
+     "order": 1,
+     "title": "Concern with the Influence from Foreign Powers",
+     "type": "line",
+     "questions": [
+      "T02_Q1"
+     ],
+     "comparison": "tracked",
+     "slide": 8,
+     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries",
+     "showing": null
+    },
+    {
+     "theme": 2,
+     "order": 2,
+     "title": "World Direction",
+     "type": "bar",
+     "questions": [
+      "T02_Q2"
+     ],
+     "comparison": "country",
+     "slide": 9,
+     "caveat": null,
+     "showing": null
+    },
+    {
+     "theme": 2,
+     "order": 3,
+     "title": "Influence of Foreign Countries",
+     "type": "bar",
+     "questions": [
+      "T02_Q3"
+     ],
+     "comparison": "tracked",
+     "slide": 10,
+     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries. | Country added in 2026",
+     "showing": "Showing % selecting ‘A lot of influence’ + ‘Some influence’"
+    }
+   ]
+  },
+  {
+   "name": "The Multilateral Order",
+   "slug": "the-multilateral-order",
+   "order": 3,
+   "accent": "#60cbee",
+   "questions": [
+    "T03_Q1",
+    "T03_Q2"
+   ],
+   "charts": [
+    {
+     "theme": 3,
+     "order": 1,
+     "title": "Influence of Foreign Organisations",
+     "type": "bar",
+     "questions": [
+      "T02_Q3"
+     ],
+     "comparison": "tracked",
+     "slide": 12,
+     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries. | Organisation added in 2026",
+     "showing": "Showing % selecting ‘A lot of influence’ + ‘Some influence’"
+    },
+    {
+     "theme": 3,
+     "order": 2,
+     "title": "Positive Influence of Foreign Organisations",
+     "type": "bar",
+     "questions": [
+      "T03_Q1"
+     ],
+     "comparison": "tracked",
+     "slide": 13,
+     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries; organisations ranked by percentage of influence | Organisation added in 2026",
+     "showing": "Showing % selecting ‘Very positive’ + ‘Somewhat positive’"
+    },
+    {
+     "theme": 3,
+     "order": 3,
+     "title": "Areas of Focus for the UN in Your Country",
+     "type": "hbar",
+     "questions": [
+      "T03_Q2"
+     ],
+     "comparison": "none",
+     "slide": 14,
+     "caveat": null,
+     "showing": null
+    }
+   ]
+  },
+  {
+   "name": "Democracy and Governance",
+   "slug": "democracy-and-governance",
+   "order": 4,
+   "accent": "#e82d4e",
+   "questions": [
+    "T04_Q1",
+    "T04_Q2",
+    "T04_Q3"
+   ],
+   "charts": [
+    {
+     "theme": 4,
+     "order": 1,
+     "title": "Systems of Government and Democracy",
+     "type": "line",
+     "questions": [
+      "T04_Q1"
+     ],
+     "comparison": "tracked",
+     "slide": 16,
+     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries",
+     "showing": null
+    },
+    {
+     "theme": 4,
+     "order": 2,
+     "title": "Systems of Government and Democracy",
+     "type": "bar",
+     "questions": [
+      "T04_Q2"
+     ],
+     "comparison": "country",
+     "slide": 17,
+     "caveat": null,
+     "showing": null
+    },
+    {
+     "theme": 4,
+     "order": 3,
+     "title": "What makes up an African-Style Democracy?",
+     "type": "hbar",
+     "questions": [
+      "T04_Q3"
+     ],
+     "comparison": "none",
+     "slide": 18,
+     "caveat": null,
+     "showing": null
+    }
+   ]
+  },
+  {
+   "name": "Safety, Security and Extremism",
+   "slug": "safety-security-and-extremism",
+   "order": 5,
+   "accent": "#6dbf67",
+   "questions": [
+    "T05_Q1",
+    "T05_Q2",
+    "T05_Q3",
+    "T05_Q4",
+    "T05_Q5"
+   ],
+   "charts": [
+    {
+     "theme": 5,
+     "order": 1,
+     "title": "Feeling of Safety in Country Today",
+     "type": "pie",
+     "questions": [
+      "T05_Q1"
+     ],
+     "comparison": "none",
+     "slide": 20,
+     "caveat": null,
+     "showing": "Showing % selecting ‘Very safe’ or ‘Somewhat safe’"
+    },
+    {
+     "theme": 5,
+     "order": 2,
+     "title": "Victim of a Crime in the Past Five Years",
+     "type": "bar",
+     "questions": [
+      "T05_Q2"
+     ],
+     "comparison": "country",
+     "slide": 21,
+     "caveat": null,
+     "showing": "Showing % selecting ‘Yes’"
+    },
+    {
+     "theme": 5,
+     "order": 3,
+     "title": "Concern about Asylum and Immigration",
+     "type": "line",
+     "questions": [
+      "T05_Q3",
+      "T05_Q4"
+     ],
+     "comparison": "tracked",
+     "slide": 22,
+     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries",
+     "showing": null
+    },
+    {
+     "theme": 5,
+     "order": 4,
+     "title": "Confidence in Government to Deal with Terrorism, Insurgency, and Armed Conflict",
+     "type": "pie",
+     "questions": [
+      "T05_Q5"
+     ],
+     "comparison": "tracked",
+     "slide": 23,
+     "caveat": "Comparing only countries asked in both 2022,2024 and 2026, so figures will differ slightly to the 2026 overall figure which contains 6 additional countries",
+     "showing": "Showing % selecting ‘Very confident’ or ‘Somewhat confident’"
+    }
+   ]
+  },
+  {
+   "name": "Identity and Emigration",
+   "slug": "identity-and-emigration",
+   "order": 6,
+   "accent": "#1f2337",
+   "questions": [
+    "T06_Q1",
+    "T06_Q2"
+   ],
+   "charts": [
+    {
+     "theme": 6,
+     "order": 1,
+     "title": "Likelihood to Emigrate",
+     "type": "stacked",
+     "questions": [
+      "T06_Q1"
+     ],
+     "comparison": "tracked",
+     "slide": 25,
+     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
+     "showing": null
+    },
+    {
+     "theme": 6,
+     "order": 2,
+     "title": "Temporary vs Permanent Emigration",
+     "type": "stacked",
+     "questions": [
+      "T06_Q1"
+     ],
+     "comparison": "tracked",
+     "slide": 26,
+     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
+     "showing": null
+    },
+    {
+     "theme": 6,
+     "order": 3,
+     "title": "Key Reasons to Emigrate",
+     "type": "hbar",
+     "questions": [
+      "T06_Q2"
+     ],
+     "comparison": "tracked",
+     "slide": 27,
+     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
+     "showing": null
+    }
+   ]
+  },
+  {
+   "name": "Identity and Social Justice",
+   "slug": "identity-and-social-justice",
+   "order": 7,
+   "accent": "#f1676a",
+   "questions": [
+    "T07_Q1",
+    "T07_Q2",
+    "T07_Q3"
+   ],
+   "charts": [
+    {
+     "theme": 7,
+     "order": 1,
+     "title": "Equality before the Law",
+     "type": "pie",
+     "questions": [
+      "T07_Q1"
+     ],
+     "comparison": "tracked",
+     "slide": 29,
+     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
+     "showing": "Showing % selecting ‘Strongly disagree’ or ‘Somewhat disagree’"
+    },
+    {
+     "theme": 7,
+     "order": 2,
+     "title": "Respectful Treatment by Police and Security Services",
+     "type": "bar",
+     "questions": [
+      "T07_Q2"
+     ],
+     "comparison": "tracked",
+     "slide": 30,
+     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
+     "showing": "Showing % selecting ‘Strongly agree’"
+    },
+    {
+     "theme": 7,
+     "order": 3,
+     "title": "My Country Should do More to Protect Ethnic Minorities",
+     "type": "line",
+     "questions": [
+      "T07_Q3"
+     ],
+     "comparison": "tracked",
+     "slide": 31,
+     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
+     "showing": null
+    }
+   ]
+  },
+  {
+   "name": "Connected Africa",
+   "slug": "connected-africa",
+   "order": 8,
+   "accent": "#0a734d",
+   "questions": [
+    "T08_Q1",
+    "T08_Q2",
+    "T08_Q3",
+    "T08_Q4",
+    "T08_Q5"
+   ],
+   "charts": [
+    {
+     "theme": 8,
+     "order": 1,
+     "title": "Internet Access",
+     "type": "line",
+     "questions": [
+      "T08_Q1",
+      "T08_Q2"
+     ],
+     "comparison": "tracked",
+     "slide": 33,
+     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
+     "showing": null
+    },
+    {
+     "theme": 8,
+     "order": 2,
+     "title": "Mobile Data Coverage",
+     "type": "bar",
+     "questions": [
+      "T08_Q3",
+      "T08_Q4"
+     ],
+     "comparison": "country",
+     "slide": 34,
+     "caveat": null,
+     "showing": null
+    },
+    {
+     "theme": 8,
+     "order": 3,
+     "title": "Support for banning social media use for 16yrs and under",
+     "type": "pie",
+     "questions": [
+      "T08_Q5"
+     ],
+     "comparison": "none",
+     "slide": 35,
+     "caveat": null,
+     "showing": null
+    }
+   ]
+  },
+  {
+   "name": "News, Trust and the Fake News Crisis",
+   "slug": "news-trust-and-the-fake-news-crisis",
+   "order": 9,
+   "accent": "#fec648",
+   "questions": [
+    "T09_Q1",
+    "T09_Q2",
+    "T09_Q3"
+   ],
+   "charts": [
+    {
+     "theme": 9,
+     "order": 1,
+     "title": "News Sources",
+     "type": "line",
+     "questions": [
+      "T09_Q1"
+     ],
+     "comparison": "tracked",
+     "slide": 37,
+     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries | Instagram, Telegram and AI added in 2026, so tracking data not available",
+     "showing": null
+    },
+    {
+     "theme": 9,
+     "order": 2,
+     "title": "Encountering fake news",
+     "type": "bar",
+     "questions": [
+      "T09_Q2"
+     ],
+     "comparison": "tracked",
+     "slide": 38,
+     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
+     "showing": null
+    },
+    {
+     "theme": 9,
+     "order": 3,
+     "title": "Impact of Fake News on Society",
+     "type": "hbar",
+     "questions": [
+      "T09_Q3"
+     ],
+     "comparison": "none",
+     "slide": 39,
+     "caveat": "Tracked data not shown due to changes in statements in 2026",
+     "showing": "Showing % selecting ‘Strongly agree’ or ‘Somewhat agree’"
+    }
+   ]
+  },
+  {
+   "name": "Government Satisfaction",
+   "slug": "government-satisfaction",
+   "order": 10,
+   "accent": "#60cbee",
+   "questions": [
+    "T10_Q1",
+    "T10_Q2",
+    "T10_Q3",
+    "T10_Q4"
+   ],
+   "charts": [
+    {
+     "theme": 10,
+     "order": 1,
+     "title": "Expected Quality of Life",
+     "type": "line",
+     "questions": [
+      "T10_Q1",
+      "T10_Q2",
+      "T10_Q3"
+     ],
+     "comparison": "tracked",
+     "slide": 41,
+     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
+     "showing": "Showing % selecting ‘I will have a better"
+    },
+    {
+     "theme": 10,
+     "order": 2,
+     "title": "Current Standard of Living",
+     "type": "bar",
+     "questions": [
+      "T10_Q1"
+     ],
+     "comparison": "country",
+     "slide": 42,
+     "caveat": null,
+     "showing": "Showing % selecting ‘Very good’ or ‘Good’"
+    },
+    {
+     "theme": 10,
+     "order": 3,
+     "title": "Satisfaction with national government performance",
+     "type": "bar",
+     "questions": [
+      "T10_Q4"
+     ],
+     "comparison": "none",
+     "slide": 43,
+     "caveat": null,
+     "showing": null
+    }
+   ]
+  },
+  {
+   "name": "Climate Change",
+   "slug": "climate-change",
+   "order": 11,
+   "accent": "#6dbf67",
+   "questions": [
+    "T11_Q1",
+    "T11_Q2",
+    "T11_Q3"
+   ],
+   "charts": [
+    {
+     "theme": 11,
+     "order": 1,
+     "title": "Concern about Climate Change",
+     "type": "line",
+     "questions": [
+      "T11_Q1",
+      "T10_Q4"
+     ],
+     "comparison": "tracked",
+     "slide": 45,
+     "caveat": "Comparing only countries asked in 2020, 2022 and 2024, so figures will differ slightly to the 2024 overall figure which contains 6 additional countries",
+     "showing": null
+    },
+    {
+     "theme": 11,
+     "order": 2,
+     "title": "Government efforts when addressing climate change",
+     "type": "stacked",
+     "questions": [
+      "T11_Q2"
+     ],
+     "comparison": "tracked",
+     "slide": 46,
+     "caveat": "Question not asked in 2020 or 2022 | Comparing only the eight countries asked in 2024 and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries",
+     "showing": null
+    },
+    {
+     "theme": 11,
+     "order": 3,
+     "title": "Government priorities to adapt to environmental changes",
+     "type": "hbar",
+     "questions": [
+      "T11_Q3"
+     ],
+     "comparison": "none",
+     "slide": 47,
+     "caveat": null,
+     "showing": null
+    }
+   ]
+  },
+  {
+   "name": "Environmental Realities",
+   "slug": "environmental-realities",
+   "order": 12,
+   "accent": "#e82d4e",
+   "questions": [
+    "T12_Q1",
+    "T12_Q2",
+    "T12_Q3",
+    "T12_Q4"
+   ],
+   "charts": [
+    {
+     "theme": 12,
+     "order": 1,
+     "title": "Concern with Environmental Challenges",
+     "type": "pie",
+     "questions": [
+      "T12_Q1"
+     ],
+     "comparison": "none",
+     "slide": 49,
+     "caveat": null,
+     "showing": null
+    },
+    {
+     "theme": 12,
+     "order": 2,
+     "title": "Satisfaction with Recycling",
+     "type": "bar",
+     "questions": [
+      "T12_Q2"
+     ],
+     "comparison": "country",
+     "slide": 50,
+     "caveat": null,
+     "showing": null
+    },
+    {
+     "theme": 12,
+     "order": 3,
+     "title": "Satisfaction with Water and Sanitation",
+     "type": "bar",
+     "questions": [
+      "T12_Q3"
+     ],
+     "comparison": "country",
+     "slide": 51,
+     "caveat": null,
+     "showing": null
+    },
+    {
+     "theme": 12,
+     "order": 4,
+     "title": "Community Reliance on Exploiting Resources",
+     "type": "bar",
+     "questions": [
+      "T12_Q4"
+     ],
+     "comparison": "country",
+     "slide": 52,
+     "caveat": null,
+     "showing": "Showing % selecting ‘Strongly agree’ or ‘Somewhat agree’"
+    }
+   ]
+  }
+ ],
+ "questions": [
+  {
+   "code": "T01_Q1",
+   "theme": 1,
+   "text": "First off, please think about the last five years: In general, do you think things are going in the right direction, or are they going in the wrong direction in Africa?",
+   "label": "African Continent Direction",
+   "order": 1,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 3"
+  },
+  {
+   "code": "T01_Q2",
+   "theme": 1,
+   "text": "Which of the following adjectives would you use to describe how you feel about the future of your country?",
+   "label": "Optimism and Excitement Towards Future",
+   "order": 2,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 4"
+  },
+  {
+   "code": "T01_Q3",
+   "theme": 1,
+   "text": "Which of the following events or developments that took place in the last 5 years in your view has had the biggest impact on Africa?",
+   "label": "Most Impactful Event of Last 5 years",
+   "order": 3,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 5"
+  },
+  {
+   "code": "T01_Q4",
+   "theme": 1,
+   "text": "Now thinking about the next 5 years, which of the following, if any, are the most important things necessary for the AFRICAN CONTINENT to progress and move forward? Please choose up to two.",
+   "label": "Most Important things for Africa to progress",
+   "order": 4,
+   "responseType": "multi",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 6"
+  },
+  {
+   "code": "T02_Q1",
+   "theme": 2,
+   "text": "Next, please tell me how concerned you are about each of the following issues...[Influence from Foreign Powers]",
+   "label": "Concern with the Influence from Foreign Powers",
+   "order": 1,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 8"
+  },
+  {
+   "code": "T02_Q2",
+   "theme": 2,
+   "text": "Which statement is closer to your view? The world is becoming more divided and dangerous; The world is becoming more cooperative",
+   "label": "World Direction",
+   "order": 2,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 9"
+  },
+  {
+   "code": "T02_Q3",
+   "theme": 2,
+   "text": "How much influence, if any at all, do you think each of the following countries or organisations have on your country?",
+   "label": "Influence of Foreign Countries",
+   "order": 3,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 10"
+  },
+  {
+   "code": "T03_Q1",
+   "theme": 3,
+   "text": "And would you say the influence of each of the following countries or organisations on your country is positive or negative? [Among those that said they had influence]",
+   "label": "Positive Influence of Foreign Organisations",
+   "order": 1,
+   "responseType": "single",
+   "baseType": "filtered",
+   "baseText": "Among those that said they had influence",
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 13"
+  },
+  {
+   "code": "T03_Q2",
+   "theme": 3,
+   "text": "And which of the following are more important for the UN to focus on in your country over the next five years?",
+   "label": "Areas of Focus for the UN in Your Country",
+   "order": 2,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 14"
+  },
+  {
+   "code": "T04_Q1",
+   "theme": 4,
+   "text": "Which of the following statements do you agree with more?",
+   "label": "Systems of Government and Democracy",
+   "order": 1,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 16"
+  },
+  {
+   "code": "T04_Q2",
+   "theme": 4,
+   "text": "Which of the following is more important to you?",
+   "label": "Systems of Government and Democracy",
+   "order": 2,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 17"
+  },
+  {
+   "code": "T04_Q3",
+   "theme": 4,
+   "text": "When you think of an ‘African-style democracy’, which of the following matter most to you? Please select up to 3",
+   "label": "What makes up an African-Style Democracy?",
+   "order": 3,
+   "responseType": "multi",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 18"
+  },
+  {
+   "code": "T05_Q1",
+   "theme": 5,
+   "text": "Overall, how safe do you feel in your country today?",
+   "label": "Feeling of Safety in Country Today",
+   "order": 1,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 20"
+  },
+  {
+   "code": "T05_Q2",
+   "theme": 5,
+   "text": "Have you or someone in your immediate family been the victim of a crime in the past five years?",
+   "label": "Victim of a Crime in the Past Five Years",
+   "order": 2,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 21"
+  },
+  {
+   "code": "T05_Q3",
+   "theme": 5,
+   "text": "Next, please tell me how concerned you are about each of the following issues... [Asylum and immigration]",
+   "label": "Concern about Asylum and Immigration",
+   "order": 3,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 22"
+  },
+  {
+   "code": "T05_Q4",
+   "theme": 5,
+   "text": "How satisfied are you with your national government’s performance on each of the following? [Limiting illegal immigration into the country]",
+   "label": "Concern about Asylum and Immigration",
+   "order": 4,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 22"
+  },
+  {
+   "code": "T05_Q5",
+   "theme": 5,
+   "text": "How confident are you in the government’s ability to deal with terrorism, insurgency, and armed conflict?",
+   "label": "Confidence in Government to Deal with Terrorism, Insurgency, and Armed Conflict",
+   "order": 5,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 23"
+  },
+  {
+   "code": "T06_Q1",
+   "theme": 6,
+   "text": "If you were to emigrate, would you be leaving your country… [Among those ‘Very Likely’ / ‘Somewhat Likely’ / ‘Not so likely’ to emigrate in the next 3 years]",
+   "label": "Likelihood to Emigrate",
+   "order": 1,
+   "responseType": "single",
+   "baseType": "filtered",
+   "baseText": "Among those ‘Very Likely’ / ‘Somewhat Likely’ / ‘Not so likely’ to emigrate in the next 3 years",
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 25"
+  },
+  {
+   "code": "T06_Q2",
+   "theme": 6,
+   "text": "Which of the following, if any, are the main reasons why you might consider emigrating to another country? Please select up to two",
+   "label": "Key Reasons to Emigrate",
+   "order": 2,
+   "responseType": "multi",
+   "baseType": "filtered",
+   "baseText": "Among those ‘Very likely’, Somewhat likely’ or ‘Not so likely’ to emigrate",
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 27"
+  },
+  {
+   "code": "T07_Q1",
+   "theme": 7,
+   "text": "To what extend do you agree or disagree with the following questions? [In my country, everyone is equal before the law]",
+   "label": "Equality before the Law",
+   "order": 1,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 29"
+  },
+  {
+   "code": "T07_Q2",
+   "theme": 7,
+   "text": "To what extend do you agree or disagree with the following questions? [I am treated fairly and with respect by the police and security services]",
+   "label": "Respectful Treatment by Police and Security Services",
+   "order": 2,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 30"
+  },
+  {
+   "code": "T07_Q3",
+   "theme": 7,
+   "text": "To what extend do you agree or disagree with the following questions?",
+   "label": "My Country Should do More to Protect Ethnic Minorities",
+   "order": 3,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 31"
+  },
+  {
+   "code": "T08_Q1",
+   "theme": 8,
+   "text": "Do you have regular, private access to the internet (i.e. workplace excluded)?",
+   "label": "Internet Access",
+   "order": 1,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 33"
+  },
+  {
+   "code": "T08_Q2",
+   "theme": 8,
+   "text": "Generally speaking, how satisfied are you with the following public services and infrastructure in your country? [Telecommunications and Data Networks]",
+   "label": "Internet Access",
+   "order": 2,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 33"
+  },
+  {
+   "code": "T08_Q3",
+   "theme": 8,
+   "text": "What is your opinion about the amount you pay for mobile data coverage?",
+   "label": "Mobile Data Coverage",
+   "order": 3,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 34"
+  },
+  {
+   "code": "T08_Q4",
+   "theme": 8,
+   "text": "In a given month, would you say…?",
+   "label": "Mobile Data Coverage",
+   "order": 4,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 34"
+  },
+  {
+   "code": "T08_Q5",
+   "theme": 8,
+   "text": "If your government proposed a ban on the use of social media by those aged 16 or under, would you…?",
+   "label": "Support for banning social media use for 16yrs and under",
+   "order": 5,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 35"
+  },
+  {
+   "code": "T09_Q1",
+   "theme": 9,
+   "text": "Where do you get your news? Please select all that apply",
+   "label": "News Sources",
+   "order": 1,
+   "responseType": "multi",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 37"
+  },
+  {
+   "code": "T09_Q2",
+   "theme": 9,
+   "text": "To the best of your knowledge, how often do you come across a fake news story?",
+   "label": "Encountering fake news",
+   "order": 2,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 38"
+  },
+  {
+   "code": "T09_Q3",
+   "theme": 9,
+   "text": "To what extent do you agree or disagree with each of the following statements about fake news?",
+   "label": "Impact of Fake News on Society",
+   "order": 3,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 39"
+  },
+  {
+   "code": "T10_Q1",
+   "theme": 10,
+   "text": "How would you describe your personal standard of living at present?",
+   "label": "Expected Quality of Life",
+   "order": 1,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 41"
+  },
+  {
+   "code": "T10_Q2",
+   "theme": 10,
+   "text": "And do you think your personal standard of living over the next two years will get better, get worse, or do you think it will stay the same?",
+   "label": "Expected Quality of Life",
+   "order": 2,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 41"
+  },
+  {
+   "code": "T10_Q3",
+   "theme": 10,
+   "text": "Which of the following is closer to your view? I will have a…",
+   "label": "Expected Quality of Life",
+   "order": 3,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 41"
+  },
+  {
+   "code": "T10_Q4",
+   "theme": 10,
+   "text": "How satisfied are you with your national government’s performance on each of the following?",
+   "label": "Satisfaction with national government performance",
+   "order": 4,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 43"
+  },
+  {
+   "code": "T11_Q1",
+   "theme": 11,
+   "text": "Next, please tell me how concerned you are about each of the following issues...",
+   "label": "Concern about Climate Change",
+   "order": 1,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 45"
+  },
+  {
+   "code": "T11_Q2",
+   "theme": 11,
+   "text": "Which of the following is closer to your opinion? When addressing climate change, my government’s efforts should be…",
+   "label": "Government efforts when addressing climate change",
+   "order": 2,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 46"
+  },
+  {
+   "code": "T11_Q3",
+   "theme": 11,
+   "text": "Which of the following should the government prioritise to help people in your country adapt to environmental changes? Please select up to three",
+   "label": "Government priorities to adapt to environmental changes",
+   "order": 3,
+   "responseType": "multi",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 47"
+  },
+  {
+   "code": "T12_Q1",
+   "theme": 12,
+   "text": "Next, please tell me how concerned you are about each of the following issues... ?",
+   "label": "Concern with Environmental Challenges",
+   "order": 1,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 49"
+  },
+  {
+   "code": "T12_Q2",
+   "theme": 12,
+   "text": "Generally speaking, how satisfied are you with the following public services and infrastructure in your country? [Recycling]",
+   "label": "Satisfaction with Recycling",
+   "order": 2,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 50"
+  },
+  {
+   "code": "T12_Q3",
+   "theme": 12,
+   "text": "Generally speaking, how satisfied are you with the following public services and infrastructure in your country? [Water and sanitation]",
+   "label": "Satisfaction with Water and Sanitation",
+   "order": 3,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 51"
+  },
+  {
+   "code": "T12_Q4",
+   "theme": 12,
+   "text": "How far do you agree or disagree with the following statement: My community relies on money or food from exploiting resources such as wildlife, timber, medicinal plants or minerals, to supplement our income",
+   "label": "Community Reliance on Exploiting Resources",
+   "order": 4,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 52"
+  }
+ ],
+ "charts": [
+  {
+   "theme": 1,
+   "order": 1,
+   "title": "African Continent Direction",
+   "type": "line",
+   "questions": [
+    "T01_Q1"
+   ],
+   "comparison": "tracked",
+   "slide": 3,
+   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries",
+   "showing": null
+  },
+  {
+   "theme": 1,
+   "order": 2,
+   "title": "Optimism and Excitement Towards Future",
+   "type": "bar",
+   "questions": [
+    "T01_Q2"
+   ],
+   "comparison": "country",
+   "slide": 4,
+   "caveat": null,
+   "showing": "Showing % selecting ‘Optimistic’ + ‘Excited’"
+  },
+  {
+   "theme": 1,
+   "order": 3,
+   "title": "Most Impactful Event of Last 5 years",
+   "type": "hbar",
+   "questions": [
+    "T01_Q3"
+   ],
+   "comparison": "none",
+   "slide": 5,
+   "caveat": "Not showing tracked data due to change in answer choices asked",
+   "showing": null
+  },
+  {
+   "theme": 1,
+   "order": 4,
+   "title": "Most Important things for Africa to progress",
+   "type": "hbar",
+   "questions": [
+    "T01_Q4"
+   ],
+   "comparison": "tracked",
+   "slide": 6,
+   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries",
+   "showing": "Showing Top 10 for 2026"
+  },
+  {
+   "theme": 2,
+   "order": 1,
+   "title": "Concern with the Influence from Foreign Powers",
+   "type": "line",
+   "questions": [
+    "T02_Q1"
+   ],
+   "comparison": "tracked",
+   "slide": 8,
+   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries",
+   "showing": null
+  },
+  {
+   "theme": 2,
+   "order": 2,
+   "title": "World Direction",
+   "type": "bar",
+   "questions": [
+    "T02_Q2"
+   ],
+   "comparison": "country",
+   "slide": 9,
+   "caveat": null,
+   "showing": null
+  },
+  {
+   "theme": 2,
+   "order": 3,
+   "title": "Influence of Foreign Countries",
+   "type": "bar",
+   "questions": [
+    "T02_Q3"
+   ],
+   "comparison": "tracked",
+   "slide": 10,
+   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries. | Country added in 2026",
+   "showing": "Showing % selecting ‘A lot of influence’ + ‘Some influence’"
+  },
+  {
+   "theme": 3,
+   "order": 1,
+   "title": "Influence of Foreign Organisations",
+   "type": "bar",
+   "questions": [
+    "T02_Q3"
+   ],
+   "comparison": "tracked",
+   "slide": 12,
+   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries. | Organisation added in 2026",
+   "showing": "Showing % selecting ‘A lot of influence’ + ‘Some influence’"
+  },
+  {
+   "theme": 3,
+   "order": 2,
+   "title": "Positive Influence of Foreign Organisations",
+   "type": "bar",
+   "questions": [
+    "T03_Q1"
+   ],
+   "comparison": "tracked",
+   "slide": 13,
+   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries; organisations ranked by percentage of influence | Organisation added in 2026",
+   "showing": "Showing % selecting ‘Very positive’ + ‘Somewhat positive’"
+  },
+  {
+   "theme": 3,
+   "order": 3,
+   "title": "Areas of Focus for the UN in Your Country",
+   "type": "hbar",
+   "questions": [
+    "T03_Q2"
+   ],
+   "comparison": "none",
+   "slide": 14,
+   "caveat": null,
+   "showing": null
+  },
+  {
+   "theme": 4,
+   "order": 1,
+   "title": "Systems of Government and Democracy",
+   "type": "line",
+   "questions": [
+    "T04_Q1"
+   ],
+   "comparison": "tracked",
+   "slide": 16,
+   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries",
+   "showing": null
+  },
+  {
+   "theme": 4,
+   "order": 2,
+   "title": "Systems of Government and Democracy",
+   "type": "bar",
+   "questions": [
+    "T04_Q2"
+   ],
+   "comparison": "country",
+   "slide": 17,
+   "caveat": null,
+   "showing": null
+  },
+  {
+   "theme": 4,
+   "order": 3,
+   "title": "What makes up an African-Style Democracy?",
+   "type": "hbar",
+   "questions": [
+    "T04_Q3"
+   ],
+   "comparison": "none",
+   "slide": 18,
+   "caveat": null,
+   "showing": null
+  },
+  {
+   "theme": 5,
+   "order": 1,
+   "title": "Feeling of Safety in Country Today",
+   "type": "pie",
+   "questions": [
+    "T05_Q1"
+   ],
+   "comparison": "none",
+   "slide": 20,
+   "caveat": null,
+   "showing": "Showing % selecting ‘Very safe’ or ‘Somewhat safe’"
+  },
+  {
+   "theme": 5,
+   "order": 2,
+   "title": "Victim of a Crime in the Past Five Years",
+   "type": "bar",
+   "questions": [
+    "T05_Q2"
+   ],
+   "comparison": "country",
+   "slide": 21,
+   "caveat": null,
+   "showing": "Showing % selecting ‘Yes’"
+  },
+  {
+   "theme": 5,
+   "order": 3,
+   "title": "Concern about Asylum and Immigration",
+   "type": "line",
+   "questions": [
+    "T05_Q3",
+    "T05_Q4"
+   ],
+   "comparison": "tracked",
+   "slide": 22,
+   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries",
+   "showing": null
+  },
+  {
+   "theme": 5,
+   "order": 4,
+   "title": "Confidence in Government to Deal with Terrorism, Insurgency, and Armed Conflict",
+   "type": "pie",
+   "questions": [
+    "T05_Q5"
+   ],
+   "comparison": "tracked",
+   "slide": 23,
+   "caveat": "Comparing only countries asked in both 2022,2024 and 2026, so figures will differ slightly to the 2026 overall figure which contains 6 additional countries",
+   "showing": "Showing % selecting ‘Very confident’ or ‘Somewhat confident’"
+  },
+  {
+   "theme": 6,
+   "order": 1,
+   "title": "Likelihood to Emigrate",
+   "type": "stacked",
+   "questions": [
+    "T06_Q1"
+   ],
+   "comparison": "tracked",
+   "slide": 25,
+   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
+   "showing": null
+  },
+  {
+   "theme": 6,
+   "order": 2,
+   "title": "Temporary vs Permanent Emigration",
+   "type": "stacked",
+   "questions": [
+    "T06_Q1"
+   ],
+   "comparison": "tracked",
+   "slide": 26,
+   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
+   "showing": null
+  },
+  {
+   "theme": 6,
+   "order": 3,
+   "title": "Key Reasons to Emigrate",
+   "type": "hbar",
+   "questions": [
+    "T06_Q2"
+   ],
+   "comparison": "tracked",
+   "slide": 27,
+   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
+   "showing": null
+  },
+  {
+   "theme": 7,
+   "order": 1,
+   "title": "Equality before the Law",
+   "type": "pie",
+   "questions": [
+    "T07_Q1"
+   ],
+   "comparison": "tracked",
+   "slide": 29,
+   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
+   "showing": "Showing % selecting ‘Strongly disagree’ or ‘Somewhat disagree’"
+  },
+  {
+   "theme": 7,
+   "order": 2,
+   "title": "Respectful Treatment by Police and Security Services",
+   "type": "bar",
+   "questions": [
+    "T07_Q2"
+   ],
+   "comparison": "tracked",
+   "slide": 30,
+   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
+   "showing": "Showing % selecting ‘Strongly agree’"
+  },
+  {
+   "theme": 7,
+   "order": 3,
+   "title": "My Country Should do More to Protect Ethnic Minorities",
+   "type": "line",
+   "questions": [
+    "T07_Q3"
+   ],
+   "comparison": "tracked",
+   "slide": 31,
+   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
+   "showing": null
+  },
+  {
+   "theme": 8,
+   "order": 1,
+   "title": "Internet Access",
+   "type": "line",
+   "questions": [
+    "T08_Q1",
+    "T08_Q2"
+   ],
+   "comparison": "tracked",
+   "slide": 33,
+   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
+   "showing": null
+  },
+  {
+   "theme": 8,
+   "order": 2,
+   "title": "Mobile Data Coverage",
+   "type": "bar",
+   "questions": [
+    "T08_Q3",
+    "T08_Q4"
+   ],
+   "comparison": "country",
+   "slide": 34,
+   "caveat": null,
+   "showing": null
+  },
+  {
+   "theme": 8,
+   "order": 3,
+   "title": "Support for banning social media use for 16yrs and under",
+   "type": "pie",
+   "questions": [
+    "T08_Q5"
+   ],
+   "comparison": "none",
+   "slide": 35,
+   "caveat": null,
+   "showing": null
+  },
+  {
+   "theme": 9,
+   "order": 1,
+   "title": "News Sources",
+   "type": "line",
+   "questions": [
+    "T09_Q1"
+   ],
+   "comparison": "tracked",
+   "slide": 37,
+   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries | Instagram, Telegram and AI added in 2026, so tracking data not available",
+   "showing": null
+  },
+  {
+   "theme": 9,
+   "order": 2,
+   "title": "Encountering fake news",
+   "type": "bar",
+   "questions": [
+    "T09_Q2"
+   ],
+   "comparison": "tracked",
+   "slide": 38,
+   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
+   "showing": null
+  },
+  {
+   "theme": 9,
+   "order": 3,
+   "title": "Impact of Fake News on Society",
+   "type": "hbar",
+   "questions": [
+    "T09_Q3"
+   ],
+   "comparison": "none",
+   "slide": 39,
+   "caveat": "Tracked data not shown due to changes in statements in 2026",
+   "showing": "Showing % selecting ‘Strongly agree’ or ‘Somewhat agree’"
+  },
+  {
+   "theme": 10,
+   "order": 1,
+   "title": "Expected Quality of Life",
+   "type": "line",
+   "questions": [
+    "T10_Q1",
+    "T10_Q2",
+    "T10_Q3"
+   ],
+   "comparison": "tracked",
+   "slide": 41,
+   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
+   "showing": "Showing % selecting ‘I will have a better"
+  },
+  {
+   "theme": 10,
+   "order": 2,
+   "title": "Current Standard of Living",
+   "type": "bar",
+   "questions": [
+    "T10_Q1"
+   ],
+   "comparison": "country",
+   "slide": 42,
+   "caveat": null,
+   "showing": "Showing % selecting ‘Very good’ or ‘Good’"
+  },
+  {
+   "theme": 10,
+   "order": 3,
+   "title": "Satisfaction with national government performance",
+   "type": "bar",
+   "questions": [
+    "T10_Q4"
+   ],
+   "comparison": "none",
+   "slide": 43,
+   "caveat": null,
+   "showing": null
+  },
+  {
+   "theme": 11,
+   "order": 1,
+   "title": "Concern about Climate Change",
+   "type": "line",
+   "questions": [
+    "T11_Q1",
+    "T10_Q4"
+   ],
+   "comparison": "tracked",
+   "slide": 45,
+   "caveat": "Comparing only countries asked in 2020, 2022 and 2024, so figures will differ slightly to the 2024 overall figure which contains 6 additional countries",
+   "showing": null
+  },
+  {
+   "theme": 11,
+   "order": 2,
+   "title": "Government efforts when addressing climate change",
+   "type": "stacked",
+   "questions": [
+    "T11_Q2"
+   ],
+   "comparison": "tracked",
+   "slide": 46,
+   "caveat": "Question not asked in 2020 or 2022 | Comparing only the eight countries asked in 2024 and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries",
+   "showing": null
+  },
+  {
+   "theme": 11,
+   "order": 3,
+   "title": "Government priorities to adapt to environmental changes",
+   "type": "hbar",
+   "questions": [
+    "T11_Q3"
+   ],
+   "comparison": "none",
+   "slide": 47,
+   "caveat": null,
+   "showing": null
+  },
+  {
+   "theme": 12,
+   "order": 1,
+   "title": "Concern with Environmental Challenges",
+   "type": "pie",
+   "questions": [
+    "T12_Q1"
+   ],
+   "comparison": "none",
+   "slide": 49,
+   "caveat": null,
+   "showing": null
+  },
+  {
+   "theme": 12,
+   "order": 2,
+   "title": "Satisfaction with Recycling",
+   "type": "bar",
+   "questions": [
+    "T12_Q2"
+   ],
+   "comparison": "country",
+   "slide": 50,
+   "caveat": null,
+   "showing": null
+  },
+  {
+   "theme": 12,
+   "order": 3,
+   "title": "Satisfaction with Water and Sanitation",
+   "type": "bar",
+   "questions": [
+    "T12_Q3"
+   ],
+   "comparison": "country",
+   "slide": 51,
+   "caveat": null,
+   "showing": null
+  },
+  {
+   "theme": 12,
+   "order": 4,
+   "title": "Community Reliance on Exploiting Resources",
+   "type": "bar",
+   "questions": [
+    "T12_Q4"
+   ],
+   "comparison": "country",
+   "slide": 52,
+   "caveat": null,
+   "showing": "Showing % selecting ‘Strongly agree’ or ‘Somewhat agree’"
+  }
+ ]
+}
