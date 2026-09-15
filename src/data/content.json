@@ -80,7 +80,9 @@
    "name": "Côte d'Ivoire",
    "iso3": "CIV",
    "region": null,
-   "waves": []
+   "waves": [
+    2024
+   ]
   },
   {
    "name": "DRC",

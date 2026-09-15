@@ -11,7 +11,7 @@ import { countries, inWave, waves, type Country } from '../content';
 import type { Filters } from '../model';
 
 export const REGIONS: Record<string, string[]> = {
-  'West Africa': ['Benin', 'Burkina Faso', 'Côte d Ivoire', 'Ivory Coast', 'Gambia', 'Ghana', 'Guinea', 'Liberia', 'Mali', 'Mauritania', 'Niger', 'Nigeria', 'Senegal', 'Sierra Leone', 'Togo'],
+  'West Africa': ['Benin', 'Burkina Faso', "Côte d'Ivoire", 'Gambia', 'Ghana', 'Guinea', 'Liberia', 'Mali', 'Mauritania', 'Niger', 'Nigeria', 'Senegal', 'Sierra Leone', 'Togo'],
   'East Africa': ['Burundi', 'Djibouti', 'Eritrea', 'Ethiopia', 'Kenya', 'Rwanda', 'Somalia', 'South Sudan', 'Sudan', 'Tanzania', 'Uganda'],
   'Central Africa': ['Angola', 'Cameroon', 'Central African Republic', 'Chad', 'Congo Brazzaville', 'DRC', 'Equatorial Guinea', 'Gabon'],
   'Southern Africa': ['Botswana', 'Eswatini', 'Lesotho', 'Madagascar', 'Malawi', 'Mauritius', 'Mozambique', 'Namibia', 'South Africa', 'Zambia', 'Zimbabwe'],
