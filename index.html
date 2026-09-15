@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>AfYS Data Portal — prototype</title>
+    <!-- The two faces the approved prototype uses. Lifted from the deployed
+         stylesheet so round zero reads as the same product, not a redesign. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Instrument+Serif&display=swap"
+    />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div class="illustrative-banner" role="note">
+      <strong>Illustrative prototype.</strong> Every figure on this site is
+      generated for layout purposes. None of it is a survey result.
+    </div>
+    <header class="site-header">
+      <a class="wordmark" href="#/"><span class="dot"></span>African Youth Survey</a>
+      <nav class="site-nav">
+        <a href="#/">Themes</a>
+        <a href="#/explore">Explore</a>
+        <a href="#/methodology">Methodology</a>
+        <span class="wave-pill"><span class="dot"></span>Wave <strong>2026</strong></span>
+      </nav>
+    </header>
+    <main id="view" tabindex="-1"></main>
+    <footer class="site-footer">
+      <p>Ichikowitz Family Foundation · fielded by PSB Insights</p>
+      <p>Round-zero prototype. Structure from the Portal Content deck; figures illustrative.</p>
+    </footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
