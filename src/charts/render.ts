@@ -283,6 +283,8 @@ export function renderFigure(
   figure.append(head);
 
   let chart: Chart | undefined;
+  let canvas: HTMLCanvasElement | undefined;
+  let kindForChart: ChartType | undefined;
 
   if (kind === 'table') {
     const only = table(model);
@@ -292,20 +294,13 @@ export function renderFigure(
   } else {
     const canvasWrap = document.createElement('div');
     canvasWrap.className = kind === 'map' ? 'canvas canvas-map' : 'canvas';
-    const canvas = document.createElement('canvas');
+    canvas = document.createElement('canvas');
     canvas.setAttribute('role', 'img');
     canvas.setAttribute('aria-label', summarise(model, kind));
     canvasWrap.append(canvas);
     figure.append(canvasWrap);
-
-    if (kind === 'map') {
-      void mapConfig(model, accent).then((config) => {
-        chart = new Chart(canvas, config);
-      });
-    } else {
-      chart = new Chart(canvas, baseConfig(model, kind));
-    }
     figure.append(table(model));
+    kindForChart = kind;
   }
 
   for (const note of notes(model)) {
@@ -315,6 +310,22 @@ export function renderFigure(
     figure.append(p);
   }
 
+  // Attach before drawing. A responsive Chart.js chart measures its container at
+  // construction, and a detached container has no size — so the chart renders at
+  // a fallback size, or not at all, and only corrects itself if a ResizeObserver
+  // happens to fire afterwards. Whether that fires is engine- and
+  // timing-dependent, which is why the charts appeared only after a refresh.
   host.append(figure);
+
+  if (canvas && kindForChart) {
+    if (kindForChart === 'map') {
+      void mapConfig(model, accent).then((config) => {
+        chart = new Chart(canvas!, config);
+      });
+    } else {
+      chart = new Chart(canvas, baseConfig(model, kindForChart));
+    }
+  }
+
   return { destroy: () => chart?.destroy() };
 }
