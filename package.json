@@ -1,0 +1,31 @@
+{
+  "name": "afys-prototype",
+  "private": true,
+  "type": "module",
+  "description": "Round zero \u00e2\u20ac\u201d throwaway clickable prototype for the AfYS Data Portal. Every number is illustrative.",
+  "scripts": {
+    "dev": "npm run content && vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "size": "vite build && node tools/report-size.mjs",
+    "content": "node tools/build-content.mjs && node tools/make-africa.mjs",
+    "audit:options": "esbuild tools/audit-options.ts --bundle --platform=node --format=esm --loader:.json=json --outfile=node_modules/.cache/audit.mjs --log-level=error && node node_modules/.cache/audit.mjs"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.7",
+    "chartjs-chart-geo": "^4.3.4"
+  },
+  "devDependencies": {
+    "@types/topojson-client": "^3.1.5",
+    "topojson-client": "^3.1.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.7",
+    "world-atlas": "^2.0.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}
