@@ -36,7 +36,7 @@ export function filterBar(
       'Wave',
       waves.map((w) => ({ value: String(w.year), label: `${w.year} · ${inWave(w.year).length} countries` })),
       String(current.wave),
-      (value) => onChange({ ...current, wave: Number(value), countries: [] }),
+      (value) => onChange({ ...current, wave: Number(value), countries: [], region: '' }),
     ));
   }
 
@@ -48,10 +48,10 @@ export function filterBar(
   bar.append(select(
     'Region',
     [{ value: '', label: 'All surveyed countries' }, ...regionOptions],
-    '',
+    current.region,
     (value) => {
       const names = value ? surveyed.filter((c) => REGIONS[value]!.includes(c.name)).map((c) => c.name) : [];
-      onChange({ ...current, countries: names });
+      onChange({ ...current, countries: names, region: value });
     },
   ));
 
@@ -59,7 +59,7 @@ export function filterBar(
     'Country',
     [{ value: '', label: 'All surveyed countries' }, ...surveyed.map((c) => ({ value: c.name, label: c.name }))],
     current.countries.length === 1 ? current.countries[0]! : '',
-    (value) => onChange({ ...current, countries: value ? [value] : [] }),
+    (value) => onChange({ ...current, countries: value ? [value] : [], region: '' }),
   ));
 
   bar.append(select(
