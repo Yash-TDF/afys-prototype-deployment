@@ -78,6 +78,7 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
   gap: 24px;
   padding: 16px 28px;
   background: rgba(250, 248, 244, 0.92);
+  -webkit-backdrop-filter: blur(8px); /* Safari before 18 reads only the prefixed property */
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--line);
   position: sticky;
