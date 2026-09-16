@@ -328,6 +328,8 @@ main:focus { outline: none; }
   box-shadow: var(--shadow);
 }
 
+/* A <figure> keeps the browser's 40px side margins unless told otherwise; the card already pads it. */
+figure.chart { margin: 0; }
 .chart figcaption { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }
 .chart figcaption h3 { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
 .chart figcaption .showing { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 12.5px; }
