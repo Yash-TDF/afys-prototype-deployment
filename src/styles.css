@@ -76,7 +76,9 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 16px 28px;
+  /* The header spans the window but the page content stops at 1180px (1124px inside its padding);
+     pad the header so the logo and nav line up with the content's edges on wide screens. */
+  padding: 16px max(28px, calc((100% - 1124px) / 2));
   background: rgba(250, 248, 244, 0.92);
   -webkit-backdrop-filter: blur(8px); /* Safari before 18 reads only the prefixed property */
   backdrop-filter: blur(8px);
