@@ -66,7 +66,10 @@ export function setupCharts(): void {
   Chart.defaults.font.size = 12;
   Chart.defaults.color = MUTED;
   Chart.defaults.borderColor = GRID;
-  Chart.defaults.animation = { duration: 260 };
+  // Merge into the defaults rather than replace them. Chart.js builds each animation from
+  // the option names already on this object; replacing it dropped `type: 'color'`, so the
+  // first hover threw inside the shared animation loop and no chart on the page drew again.
+  Chart.defaults.set('animation', { duration: 260 });
   Chart.defaults.plugins.legend.labels.boxWidth = 10;
   Chart.defaults.plugins.legend.labels.boxHeight = 10;
   Chart.defaults.plugins.legend.labels.usePointStyle = true;
