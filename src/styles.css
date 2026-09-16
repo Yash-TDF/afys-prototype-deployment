@@ -144,6 +144,11 @@ main:focus { outline: none; }
   gap: 16px;
   margin-bottom: 14px;
 }
+/* Between phone and desktop there is room for three 210px cards but not four, which left one card
+   alone on a second row. Show two and two there instead. */
+@media (min-width: 600px) and (max-width: 960px) {
+  .stat-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 
 .stat {
   background: var(--card);
