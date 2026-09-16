@@ -79,9 +79,20 @@ function baseConfig(model: ViewModel, kind: ChartType): ChartConfiguration {
         scale.width = labelColumn(scale.chart.width);
       },
     } : {}),
+    // Sixteen country names turned to the 60° cap still overlap on a phone-width
+    // chart. Stand them upright there; wider charts keep the angle Chart.js picks.
+    ...(!horizontal && many ? {
+      afterCalculateLabelRotation: (scale: { chart: { width: number }; labelRotation: number }) => {
+        if (scale.chart.width < 400 && scale.labelRotation >= 60) scale.labelRotation = 90;
+      },
+    } : {}),
     ticks: {
       autoSkip: false,
       maxRotation: many ? 60 : 0,
+      // Upright, 12px names are still a hair taller than their 14px slots at 360px.
+      ...(!horizontal && many ? {
+        font: (ctx: { chart: { width: number } }) => (ctx.chart.width < 400 ? { size: 11 } : undefined),
+      } : {}),
       // Real answer options are long — "Increased access to essential services
       // and resources". Chart.js caps how much width it gives an axis and then
       // clips what does not fit, losing the *start* of the label, which is the
