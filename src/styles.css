@@ -450,7 +450,17 @@ figure.chart { margin: 0; }
   .method-layout { grid-template-columns: minmax(0, 1fr); }
   .chart-grid { grid-template-columns: minmax(0, 1fr); }
   .chart-cell { min-width: 0; }
-  .method-map { height: 430px; }
+  /* The canvas fills the card's height unless capped, which pushed the key below the card. Cap the
+     map at the height it is drawn at anyway (392px) and make the card tall enough for the key too. */
+  .method-map { height: 452px; }
+  .method-map canvas { max-height: 389px; }
+  .map-legend { gap: 4px 14px; }
   .hero h1 { font-size: 34px; }
   .tile-header h1, .explorer-header h1, .method-header h1 { font-size: 30px; }
+}
+
+@media (max-width: 600px) {
+  /* On a phone the map key wraps to three rows, so the map card needs more room below the map. */
+  .method-map { height: 505px; }
+  .method-map canvas { max-height: 392px; }
 }
