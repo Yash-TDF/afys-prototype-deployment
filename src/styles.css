@@ -441,6 +441,10 @@ figure.chart { margin: 0; }
 
 @media (max-width: 900px) {
   main { padding: 24px 18px 48px; }
+  /* The nav row (Themes · Explore · Methodology · wave pill) is wider than a phone; let it wrap. */
+  .site-header { padding: 12px 18px; gap: 10px; }
+  .site-nav { flex-wrap: wrap; gap: 6px; }
+  .site-nav a { padding: 7px 12px; }
   .method-layout { grid-template-columns: 1fr; }
   .chart-grid { grid-template-columns: 1fr; }
   .method-map { height: 430px; }
