@@ -362,6 +362,9 @@ figure.chart { margin: 0; }
 .canvas { position: relative; height: 300px; }
 .canvas-map { height: 430px; }
 .explorer-figure-map .canvas { height: 540px; }
+/* The map is about as wide as it is tall, but its canvas took the whole card, and Chart.js pins the
+   colour key to the canvas's corner, far from the map. A narrower, centred box keeps them together. */
+.explorer-figure-map .canvas { max-width: 640px; margin-inline: auto; }
 
 .chart .note { margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
 .slide-ref { margin: 12px 0 0; color: var(--faint); font-size: 11.5px; }
