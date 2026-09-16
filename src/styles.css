@@ -445,8 +445,11 @@ figure.chart { margin: 0; }
   .site-header { padding: 12px 18px; gap: 10px; }
   .site-nav { flex-wrap: wrap; gap: 6px; }
   .site-nav a { padding: 7px 12px; }
-  .method-layout { grid-template-columns: 1fr; }
-  .chart-grid { grid-template-columns: 1fr; }
+  /* minmax(0, 1fr), not 1fr: a 1fr column never shrinks below its content, and a chart canvas keeps
+     the width of its last draw, so the column grew past the screen and stayed wide after rotating. */
+  .method-layout { grid-template-columns: minmax(0, 1fr); }
+  .chart-grid { grid-template-columns: minmax(0, 1fr); }
+  .chart-cell { min-width: 0; }
   .method-map { height: 430px; }
   .hero h1 { font-size: 34px; }
   .tile-header h1, .explorer-header h1, .method-header h1 { font-size: 30px; }
