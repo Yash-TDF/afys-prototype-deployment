@@ -364,6 +364,8 @@ main:focus { outline: none; }
 }
 .chart-table th, .coverage th { font-weight: 600; }
 .chart-table td, .coverage td { text-align: right; font-variant-numeric: tabular-nums; }
+/* A column's header sits over its values, on the same edge. The first column holds names, so it stays left. */
+.chart-table th[scope="col"]:not(:first-child), .coverage th[scope="col"]:not(:first-child) { text-align: right; }
 .coverage td.yes { color: var(--green-mid); font-weight: 700; }
 .coverage td.no { color: var(--faint); }
 .coverage { margin-top: 32px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
