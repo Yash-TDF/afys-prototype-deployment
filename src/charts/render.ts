@@ -39,6 +39,11 @@ const palette = (model: ViewModel, kind: ChartType): string[] => {
   return Array.from({ length: count }, (_, i) => (count <= 3 ? SCALE_3 : SCALE_4)[i % (count <= 3 ? SCALE_3 : SCALE_4).length]!);
 };
 
+/** Width of a horizontal chart's label column: 205px, or 40% of a phone-width chart (under 400px). */
+const labelColumn = (chartWidth: number): number => (chartWidth < 400 ? Math.round(chartWidth * 0.4) : 205);
+/** 205px holds the 28 characters the labels are cut to, about 7.3px a character. */
+const LABEL_CHAR_PX = 205 / 28;
+
 function baseConfig(model: ViewModel, kind: ChartType): ChartConfiguration {
   const horizontal = kind === 'hbar' || kind === 'stacked';
   const multiSeries = model.series.length > 1;
@@ -67,8 +72,13 @@ function baseConfig(model: ViewModel, kind: ChartType): ChartConfiguration {
     grid: { display: false },
     // Chart.js would otherwise allot the category axis a fraction of the canvas
     // and clip anything longer. Thirty characters of Montserrat at 12px needs
-    // about this much.
-    ...(horizontal ? { afterFit: (scale: { width: number }) => { scale.width = 205; } } : {}),
+    // about this much. On a phone-width chart that would leave no room for the
+    // bars themselves, so on a chart under 400px wide the column takes 40% of it.
+    ...(horizontal ? {
+      afterFit: (scale: { width: number; chart: { width: number } }) => {
+        scale.width = labelColumn(scale.chart.width);
+      },
+    } : {}),
     ticks: {
       autoSkip: false,
       maxRotation: many ? 60 : 0,
@@ -78,9 +88,9 @@ function baseConfig(model: ViewModel, kind: ChartType): ChartConfiguration {
       // half that identifies it. Truncate deliberately from the end instead, and
       // below give the axis enough room for the length we truncate to. The table
       // underneath carries the full wording either way.
-      callback(this: { getLabelForValue(v: number): string }, value: number) {
+      callback(this: { getLabelForValue(v: number): string; chart: { width: number } }, value: number) {
         const label = this.getLabelForValue(value);
-        const limit = horizontal ? 28 : 34;
+        const limit = horizontal ? Math.max(12, Math.floor(labelColumn(this.chart.width) / LABEL_CHAR_PX)) : 34;
         return label.length > limit ? `${label.slice(0, limit - 1)}…` : label;
       },
     },
