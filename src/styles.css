@@ -188,8 +188,8 @@ main:focus { outline: none; }
   /* The deck's accents include a yellow and a pale blue that are unreadable as
      text on cream. Tint the ground with the accent and darken the ink instead of
      using the raw colour. */
-  background: color-mix(in srgb, var(--accent) 14%, #ffffff);
-  color: color-mix(in srgb, var(--accent) 62%, #1a3a2a);
+  background: var(--tag);
+  color: var(--green);
   border-radius: 100px;
   padding: 5px 12px;
   font-size: 10.5px;
@@ -207,8 +207,8 @@ main:focus { outline: none; }
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--accent) 14%, #ffffff);
-  color: color-mix(in srgb, var(--accent) 62%, #1a3a2a);
+  background: var(--tag);
+  color: var(--green);
   display: grid;
   place-items: center;
   font-size: 13px;
@@ -238,12 +238,22 @@ main:focus { outline: none; }
 .tile-header p, .method-header p { margin: 0; color: var(--muted); font-size: 14px; }
 
 .theme-pill {
-  background: color-mix(in srgb, var(--accent) 14%, #ffffff);
-  color: color-mix(in srgb, var(--accent) 62%, #1a3a2a);
+  background: var(--tag);
+  color: var(--green);
   border-radius: 100px;
   padding: 7px 15px;
   font-size: 12.5px;
   font-weight: 600;
+}
+
+/* The accent tints need color-mix(), which Safari only has from 16.2. Older Safari accepts a
+   color-mix() line that uses var() and then drops it when drawing, so a plain fallback earlier in
+   the same rule would already have lost. Keep the plain colours above, and tint only where supported. */
+@supports (color: color-mix(in srgb, red 50%, white)) {
+  .tile .theme-tag, .tile .arrow, .theme-pill {
+    background: color-mix(in srgb, var(--accent) 14%, #ffffff);
+    color: color-mix(in srgb, var(--accent) 62%, #1a3a2a);
+  }
 }
 
 /* Filters ---------------------------------------------------------------- */
