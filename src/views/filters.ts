@@ -22,14 +22,50 @@ export interface FilterOptions {
   showWave?: boolean;
 }
 
+// On a phone the four filters stack into a bar half the screen tall, so there
+// they fold behind a button that says what is applied. The bar is rebuilt after
+// every change, so whether it is open lives here rather than on the element.
+let filtersOpen = false;
+
+const GENDER_LABELS: Record<Filters['gender'], string> = { all: 'All respondents', male: 'Men', female: 'Women' };
+
 export function filterBar(
   current: Filters,
   onChange: (next: Filters) => void,
   options: FilterOptions = {},
 ): HTMLElement {
   const bar = document.createElement('form');
-  bar.className = 'filters';
+  bar.className = filtersOpen ? 'filters is-open' : 'filters';
+  bar.id = 'filter-bar';
   bar.addEventListener('submit', (e) => e.preventDefault());
+
+  const scope = current.region
+    || (current.countries.length === 1 ? current.countries[0]!
+      : current.countries.length > 1 ? `${current.countries.length} countries` : 'All surveyed countries');
+  const summary = [
+    ...(options.showWave !== false ? [String(current.wave)] : []),
+    scope,
+    ...(current.gender !== 'all' ? [GENDER_LABELS[current.gender]] : []),
+  ].join(' · ');
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'filters-toggle';
+  toggle.setAttribute('aria-controls', bar.id);
+  toggle.setAttribute('aria-expanded', String(filtersOpen));
+  const toggleLabel = document.createElement('span');
+  toggleLabel.className = 'filters-toggle-label';
+  toggleLabel.textContent = 'Filters';
+  const toggleSummary = document.createElement('span');
+  toggleSummary.className = 'filters-toggle-summary';
+  toggleSummary.textContent = summary;
+  // The space keeps the button's accessible name as "Filters 2026 · …"; flex layout ignores it.
+  toggle.append(toggleLabel, ' ', toggleSummary);
+  toggle.addEventListener('click', () => {
+    filtersOpen = !filtersOpen;
+    bar.classList.toggle('is-open', filtersOpen);
+    toggle.setAttribute('aria-expanded', String(filtersOpen));
+  });
+  bar.append(toggle);
 
   if (options.showWave !== false) {
     bar.append(select(
@@ -64,7 +100,7 @@ export function filterBar(
 
   bar.append(select(
     'Gender',
-    [{ value: 'all', label: 'All respondents' }, { value: 'male', label: 'Men' }, { value: 'female', label: 'Women' }],
+    (Object.keys(GENDER_LABELS) as Filters['gender'][]).map((value) => ({ value, label: GENDER_LABELS[value] })),
     current.gender,
     (value) => onChange({ ...current, gender: value as Filters['gender'] }),
   ));

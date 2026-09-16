@@ -294,6 +294,9 @@ main:focus { outline: none; }
 }
 .field-wide select { width: 100%; }
 
+/* The "Filters" button only exists for phones (see the narrow-screen rules); desktop shows every filter. */
+.filters-toggle { display: none; }
+
 .filter-note, .scope-note { margin: 0 0 16px; color: var(--muted); font-size: 12.5px; }
 .scope-note { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 11px 15px; }
 
@@ -487,6 +490,27 @@ figure.chart { margin: 0; }
   .base-note { border-radius: 12px; }
   /* iOS Safari zooms the page in when a form field under 16px gets focus, and does not zoom back out. */
   .field select { font-size: 16px; }
+  /* The four filters stack into a bar half a phone screen tall: fold them behind a button that says
+     what is applied, and open them on a tap. */
+  .filters:not(.is-open) { padding-block: 8px; }
+  .filters:not(.is-open) > .field, .filters:not(.is-open) > .filter-note { display: none; }
+  .filters-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+    padding: 6px 0;
+    border: 0;
+    background: none;
+    font: 600 14px var(--body);
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+  }
+  .filters-toggle-summary { flex: 1; min-width: 0; color: var(--muted); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .filters-toggle::after { content: "▾"; color: var(--muted); transition: transform 0.15s ease; }
+  .filters.is-open .filters-toggle::after { transform: rotate(180deg); }
   .hero h1 { font-size: 34px; }
   .tile-header h1, .explorer-header h1, .method-header h1 { font-size: 30px; }
 }
