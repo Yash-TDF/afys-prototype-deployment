@@ -460,6 +460,8 @@ figure.chart { margin: 0; }
   .coverage th, .coverage td { white-space: nowrap; }
   /* A 100px radius turns a group of pills that wraps onto two rows into a lozenge. */
   .type-switch { border-radius: 18px; }
+  /* Africa is about as tall as it is wide; a 540px box on a narrow screen left the lower third empty. */
+  .explorer-figure-map .canvas { height: 420px; }
   .hero h1 { font-size: 34px; }
   .tile-header h1, .explorer-header h1, .method-header h1 { font-size: 30px; }
 }
