@@ -29,6 +29,8 @@ import { toast } from '../ui/toast';
 import { filterBar, REGIONS } from './filters';
 import { enhance } from './dropdown';
 
+import { showWave } from '../wave-badge';
+
 const SVG = 'http://www.w3.org/2000/svg';
 
 const TYPES: { value: ChartType; label: string }[] = [
@@ -255,6 +257,7 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
   // of a history navigation. Writing there would push a new entry while consuming
   // one, and Back would stop working.
   function draw(): void {
+    showWave(state.filters.wave);
     figure?.destroy();
     content.replaceChildren();
 

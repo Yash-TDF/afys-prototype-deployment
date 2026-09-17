@@ -7,6 +7,7 @@
 import { countries, inWave, waves, type Country } from '../content';
 import { Chart, registerGeo } from '../charts/setup';
 import { BRAND, mix, NO_DATA } from '../charts/palette';
+import { showWave } from '../wave-badge';
 
 type FeatureLike = { properties: { name: string; surveyName: string | null; waves: number[] } };
 
@@ -111,6 +112,7 @@ export function methodologyView(host: HTMLElement): () => void {
   };
 
   const drawToggle = (): void => {
+    showWave(wave);
     toggle.replaceChildren();
     for (const w of waves) {
       const button = document.createElement('button');

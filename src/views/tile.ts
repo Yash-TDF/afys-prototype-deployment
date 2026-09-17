@@ -9,6 +9,7 @@ import { theme, type Theme } from '../content';
 import { renderFigure, type Figure } from '../charts/render';
 import { buildViewModel, DEFAULT_FILTERS, type Filters } from '../model';
 import { filterBar, missing } from './filters';
+import { showWave } from '../wave-badge';
 
 export function tileView(host: HTMLElement, slug: string): () => void {
   const found = theme(slug);
@@ -29,6 +30,7 @@ export function tileView(host: HTMLElement, slug: string): () => void {
 
   const draw = (): void => {
     const enter = (step: number): string => (arrived ? '' : ` an${step > 0 ? ` a${Math.min(step, 12)}` : ''}`);
+    showWave(filters.wave);
     for (const figure of figures) figure.destroy();
     figures = [];
     host.replaceChildren();
