@@ -42,9 +42,11 @@ export interface Filters {
   wave: number;
   countries: string[];
   gender: 'all' | 'male' | 'female';
+  /** The region chosen in the filter bar, '' for none. Only for showing the choice: the figures use `countries`. */
+  region: string;
 }
 
-export const DEFAULT_FILTERS: Filters = { wave: latestWave, countries: [], gender: 'all' };
+export const DEFAULT_FILTERS: Filters = { wave: latestWave, countries: [], gender: 'all', region: '' };
 
 const key = (parts: (string | number)[]) => parts.join('~');
 
