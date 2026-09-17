@@ -7,6 +7,7 @@ import { questions, theme, themes, type ChartSpec, type ChartType } from '../con
 import { renderFigure, type Figure } from '../charts/render';
 import { buildViewModel, DEFAULT_FILTERS, type Filters, type ViewModel } from '../model';
 import { filterBar } from './filters';
+import { enhance } from './dropdown';
 
 const TYPES: { value: ChartType; label: string }[] = [
   { value: 'bar', label: 'Bars' },
@@ -57,6 +58,7 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): () => 
     }
     select.addEventListener('change', () => { code = select.value; draw(); });
     picker.append(pickerLabel, select);
+    enhance(picker, select, 'questions');
     head.append(picker);
 
     const wording = document.createElement('blockquote');

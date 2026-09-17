@@ -9,6 +9,7 @@
 //     prototype the client saw offered it, which is a promise we cannot keep.
 import { countries, inWave, waves, type Country } from '../content';
 import type { Filters } from '../model';
+import { enhance } from './dropdown';
 
 export const REGIONS: Record<string, string[]> = {
   'West Africa': ['Benin', 'Burkina Faso', "Côte d'Ivoire", 'Gambia', 'Ghana', 'Guinea', 'Liberia', 'Mali', 'Mauritania', 'Niger', 'Nigeria', 'Senegal', 'Sierra Leone', 'Togo'],
@@ -96,6 +97,7 @@ export function filterBar(
     [{ value: '', label: 'All surveyed countries' }, ...surveyed.map((c) => ({ value: c.name, label: c.name }))],
     current.countries.length === 1 ? current.countries[0]! : '',
     (value) => onChange({ ...current, countries: value ? [value] : [], region: '' }),
+    'countries',
   ));
 
   bar.append(select(
@@ -120,6 +122,7 @@ function select(
   options: { value: string; label: string }[],
   value: string,
   onChange: (value: string) => void,
+  searchFor = '',
 ): HTMLElement {
   const wrap = document.createElement('label');
   wrap.className = 'field';
@@ -135,6 +138,7 @@ function select(
   }
   el.addEventListener('change', () => onChange(el.value));
   wrap.append(text, el);
+  enhance(wrap, el, searchFor);
   return wrap;
 }
 
