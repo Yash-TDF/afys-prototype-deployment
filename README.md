@@ -26,7 +26,7 @@ Other scripts:
 | `pnpm build` | production build into `dist/` |
 | `pnpm size` | build, then print what actually loads and when |
 | `pnpm content` | regenerate `src/data/content.json` and `public/africa.geo.json` from the portal's seeds |
-| `pnpm audit:options` | list the questions whose answer options we do not have |
+| `pnpm audit:options` | list what is still open with PSB; add `--write` to regenerate `NEEDED_FROM_PSB.md` |
 | `pnpm typecheck` | `tsc --noEmit` |
 
 `pnpm content` reads `../afys-portal/db/seeds/*.sql`, so the two directories have
@@ -40,11 +40,13 @@ questions and their exact wording, the thirty-nine chart specifications with the
 titles, chart types, "showing" lines and caveats, the slide each came from, the
 twenty-eight countries, and which waves each country appears in.
 
-**Invented:** every percentage and every base. The response options are real for
-thirty-two of the forty-one questions, recovered from the deck's own chart data;
-the remaining nine are invented and every chart drawn with them says so
-underneath. `NEEDED_FROM_PSB.md` is that list, and it is the specific ask to send
-rather than "please send the codebook".
+**Invented:** every percentage and every base. The answer options are real for
+forty of the forty-one questions — recovered from the deck's own chart data, or
+written from the 2026 questionnaire — and the one that is not says so under its
+chart. `NEEDED_FROM_PSB.md` is what is still open: that question, and the base
+for one of the three "among those…" questions. It is the specific ask to send
+rather than "please send the codebook", and it is written by
+`pnpm audit:options --write` from what the charts actually draw, never by hand.
 
 The figures are deterministic: the same question, wave, country and option give
 the same number on every machine and every reload, so a screenshot taken today
@@ -219,7 +221,7 @@ it rather than guessed at.
 tools/build-content.mjs   seeds → src/data/content.json
 tools/make-africa.mjs     world-atlas → public/africa.geo.json (Africa only, 110m)
 tools/report-size.mjs     what loads, when, gzipped
-tools/audit-options.ts    which questions we cannot draw honestly yet
+tools/audit-options.ts    what is still open with PSB → NEEDED_FROM_PSB.md
 src/content.ts            the deck, typed
 src/illustrative.ts       the generated figures — deleted when the API is wired up
 src/model.ts              chart spec + filters → view model (shaped like the API response)
