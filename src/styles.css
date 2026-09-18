@@ -20,4 +20,6 @@
 @import './styles/chart.css';
 @import './styles/methodology.css';
 @import './styles/explorer.css';
+@import './styles/a11y.css';
+@import './styles/motion.css';
 @import './styles/responsive.css';

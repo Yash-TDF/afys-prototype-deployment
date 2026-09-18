@@ -10,6 +10,12 @@ import { themesView } from './views/themes';
 const host = document.getElementById('view')!;
 let teardown: () => void = () => {};
 
+// The skip link moves focus rather than following an href, because every link on
+// this page is a route and #view is not one. Without the focus call the button
+// would do nothing at all for the reader it exists for.
+document.querySelector<HTMLButtonElement>('.skip-link')
+  ?.addEventListener('click', () => host.focus());
+
 function route(): void {
   teardown();
   teardown = () => {};

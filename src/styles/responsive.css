@@ -69,11 +69,19 @@
 }
 
 /* A reader who has asked their system for less motion gets the same colours and
-   the same layout, without the movement. The approved prototype has no such rule;
-   this one is ours. */
+   the same layout, without the movement. The approved prototype has a rule of its
+   own here and it is the fuller one, so this is now theirs: it also stops
+   animations repeating and turns off smooth scrolling, neither of which our
+   version covered. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
   }
+  /* Not optional, and the reason this block has to come last. .an is invisible
+     until its animation runs, so a reader who has turned animation off would be
+     left with a blank page where the cards are. */
+  .an { opacity: 1; }
 }

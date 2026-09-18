@@ -1,0 +1,27 @@
+/* The reveal the client approved: content arrives rather than appearing. The
+   curve and the 0.65s are the prototype's, as are the twelve delay steps — a
+   grid of cards uses .an with .a1 … .a12 so each lands a beat after the last.
+
+   .an starts at opacity 0 and is made visible by the animation itself, which is
+   why responsive.css has to hand it back when a reader has asked for less
+   motion. Without that rule the content would never appear at all. */
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.an { opacity: 0; animation: fadeUp 0.65s var(--eout) forwards; }
+
+.a1 { animation-delay: 0.06s; }
+.a2 { animation-delay: 0.12s; }
+.a3 { animation-delay: 0.18s; }
+.a4 { animation-delay: 0.24s; }
+.a5 { animation-delay: 0.3s; }
+.a6 { animation-delay: 0.36s; }
+.a7 { animation-delay: 0.42s; }
+.a8 { animation-delay: 0.48s; }
+.a9 { animation-delay: 0.54s; }
+.a10 { animation-delay: 0.6s; }
+.a11 { animation-delay: 0.66s; }
+.a12 { animation-delay: 0.72s; }
