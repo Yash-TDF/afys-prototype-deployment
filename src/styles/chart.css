@@ -5,13 +5,13 @@
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 22px;
+  padding: 26px 28px;
   box-shadow: var(--shadow);
 }
 
 /* A <figure> keeps the browser's 40px side margins unless told otherwise; the card already pads it. */
 figure.chart { margin: 0; }
-.chart figcaption { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }
+.chart figcaption { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 20px; }
 .chart figcaption h3 { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
 .chart figcaption .showing { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 12.5px; }
 
@@ -40,7 +40,7 @@ figure.chart { margin: 0; }
 
 /* Tables ------------------------------------------------------------------ */
 
-.chart-table { margin-top: 14px; }
+.chart-table { margin-top: 20px; }
 .chart-table summary { cursor: pointer; font-size: 12.5px; color: var(--accent); font-weight: 600; }
 .chart-table table, .coverage table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
 .chart-table caption { text-align: left; color: var(--muted); font-size: 12px; padding-bottom: 8px; }

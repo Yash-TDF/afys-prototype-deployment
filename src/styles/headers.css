@@ -19,6 +19,8 @@
 .crumb:hover { color: var(--green); border-color: var(--accent); background: var(--wash); }
 
 .tile-header, .explorer-header, .method-header { display: grid; gap: 12px; margin-bottom: 22px; justify-items: start; }
+/* The explorer has more below it than the other two, so it gets more air above. */
+.explorer-header { margin-bottom: 30px; }
 .tile-header h1, .explorer-header h1, .method-header h1 { font-size: 40px; }
 .tile-header p, .method-header p { margin: 0; color: var(--muted); font-size: 14px; }
 

@@ -107,6 +107,7 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
   main.className = 'emain';
 
   const content = document.createElement('div');
+  content.className = 'estack';
 
   const nav = document.createElement('div');
   nav.className = 'qnav';

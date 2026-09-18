@@ -5,7 +5,10 @@
 @media (min-width: 1101px) {
   .elayout { grid-template-columns: 320px minmax(0, 1fr); }
   .qside { display: block; }
-  .emain > .epicker { display: none; }
+  /* A descendant selector, not a child one. The picker sits inside the column's
+     inner stack rather than directly in .emain, so `.emain > .epicker` stopped
+     matching and both ways of changing the question were drawn at once. */
+  .emain .epicker { display: none; }
 }
 
 @media (max-width: 900px) {
