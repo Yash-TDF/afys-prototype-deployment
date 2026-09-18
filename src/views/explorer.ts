@@ -353,7 +353,7 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
     content.append(holder);
     figure = renderFigure(holder, model, state.kind, parent.accent);
 
-    const downloads = exports(model, found.code, () => record('replace'));
+    const downloads = exports(model, found, state.filters, () => record('replace'));
     const caption = holder.querySelector('figcaption');
     // On the title's row. `.showing` takes a full row of its own, so going in
     // ahead of it keeps the buttons level with the title.
@@ -431,6 +431,14 @@ function parse(params: URLSearchParams, ordered: Question[]): State {
   const wave = waves.some((w) => w.year === waveParam) ? waveParam : DEFAULT_FILTERS.wave;
   const surveyed = new Set(inWave(wave).map((c) => c.name));
 
+  // A region is a name for a set of countries, so when the link names one, the
+  // countries come from it and not from the link. Read separately, a link with
+  // `region=West Africa` and no countries — hand-written, or cut short by a chat
+  // client — showed West Africa as selected over a chart of all sixteen.
+  const inRegion = region in REGIONS
+    ? inWave(wave).map((c) => c.name).filter((name) => REGIONS[region]!.includes(name))
+    : [];
+
   return {
     code: ordered.some((q) => q.code === code) ? code! : ordered[0]!.code,
     kind: TYPES.some((t) => t.value === kind) ? kind as ChartType : 'bar',
@@ -439,9 +447,12 @@ function parse(params: URLSearchParams, ordered: Question[]): State {
       // Repeated params rather than one comma-joined value: the prototype packs
       // its country list into a single string, which breaks on any value holding
       // a separator. Nothing here has to know what is inside a country's name.
-      countries: params.getAll('country').filter((name) => surveyed.has(name)),
+      countries: inRegion.length > 0
+        ? inRegion
+        : params.getAll('country').filter((name) => surveyed.has(name)),
       gender: GENDERS.includes(gender as Filters['gender']) ? gender as Filters['gender'] : 'all',
-      region: region in REGIONS ? region : '',
+      // A region with nobody surveyed in this wave is not a selection.
+      region: inRegion.length > 0 ? region : '',
       compare: COMPARES.includes(compare as CompareBy) ? compare as CompareBy : 'none',
     },
   };
@@ -453,8 +464,10 @@ function query(state: State): string {
   params.set('q', state.code);
   if (state.kind !== 'bar') params.set('chart', state.kind);
   if (state.filters.wave !== DEFAULT_FILTERS.wave) params.set('wave', String(state.filters.wave));
+  // One or the other. The region already says which countries, and listing them
+  // as well gave the link two answers to the same question.
   if (state.filters.region) params.set('region', state.filters.region);
-  for (const name of state.filters.countries) params.append('country', name);
+  else for (const name of state.filters.countries) params.append('country', name);
   if (state.filters.gender !== 'all') params.set('gender', state.filters.gender);
   if (state.filters.compare !== 'none') params.set('cmp', state.filters.compare);
   return params.toString();
@@ -505,10 +518,52 @@ function kbd(text: string): HTMLElement {
   return key;
 }
 
+/**
+ * What a CSV says about itself, above its first row of figures.
+ *
+ * The brief's test for an export is that someone who was not in the room can tell
+ * what they are looking at: the question, the wave, the filters and the sample
+ * size. A file of bare percentages ends up in a slide deck with the wrong
+ * caption, and this one would do so carrying numbers we made up.
+ *
+ * Every line goes through csvEscape. They are comments to us but cells to a
+ * spreadsheet, and an unquoted "Base: 10,759" opens as "Base: 10" beside "759".
+ */
+function provenance(model: ViewModel, question: Question, filters: Filters): string[] {
+  const overWaves = model.categoryKind === 'waves' || model.compare === 'wave';
+  // A chart across waves ignores the wave filter, so naming the filter's value
+  // here would describe a choice the figures did not use.
+  const waveLine = overWaves
+    ? `Waves: ${(model.categoryKind === 'waves' ? model.categories : model.series.map((s) => s.label)).join(', ')}`
+    : `Wave: ${filters.wave}`;
+  const scope = filters.countries.length > 0
+    ? `${filters.region ? `${filters.region}: ` : ''}${filters.countries.join('; ')}`
+    : overWaves ? 'all countries asked in the waves shown' : `all ${inWave(filters.wave).length} countries surveyed in ${filters.wave}`;
+  const gender = model.compare === 'gender' ? 'split into men and women'
+    : filters.gender === 'all' ? 'all respondents' : filters.gender === 'male' ? 'men only' : 'women only';
+
+  return [
+    'ILLUSTRATIVE FIGURES — GENERATED FOR LAYOUT, NOT SURVEY RESULTS',
+    `Question: ${question.code} — ${question.text}`,
+    `Chart: ${model.title}${model.showing ? ` (${model.showing})` : ''}`,
+    waveLine,
+    `Countries: ${scope}`,
+    `Gender: ${gender}`,
+    ...(model.compare !== 'none' ? [`Compared by: ${model.compare}`] : []),
+    `Base: ${model.base.toLocaleString('en-GB')} respondents (illustrative)`,
+    ...(question.baseType === 'filtered' && question.baseText ? [`Asked only of: ${question.baseText}`] : []),
+    ...(model.likeForLike ? [model.likeForLike] : []),
+    ...(model.compareNote ? [model.compareNote] : []),
+    ...(model.optionsInvented ? ['The answer options on this chart are placeholders, not the questionnaire’s.'] : []),
+    `Source: ${window.location.href}`,
+  ].map((line) => csvEscape(`# ${line}`));
+}
+
 /** The download row. Wired up because "can I have this as an image" arrives on day one. */
-function exports(model: ViewModel, code: string, sync: () => void): HTMLElement {
+function exports(model: ViewModel, question: Question, filters: Filters, sync: () => void): HTMLElement {
   const row = document.createElement('div');
   row.className = 'exports';
+  const code = question.code;
   const name = `${code}_${slug(model.title)}`;
 
   const csv = document.createElement('button');
@@ -519,13 +574,11 @@ function exports(model: ViewModel, code: string, sync: () => void): HTMLElement 
     const header = ['Category', ...model.series.map((s) => csvEscape(s.label))].join(',');
     const lines = model.categories.map((category, i) =>
       [csvEscape(category), ...model.series.map((s) => s.values[i] ?? '')].join(','));
-    const meta = [
-      `# ${model.title}`,
-      '# ILLUSTRATIVE FIGURES — NOT SURVEY RESULTS',
-      `# Base: ${model.base.toLocaleString('en-GB')} respondents`,
-      ...(model.likeForLike ? [`# ${model.likeForLike}`] : []),
-    ];
-    downloadBlob([...meta, header, ...lines].join('\n'), 'text/csv;charset=utf-8;', `${name}.csv`);
+    // The URL is part of the provenance, so make sure it is the current one.
+    sync();
+    const meta = provenance(model, question, filters);
+    // A BOM, or Excel reads the em dash and "Côte d'Ivoire" as mojibake.
+    downloadBlob(`\uFEFF${[...meta, header, ...lines].join('\r\n')}`, 'text/csv;charset=utf-8;', `${name}.csv`);
     toast('CSV downloaded');
   });
 
