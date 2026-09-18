@@ -248,6 +248,18 @@ function table(model: ViewModel): HTMLDetailsElement {
       const td = document.createElement('td');
       const value = s.values[i];
       td.textContent = value === undefined ? '—' : `${value}%`;
+      if (value !== undefined) {
+        // The approved prototype draws a proportional bar under each figure, which
+        // is what makes a column of numbers readable down the page. It is
+        // decorative: the number it measures is already in the cell, so a screen
+        // reader gains nothing from it and would only hear the same value twice.
+        td.classList.add('bar-cell');
+        const bar = document.createElement('div');
+        bar.className = 'mini-bar';
+        bar.style.width = `${Math.max(0, Math.min(100, value))}%`;
+        bar.setAttribute('aria-hidden', 'true');
+        td.append(bar);
+      }
       row.append(td);
     }
     el.append(row);

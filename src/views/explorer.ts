@@ -39,8 +39,46 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): () => 
     h1.textContent = 'Explore the data';
     head.append(h1);
 
+    host.append(head);
+
+    const layout = document.createElement('div');
+    layout.className = 'elayout';
+
+    // The question list, down the left and sticky. Grouped by theme, because
+    // forty-one questions in one flat list is a wall.
+    const side = document.createElement('aside');
+    side.className = 'qside';
+    const sideHeading = document.createElement('h2');
+    sideHeading.textContent = 'Questions';
+    side.append(sideHeading);
+    for (const t of themes) {
+      const inTheme = questions.filter((item) => item.theme === t.order);
+      if (inTheme.length === 0) continue;
+      const block = document.createElement('div');
+      block.className = 'qside-theme';
+      const name = document.createElement('h3');
+      name.textContent = t.name;
+      const list = document.createElement('ul');
+      for (const q of inTheme) {
+        const li = document.createElement('li');
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = q.label;
+        button.setAttribute('aria-current', String(q.code === found.code));
+        button.addEventListener('click', () => { code = q.code; draw(); });
+        li.append(button);
+        list.append(li);
+      }
+      block.append(name, list);
+      side.append(block);
+    }
+    layout.append(side);
+
+    const main = document.createElement('div');
+    main.className = 'emain';
+
     const picker = document.createElement('label');
-    picker.className = 'field field-wide';
+    picker.className = 'field field-wide epicker';
     const pickerLabel = document.createElement('span');
     pickerLabel.textContent = 'Question';
     const select = document.createElement('select');
@@ -59,25 +97,24 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): () => 
     select.addEventListener('change', () => { code = select.value; draw(); });
     picker.append(pickerLabel, select);
     enhance(picker, select, 'questions');
-    head.append(picker);
+    main.append(picker);
 
     const wording = document.createElement('blockquote');
     wording.className = 'question-text';
     wording.textContent = found.text;
-    head.append(wording);
+    main.append(wording);
 
     if (found.baseType === 'filtered' && found.baseText) {
       const base = document.createElement('p');
       base.className = 'base-note';
       base.textContent = `Asked only of: ${found.baseText}`;
-      head.append(base);
+      main.append(base);
     }
-    host.append(head);
 
     // Kept on `map` and `line` deliberately: a map still needs a wave, and the
     // line chart ignores the wave filter rather than hiding it, which is what the
     // portal will do.
-    host.append(filterBar(filters, (next) => { filters = next; draw(); }));
+    main.append(filterBar(filters, (next) => { filters = next; draw(); }));
 
     const switcher = document.createElement('div');
     switcher.className = 'type-switch';
@@ -92,7 +129,7 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): () => 
       button.addEventListener('click', () => { kind = option.value; draw(); });
       switcher.append(button);
     }
-    host.append(switcher);
+    main.append(switcher);
 
     const spec: ChartSpec = {
       theme: found.theme,
@@ -111,10 +148,13 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): () => 
     const model: ViewModel = buildViewModel(spec, theme(parent.slug)!, filters);
     const holder = document.createElement('div');
     holder.className = kind === 'map' ? 'explorer-figure explorer-figure-map' : 'explorer-figure';
-    host.append(holder);
+    main.append(holder);
     figure = renderFigure(holder, model, kind, parent.accent);
 
-    host.append(exports(model, found.code));
+    main.append(exports(model, found.code));
+
+    layout.append(main);
+    host.append(layout);
   };
 
   draw();

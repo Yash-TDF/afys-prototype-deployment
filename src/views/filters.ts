@@ -114,7 +114,62 @@ export function filterBar(
     bar.append(chip);
   }
 
+  bar.append(tags(current, onChange, options));
+
   return bar;
+}
+
+// An applied filter shows as a pill that can be taken off, which is the pattern
+// the client approved. The wave is not among them: it always has a value, so a
+// pill for it could never be removed and would only add noise.
+function tags(
+  current: Filters,
+  onChange: (next: Filters) => void,
+  options: FilterOptions,
+): HTMLElement {
+  const row = document.createElement('div');
+  row.className = 'ftags';
+
+  const pill = (label: string, clear: () => void): void => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'ftag';
+    button.append(label);
+    const cross = document.createElement('span');
+    cross.className = 'fx';
+    cross.textContent = '×';
+    cross.setAttribute('aria-hidden', 'true');
+    button.append(cross);
+    button.setAttribute('aria-label', `Remove filter: ${label}`);
+    button.addEventListener('click', clear);
+    row.append(button);
+  };
+
+  if (current.region) {
+    pill(current.region, () => onChange({ ...current, region: '', countries: [] }));
+  } else if (current.countries.length === 1) {
+    pill(current.countries[0]!, () => onChange({ ...current, countries: [] }));
+  } else if (current.countries.length > 1) {
+    pill(`${current.countries.length} countries`, () => onChange({ ...current, countries: [] }));
+  }
+
+  if (current.gender !== 'all') {
+    pill(GENDER_LABELS[current.gender], () => onChange({ ...current, gender: 'all' }));
+  }
+
+  if (row.children.length > 1) {
+    const clear = document.createElement('button');
+    clear.type = 'button';
+    clear.className = 'ftag-clear';
+    clear.textContent = 'Clear all';
+    clear.addEventListener('click', () => onChange({ ...current, countries: [], region: '', gender: 'all' }));
+    row.append(clear);
+  }
+
+  // Nothing applied is not an empty row with a gap above it.
+  row.hidden = row.children.length === 0;
+  void options;
+  return row;
 }
 
 function select(

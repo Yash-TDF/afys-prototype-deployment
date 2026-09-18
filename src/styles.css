@@ -294,6 +294,39 @@ main:focus { outline: none; }
 
 .field { display: grid; gap: 6px; font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 .field-wide { min-width: min(620px, 100%); }
+
+/* An applied filter as a pill you can take off, which is the pattern the client
+   approved. The row takes the bar's full width so it sits under the controls,
+   and it stays visible when the phone bar is collapsed - that is the point of it. */
+.ftags { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 8px; }
+.ftag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 100px;
+  background: var(--wash);
+  color: var(--green-mid);
+  font: 600 12px var(--body);
+  cursor: pointer;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+.ftag:hover { background: rgba(47, 122, 90, 0.14); }
+.ftag .fx { font-size: 14px; opacity: 0.5; margin-left: 2px; }
+.ftag-clear {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border: 1px dashed var(--line);
+  border-radius: 100px;
+  background: none;
+  color: var(--muted);
+  font: 600 12px var(--body);
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+.ftag-clear:hover { border-style: solid; border-color: var(--rose); color: var(--rose); }
 .field select {
   font: 500 14px var(--body);
   text-transform: none;
@@ -483,6 +516,20 @@ figure.chart { margin: 0; }
 }
 .chart-table th, .coverage th { font-weight: 600; }
 .chart-table td, .coverage td { text-align: right; font-variant-numeric: tabular-nums; }
+/* A proportional bar under each figure, as the approved prototype draws them: it
+   is what makes a column of numbers readable down the page. Low opacity so the
+   number stays the thing you read first. */
+.chart-table td.bar-cell { position: relative; padding-bottom: 20px; }
+.chart-table .mini-bar {
+  position: absolute;
+  bottom: 7px;
+  right: 10px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--green-mid);
+  opacity: 0.28;
+  transition: width 0.6s var(--ease);
+}
 /* The row lights up as one: the name cell is a th, so it needs the same transition as the
    values beside it, or it changes first and the row arrives in two pieces. */
 .chart-table th, .chart-table td, .coverage th, .coverage td { transition: background 0.2s var(--ease); }
@@ -562,6 +609,42 @@ figure.chart { margin: 0; }
 .exports button:hover { color: var(--green); border-color: var(--accent); background: var(--wash); }
 
 .empty { color: var(--muted); }
+
+/* The explorer, as the client approved it: the question list down the left,
+   sticky, with the controls and the chart beside it. Below 1100px there is not
+   room for two columns, so the list gives way to the question dropdown. */
+.elayout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 24px; align-items: start; }
+.qside { position: sticky; top: 99px; max-height: calc(100vh - 120px); overflow-y: auto; }
+.qside h2 { font: 700 13px var(--body); letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+.qside-theme { margin-bottom: 14px; }
+.qside-theme h3 { font: 700 11px var(--body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); margin: 0 0 6px; }
+.qside ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.qside button {
+  width: 100%;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--muted);
+  font: 500 13px var(--body);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+.qside button:hover { background: var(--wash); color: var(--ink); }
+.qside button[aria-current="true"] { background: var(--wash); color: var(--green-mid); font-weight: 700; }
+.qside::-webkit-scrollbar { width: 5px; }
+.qside::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 4px; }
+.emain { min-width: 0; }
+
+/* Two columns need the width. Below this the list is the dropdown instead. */
+@media (max-width: 1100px) {
+  .elayout { grid-template-columns: minmax(0, 1fr); }
+  .qside { display: none; }
+}
+@media (min-width: 1101px) {
+  .emain > .epicker { display: none; }
+}
 
 @media (max-width: 900px) {
   main { padding: 24px 18px 48px; }
