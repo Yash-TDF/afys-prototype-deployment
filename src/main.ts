@@ -36,6 +36,46 @@ let currentKey: string | null = null;
 document.querySelector<HTMLButtonElement>('.skip-link')
   ?.addEventListener('click', () => host.focus());
 
+// --- the two overlays ------------------------------------------------------
+//
+// Both are imported the first time they are wanted. They are reachable from
+// every view, which would ordinarily argue for loading them with the shell — but
+// the shell is what the landing page waits for, and a reader who never presses /
+// should never pay for the search.
+
+let spotlight: typeof import('./ui/spotlight') | null = null;
+let drawer: typeof import('./ui/drawer') | null = null;
+
+async function openSearch(): Promise<void> {
+  spotlight ??= await import('./ui/spotlight');
+  spotlight.open();
+}
+
+async function openAbout(): Promise<void> {
+  drawer ??= await import('./ui/drawer');
+  drawer.open();
+}
+
+document.querySelector<HTMLButtonElement>('.nav-search')
+  ?.addEventListener('click', () => void openSearch());
+document.querySelector<HTMLButtonElement>('.nav-about')
+  ?.addEventListener('click', () => void openAbout());
+
+// `/` from anywhere, except where a slash is a character someone is typing. The
+// same guard the explorer's arrow keys use: a tag check alone misses
+// contenteditable, and the search box that opens here is itself an input, so this
+// also stops the key reaching a palette that is already open.
+document.addEventListener('keydown', (event) => {
+  if (event.key !== '/') return;
+  const target = event.target as HTMLElement | null;
+  const tag = target?.tagName.toLowerCase();
+  if (tag === 'input' || tag === 'select' || tag === 'textarea' || target?.isContentEditable) return;
+  event.preventDefault();
+  void openSearch();
+});
+
+// --- routing ---------------------------------------------------------------
+
 function route(): void {
   const hash = window.location.hash.replace(/^#/, '') || '/';
   const [path, query] = hash.split('?');
