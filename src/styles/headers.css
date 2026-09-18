@@ -37,7 +37,7 @@
    color-mix() line that uses var() and then drops it when drawing, so a plain fallback earlier in
    the same rule would already have lost. Keep the plain colours above, and tint only where supported. */
 @supports (color: color-mix(in srgb, red 50%, white)) {
-  .tile .theme-tag, .tile .arrow, .theme-pill {
+  .tile .theme-tag, .theme-pill {
     background: color-mix(in srgb, var(--accent) 14%, #ffffff);
     color: color-mix(in srgb, var(--accent) 62%, #1a3a2a);
   }

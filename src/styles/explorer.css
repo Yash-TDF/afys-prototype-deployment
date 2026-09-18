@@ -38,7 +38,7 @@
    sticky, with the controls and the chart beside it. Below 1100px there is not
    room for two columns, so the list gives way to the question dropdown. */
 .elayout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-items: start; }
-.qside { display: none; position: sticky; top: 99px; max-height: calc(100vh - 120px); overflow-y: auto; }
+.qside { display: none; position: sticky; top: 92px; max-height: calc(100vh - 120px); overflow-y: auto; }
 .qside h2 { font: 700 13px var(--body); letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
 .qside-theme { margin-bottom: 18px; }
 .qside-theme h3 { font: 700 11px var(--body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); margin: 0 0 6px; }

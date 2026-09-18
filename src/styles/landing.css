@@ -1,13 +1,15 @@
 /* Landing ---------------------------------------------------------------- */
 
-.hero h1 { font-size: 44px; }
-.hero > p { color: var(--muted); margin: 10px 0 26px; max-width: 62ch; font-size: 15px; }
+/* The overview is one block closed by a rule, as the prototype draws it: the
+   title, the four facts, then a hairline before the themes begin. */
+.hero { margin-bottom: 48px; padding-bottom: 40px; border-bottom: 1px solid var(--line); }
+.hero h1 { font-size: 40px; line-height: 1.1; }
+.hero > p { color: var(--muted); margin: 8px 0 32px; max-width: 62ch; font-size: 15px; line-height: 1.5; }
 
 .stat-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 16px;
-  margin-bottom: 14px;
 }
 /* Between phone and desktop there is room for three 210px cards but not four, which left one card
    alone on a second row. Show two and two there instead. */
@@ -19,47 +21,72 @@
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 20px 22px;
-  box-shadow: var(--shadow);
+  padding: 28px 24px;
   text-decoration: none;
   display: block;
   transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease), border-color 0.4s var(--ease);
 }
-.stat:hover { transform: translateY(-2px); box-shadow: var(--lift); border-color: var(--line); }
+.stat:hover { transform: translateY(-3px); box-shadow: 0 16px 48px rgba(0, 0, 0, 0.06); border-color: transparent; }
 .stat .label {
   display: block;
-  font-size: 11px;
-  letter-spacing: 0.08em;
+  font-size: 12px;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
-  font-weight: 600;
+  font-weight: 500;
+  margin-bottom: 10px;
 }
-.stat .value { display: block; font-size: 38px; font-weight: 700; letter-spacing: -0.03em; margin: 8px 0 6px; color: var(--ink); }
-.stat .sub { display: block; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.stat .value { display: block; font-size: 36px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; color: var(--green); }
+.stat .sub { display: block; color: var(--muted); font-size: 13px; line-height: 1.4; margin-top: 12px; }
 .stat .chip { margin-top: 10px; display: inline-block; }
 
-.section-heading { margin: 40px 0 16px; font-size: 30px; }
-.section-heading .count { font-family: var(--body); font-size: 13px; color: var(--faint); font-weight: 500; float: right; margin-top: 14px; }
+/* A section title is the sans at 22px, not the display serif: the serif is for
+   the one title a page has. */
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 24px;
+  font: 700 22px/1.6 var(--body);
+  color: var(--green);
+}
+.section-heading .count { font-size: 13px; color: var(--faint); font-weight: 500; }
 
-.tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+.tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
 
 .tile {
   position: relative;
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 22px;
+  padding: 32px 28px 28px;
   text-decoration: none;
-  box-shadow: var(--shadow);
-  display: grid;
-  gap: 10px;
-  align-content: start;
-  border-top: 3px solid transparent;
+  display: flex;
+  flex-direction: column;
+  min-height: 160px;
+  overflow: hidden;
   transition: transform 0.45s var(--ease), border-color 0.45s var(--ease), box-shadow 0.45s var(--ease);
 }
-.tile:hover { border-top-color: var(--accent); transform: translateY(-2px); box-shadow: var(--lift); }
+/* The accent wipes in along the top edge on hover. It was a transparent 3px
+   border that changed colour, which cannot wipe and made the card's top edge
+   thicker than its other three. */
+.tile::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s var(--ease);
+}
+.tile:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.07); border-color: transparent; }
+.tile:hover::before { transform: scaleX(1); }
+.tile .tt { display: flex; align-items: center; justify-content: space-between; margin-bottom: auto; }
 .tile .theme-tag {
-  justify-self: start;
   /* The deck's accents include a yellow and a pale blue that are unreadable as
      text on cream. Tint the ground with the accent and darken the ink instead of
      using the raw colour. */
@@ -67,29 +94,27 @@
   color: var(--green);
   border-radius: 100px;
   padding: 5px 12px;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-.tile h3 { font-size: 19px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
-.tile .meta { margin: 0; color: var(--muted); font-size: 13px; }
-.tile .rule { border: 0; border-top: 1px solid var(--line); margin: 4px 0; width: 100%; }
+.tile h3 { font-size: 18px; font-weight: 700; color: var(--green); line-height: 1.25; margin-top: 20px; }
+.tile .meta { margin: 12px 0 0; color: var(--muted); font-size: 13px; font-weight: 500; }
+/* Quiet until the card is hovered, then it takes the theme's colour and leans
+   the way it points. */
 .tile .arrow {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: var(--tag);
-  color: var(--green);
-  display: grid;
-  place-items: center;
-  font-size: 13px;
+  background: rgba(0, 0, 0, 0.025);
+  color: var(--faint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.35s var(--ease), color 0.35s var(--ease), transform 0.35s var(--ease);
 }
-.tile .arrow { transition: background 0.35s var(--ease), color 0.35s var(--ease); }
-.tile:hover .arrow { background: var(--accent); color: #fff; }
+.tile:hover .arrow { background: var(--accent); color: #fff; transform: translate(2px, -2px); }
 
 
 /* Stat-card and theme-card furniture, from the approved prototype ---------- */
@@ -127,16 +152,16 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 6px;
-  padding-top: 16px;
+  margin-top: 22px;
+  padding-top: 18px;
   border-top: 1px solid var(--line);
   /* Reserved, because the figures arrive on a separate chunk a moment after the
      grid draws. Without a height here every card would jump when they land. The
-     value is the tallest content: a 26px figure, a 5px gap and a 21px pill, over
-     the padding and the rule. */
-  min-height: 69px;
+     value is the tallest content: a 26px figure, a 4px gap and a 24px pill, over
+     18px of padding and the rule. */
+  min-height: 73px;
 }
-.tstat-l { display: grid; gap: 5px; min-width: 0; }
+.tstat-l { display: grid; gap: 4px; min-width: 0; }
 .tstat-v { font-size: 26px; font-weight: 800; color: var(--green); line-height: 1; letter-spacing: -0.02em; }
 .tstat-none { color: var(--muted); font-size: 13px; }
 .tstat-d {
@@ -168,4 +193,4 @@
   .tspark circle { fill: color-mix(in srgb, var(--accent) 72%, var(--green)); }
 }
 
-.tile .chip { justify-self: start; margin-top: 12px; }
+.tile .chip { align-self: flex-start; margin-top: 14px; }

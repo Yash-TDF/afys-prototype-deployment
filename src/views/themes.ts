@@ -30,8 +30,10 @@ export function themesView(host: HTMLElement): void {
   const intro = document.createElement('section');
   intro.className = 'hero';
   const h1 = document.createElement('h1');
+  h1.className = 'an';
   h1.textContent = 'Survey Overview';
   const lede = document.createElement('p');
+  lede.className = 'an';
   lede.textContent =
     `Explore findings across ${countries.length} countries and 14,000+ respondents `
     + `aged 18 to 24, surveyed in ${waves.length} waves since ${waves[0]!.year}.`;
@@ -93,7 +95,7 @@ export function themesView(host: HTMLElement): void {
   host.append(intro);
 
   const heading = document.createElement('h2');
-  heading.className = 'section-heading';
+  heading.className = 'section-heading an a5';
   heading.textContent = 'Explore by Theme';
   const count = document.createElement('span');
   count.className = 'count';
@@ -119,8 +121,13 @@ export function themesView(host: HTMLElement): void {
 
     const arrow = document.createElement('span');
     arrow.className = 'arrow';
-    arrow.textContent = '↗';
     arrow.setAttribute('aria-hidden', 'true');
+    arrow.append(arrowIcon());
+
+    // The tag and the arrow share a row that the rest of the card hangs below.
+    const top = document.createElement('div');
+    top.className = 'tt';
+    top.append(tag, arrow);
 
     const name = document.createElement('h3');
     name.textContent = theme.name;
@@ -134,7 +141,7 @@ export function themesView(host: HTMLElement): void {
     const slot = document.createElement('div');
     slot.className = 'tstats';
 
-    tile.append(tag, arrow, name, meta, slot);
+    tile.append(top, name, meta, slot);
     grid.append(tile);
     pending.push({ theme, tile, slot });
   });
@@ -209,4 +216,20 @@ function fill(
     `${theme.name}. ${theme.questions.length} questions. `
     + `${figures.of ?? 'Illustrative figure'}: ${reading}. Illustrative figure, not a survey result.`,
   );
+}
+
+function arrowIcon(): SVGSVGElement {
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('width', '14');
+  svg.setAttribute('height', '14');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2.5');
+  svg.setAttribute('stroke-linecap', 'round');
+  const path = document.createElementNS(NS, 'path');
+  path.setAttribute('d', 'M7 17L17 7M17 7H7M17 7v10');
+  svg.append(path);
+  return svg;
 }

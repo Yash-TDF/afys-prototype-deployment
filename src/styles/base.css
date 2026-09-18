@@ -12,7 +12,7 @@ a { color: inherit; }
 h1, h2, h3 { margin: 0; line-height: 1.2; }
 
 /* Display type is the serif; everything else is the sans. */
-.hero h1, .tile-header h1, .explorer-header h1, .method-header h1, .section-heading {
+.hero h1, .tile-header h1, .explorer-header h1, .method-header h1 {
   font-family: var(--display);
   /* Instrument Serif has one weight. Asking for more makes the browser smear a
      false bold over it. */
