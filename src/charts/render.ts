@@ -11,6 +11,7 @@ import { type CategoryKind, type SeriesKind, type ViewModel, sharedBases } from 
 import { GRID, NO_DATA, ramp, SCALE_3, SCALE_4, SERIES } from './palette';
 import { Chart, registerGeo, setupCharts, valueLabels } from './setup';
 import { badgeElement, sampleBadge } from '../ui/quality';
+import { insightRow } from '../ui/insights';
 
 type FeatureLike = { properties: { name: string; surveyName: string | null } };
 
@@ -379,6 +380,9 @@ export function renderFigure(
     head.append(showing);
   }
   figure.append(head);
+
+  const readings = insightRow(model);
+  if (readings) figure.append(readings);
 
   let chart: Chart | undefined;
   let canvas: HTMLCanvasElement | undefined;

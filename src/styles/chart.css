@@ -133,3 +133,55 @@ figure.chart { margin: 0; }
 }
 .qbadge:hover::after,
 .qbadge:focus-visible::after { opacity: 1; transform: translateY(0); }
+
+/* Insight chips ------------------------------------------------------------ */
+
+/* Named .insight, not .chip. The prototype calls these .chip, which here is the
+   "Illustrative" badge beside every title — the one element the three-places
+   rule depends on. Two meanings for one class is how that stops being reliable. */
+.insights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 0;
+  animation: insight-in 0.5s var(--eout);
+}
+
+@keyframes insight-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.insight {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  background: var(--ground);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.insight strong { color: var(--green); font-weight: 700; }
+.insight-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: var(--faint); }
+
+.insight-high { background: var(--wash); border-color: transparent; color: var(--green-mid); }
+.insight-high strong { color: var(--green); }
+.insight-high .insight-dot { background: var(--green-mid); }
+
+.insight-combined .insight-dot { background: var(--gold); }
+.insight-range .insight-dot { background: var(--muted); }
+.insight-shift .insight-dot { background: var(--green-mid); }
+.insight-shift.is-down .insight-dot { background: var(--rose); }
+
+/* A combination that cannot honestly be made is said out loud, in the muted
+   register of a note rather than the red of an error — nothing has gone wrong. */
+.insight-refused { background: none; border-style: dashed; color: var(--faint); }
+.insight-refused strong { color: var(--muted); font-weight: 600; }
+.insight-refused .insight-dot { background: transparent; box-shadow: inset 0 0 0 1px var(--faint); }
+
+@media (max-width: 600px) {
+  .insight { font-size: 11.5px; padding: 6px 12px; }
+}
