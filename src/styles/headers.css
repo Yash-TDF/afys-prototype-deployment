@@ -1,0 +1,43 @@
+/* Tile detail, explorer, methodology headers ------------------------------ */
+
+.crumb {
+  transition: color 0.25s var(--ease), border-color 0.25s var(--ease), background 0.25s var(--ease);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  padding: 7px 15px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  justify-self: start;
+  box-shadow: var(--shadow);
+}
+.crumb:hover { color: var(--green); border-color: var(--accent); background: var(--wash); }
+
+.tile-header, .explorer-header, .method-header { display: grid; gap: 12px; margin-bottom: 22px; justify-items: start; }
+.tile-header h1, .explorer-header h1, .method-header h1 { font-size: 40px; }
+.tile-header p, .method-header p { margin: 0; color: var(--muted); font-size: 14px; }
+
+.theme-pill {
+  background: var(--tag);
+  color: var(--green);
+  border-radius: 100px;
+  padding: 7px 15px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+/* The accent tints need color-mix(), which Safari only has from 16.2. Older Safari accepts a
+   color-mix() line that uses var() and then drops it when drawing, so a plain fallback earlier in
+   the same rule would already have lost. Keep the plain colours above, and tint only where supported. */
+@supports (color: color-mix(in srgb, red 50%, white)) {
+  .tile .theme-tag, .tile .arrow, .theme-pill {
+    background: color-mix(in srgb, var(--accent) 14%, #ffffff);
+    color: color-mix(in srgb, var(--accent) 62%, #1a3a2a);
+  }
+}
+

@@ -1,0 +1,93 @@
+/* Landing ---------------------------------------------------------------- */
+
+.hero h1 { font-size: 44px; }
+.hero > p { color: var(--muted); margin: 10px 0 26px; max-width: 62ch; font-size: 15px; }
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+  margin-bottom: 14px;
+}
+/* Between phone and desktop there is room for three 210px cards but not four, which left one card
+   alone on a second row. Show two and two there instead. */
+@media (min-width: 600px) and (max-width: 960px) {
+  .stat-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.stat {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  box-shadow: var(--shadow);
+  text-decoration: none;
+  display: block;
+  transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease), border-color 0.4s var(--ease);
+}
+.stat:hover { transform: translateY(-2px); box-shadow: var(--lift); border-color: var(--line); }
+.stat .label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+.stat .value { display: block; font-size: 38px; font-weight: 700; letter-spacing: -0.03em; margin: 8px 0 6px; color: var(--ink); }
+.stat .sub { display: block; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.stat .chip { margin-top: 10px; display: inline-block; }
+
+.section-heading { margin: 40px 0 16px; font-size: 30px; }
+.section-heading .count { font-family: var(--body); font-size: 13px; color: var(--faint); font-weight: 500; float: right; margin-top: 14px; }
+
+.tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+
+.tile {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  border-top: 3px solid transparent;
+  transition: transform 0.45s var(--ease), border-color 0.45s var(--ease), box-shadow 0.45s var(--ease);
+}
+.tile:hover { border-top-color: var(--accent); transform: translateY(-2px); box-shadow: var(--lift); }
+.tile .theme-tag {
+  justify-self: start;
+  /* The deck's accents include a yellow and a pale blue that are unreadable as
+     text on cream. Tint the ground with the accent and darken the ink instead of
+     using the raw colour. */
+  background: var(--tag);
+  color: var(--green);
+  border-radius: 100px;
+  padding: 5px 12px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.tile h3 { font-size: 19px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+.tile .meta { margin: 0; color: var(--muted); font-size: 13px; }
+.tile .rule { border: 0; border-top: 1px solid var(--line); margin: 4px 0; width: 100%; }
+.tile .arrow {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--tag);
+  color: var(--green);
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+}
+.tile .arrow { transition: background 0.35s var(--ease), color 0.35s var(--ease); }
+.tile:hover .arrow { background: var(--accent); color: #fff; }
+

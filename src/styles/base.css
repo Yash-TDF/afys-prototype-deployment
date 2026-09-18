@@ -1,0 +1,21 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: 15px/1.6 var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; }
+h1, h2, h3 { margin: 0; line-height: 1.2; }
+
+/* Display type is the serif; everything else is the sans. */
+.hero h1, .tile-header h1, .explorer-header h1, .method-header h1, .section-heading {
+  font-family: var(--display);
+  font-weight: 800;
+  color: var(--green);
+  letter-spacing: -0.02em;
+}
+
