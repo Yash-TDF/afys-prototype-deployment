@@ -1,7 +1,7 @@
 /* Misc -------------------------------------------------------------------- */
 
 .question-list { margin-top: 34px; }
-.question-list h2 { font-family: var(--display); font-weight: 700; color: var(--green); font-size: 26px; margin-bottom: 12px; }
+.question-list h2 { font: 700 22px/1.6 var(--body); color: var(--green); margin-bottom: 12px; }
 .question-list ul { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 0; }
 .question-list a {
   display: inline-block;

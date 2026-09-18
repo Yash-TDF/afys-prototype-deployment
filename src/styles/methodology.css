@@ -23,7 +23,7 @@
   box-shadow: var(--shadow);
   align-self: start;
 }
-.country-detail h2 { font-family: var(--display); font-weight: 700; color: var(--green); font-size: 24px; margin-bottom: 10px; }
+.country-detail h2 { font-family: var(--display); font-weight: 400; color: var(--green); font-size: 24px; margin-bottom: 10px; }
 .country-detail ul { list-style: none; padding: 0; margin: 0; font-size: 13.5px; }
 .country-detail li { padding: 7px 0; border-bottom: 1px solid var(--line); }
 .country-detail li.asked { color: var(--green-mid); font-weight: 600; }

@@ -93,7 +93,7 @@ figure.chart { margin: 0; }
 .coverage td.yes { color: var(--green-mid); font-weight: 700; }
 .coverage td.no { color: var(--faint); }
 .coverage { margin-top: 32px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
-.coverage h2 { font-family: var(--display); font-weight: 700; color: var(--green); font-size: 26px; }
+.coverage h2 { font: 700 22px/1.6 var(--body); color: var(--green); }
 
 
 /* The sample-size badge ---------------------------------------------------- */
