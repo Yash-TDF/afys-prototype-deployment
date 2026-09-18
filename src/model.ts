@@ -231,7 +231,12 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
   // chart plots one option across countries, and its categories must stay
   // country names or the map has nothing to colour.
   if (q?.responseType === 'multi' && spec.comparison !== 'country') {
-    const cells = multi(seed, options.labels.length > 4 ? options.labels : MULTI_PLACEHOLDER).slice(0, 10);
+    // The stand-ins are for a list we do not have, and `illustrative` is what says
+    // so — it is also what puts the placeholder note on the chart. This used to
+    // test the list's length instead, so "Key Reasons to Emigrate", whose real
+    // list is four grouped reasons, was drawn as "Healthcare" and "Agriculture
+    // and food" with no note at all.
+    const cells = multi(seed, options.illustrative ? MULTI_PLACEHOLDER : options.labels).slice(0, 10);
     return {
       ...common,
       categories: cells.map((c) => c.label),
