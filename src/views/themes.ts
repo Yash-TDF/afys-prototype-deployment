@@ -46,27 +46,61 @@ export function themesView(host: HTMLElement): void {
   // no illustrative marking. The other three cards have no series behind them and
   // get no line rather than an invented one.
   const perWave = waves.map((w) => inWave(w.year).length);
-  const facts: { label: string; value: string; sub: string; spark?: number[]; sparkLabel?: string }[] = [
+  // Each card opens the data drawer at the section that backs it up, as the
+  // approved prototype's do. `section` is a drawer section id, not a heading.
+  const facts: {
+    label: string; value: string; sub: string; section: string; opens: string;
+    spark?: number[]; sparkLabel?: string;
+  }[] = [
     {
       label: 'Countries',
       value: String(countries.length),
       sub: `Sub-Saharan Africa · ${inWave(latestWave).length} surveyed in ${latestWave}`,
+      section: 'countries-surveyed',
+      opens: 'View the countries surveyed',
       spark: perWave,
       sparkLabel: `Countries surveyed per wave: ${waves.map((w, i) => `${w.year}, ${perWave[i]}`).join('; ')}`,
     },
-    { label: 'Respondents', value: '14,000+', sub: 'Aged 18 to 24, in each wave' },
-    { label: 'Survey waves', value: String(waves.length), sub: waves.map((w) => w.year).join(' · ') },
-    { label: 'Themes', value: String(themes.length), sub: 'From the Portal Content deck' },
+    {
+      label: 'Respondents', value: '14,000+', sub: 'Aged 18 to 24, in each wave',
+      section: 'study-overview', opens: 'About the study',
+    },
+    {
+      label: 'Survey waves', value: String(waves.length), sub: waves.map((w) => w.year).join(' · '),
+      section: 'waves', opens: 'View the waves',
+    },
+    {
+      label: 'Themes', value: String(themes.length), sub: 'From the Portal Content deck',
+      section: 'themes', opens: 'View the themes',
+    },
   ];
 
   facts.forEach((fact, i) => {
-    const card = document.createElement('div');
+    // A button, because it does something and a keyboard has to be able to do
+    // it too. The prototype's card is a div with a click handler.
+    const card = document.createElement('button');
+    card.type = 'button';
     card.className = `stat an a${i + 1}`;
+    card.setAttribute('aria-label', `${fact.label}: ${fact.value}. ${fact.opens}`);
+    card.setAttribute('aria-haspopup', 'dialog');
+    card.title = fact.opens;
+    // Loaded on the click, like the nav's own button: the landing page still
+    // does not carry the drawer.
+    card.addEventListener('click', () => {
+      void import('../ui/drawer').then((drawer) => drawer.scrollTo(fact.section));
+    });
 
-    const top = document.createElement('div');
+    const go = document.createElement('span');
+    go.className = 'stat-arrow';
+    go.setAttribute('aria-hidden', 'true');
+    go.append(arrowIcon(12));
+    card.append(go);
+
+    // Spans, not divs: a button may only contain phrasing content.
+    const top = document.createElement('span');
     top.className = 'stat-top';
 
-    const left = document.createElement('div');
+    const left = document.createElement('span');
     left.className = 'stat-left';
     const label = document.createElement('span');
     label.className = 'label';
@@ -122,7 +156,7 @@ export function themesView(host: HTMLElement): void {
     const arrow = document.createElement('span');
     arrow.className = 'arrow';
     arrow.setAttribute('aria-hidden', 'true');
-    arrow.append(arrowIcon());
+    arrow.append(arrowIcon(14));
 
     // The tag and the arrow share a row that the rest of the card hangs below.
     const top = document.createElement('div');
@@ -218,11 +252,11 @@ function fill(
   );
 }
 
-function arrowIcon(): SVGSVGElement {
+function arrowIcon(size: number): SVGSVGElement {
   const NS = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(NS, 'svg');
-  svg.setAttribute('width', '14');
-  svg.setAttribute('height', '14');
+  svg.setAttribute('width', String(size));
+  svg.setAttribute('height', String(size));
   svg.setAttribute('viewBox', '0 0 24 24');
   svg.setAttribute('fill', 'none');
   svg.setAttribute('stroke', 'currentColor');

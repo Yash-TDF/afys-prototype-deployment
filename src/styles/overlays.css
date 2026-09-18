@@ -102,6 +102,19 @@
 
 .dr-link { color: var(--accent); font-weight: 600; font-size: 13px; text-decoration: none; border-bottom: 1px solid var(--wash); transition: border-color 0.2s var(--ease); }
 .dr-link:hover { border-bottom-color: var(--accent); }
+/* Where a stat card sent you: the section is washed for a moment and its heading
+   stays green until the drawer closes. */
+/* The shadow is the same colour spread 10px, so the wash has a margin around
+   the text without the section changing size. */
+@keyframes dr-target {
+  from { background: var(--mint); box-shadow: 0 0 0 10px var(--mint); }
+  to { background: transparent; box-shadow: 0 0 0 10px transparent; }
+}
+.dr-sec.is-target { animation: dr-target 1.6s var(--ease) 0.3s backwards; border-radius: 6px; }
+.dr-sec.is-target h4 { color: var(--green-mid); }
+.dr-themes { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.dr-themes li { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.dr-themes span { font-size: 12px; color: var(--muted); white-space: nowrap; }
 .dr-table + p { margin-top: 12px; }
 
 /* Question search ---------------------------------------------------------- */

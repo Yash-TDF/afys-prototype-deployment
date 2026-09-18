@@ -119,10 +119,38 @@
 
 /* Stat-card and theme-card furniture, from the approved prototype ---------- */
 
-/* The top border wipes in on hover. Their .sc is a button that opens the
-   methodology drawer; ours is not clickable yet, so it gets the reveal and not
-   the arrow — an arrow on something that does not go anywhere is a lie. */
-.stat { position: relative; overflow: hidden; }
+/* The top border wipes in on hover and an arrow appears in the corner, because
+   the card goes somewhere: it opens the data drawer at the section behind its
+   figure. It is a <button>, so it has to be told to look like the card it is. */
+.stat {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.stat-arrow {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--faint);
+  opacity: 0;
+  transform: translate(-4px, 4px);
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease), color 0.3s var(--ease), background 0.3s var(--ease);
+}
+.stat:hover .stat-arrow,
+.stat:focus-visible .stat-arrow { opacity: 1; transform: none; color: var(--green-mid); background: var(--wash); }
+/* The one card with a sparkline has it where the arrow lands. */
+.stat .sparkline { transition: opacity 0.3s var(--ease); }
+.stat:hover .sparkline, .stat:focus-visible .sparkline { opacity: 0.35; }
 .stat::before {
   content: '';
   position: absolute;
@@ -138,7 +166,7 @@
 .stat:hover::before { transform: scaleX(1); }
 
 .stat-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.stat-left { min-width: 0; }
+.stat-left { display: block; min-width: 0; }
 
 .sparkline { width: 80px; height: 40px; flex-shrink: 0; margin-top: 4px; }
 .sparkline polyline { fill: none; stroke: var(--green-mid); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }

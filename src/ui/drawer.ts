@@ -39,6 +39,7 @@ export function open(): void {
 export function close(): void {
   if (!root) return;
   root.classList.remove('show');
+  for (const marked of root.querySelectorAll('.is-target')) marked.classList.remove('is-target');
   // inert rather than hidden-after-a-timer. The prototype sets hidden after
   // 400ms to match its slide-out, which leaves the panel in the tab order for
   // most of a second — and for a reader who has asked for less motion, where the
@@ -91,6 +92,7 @@ function build(): void {
   body.append(section('study-overview', 'Study overview', overview()));
   body.append(section('waves', 'Waves', waveTable()));
   body.append(section('countries-surveyed', `Countries surveyed in ${latestWave}`, countryChips()));
+  body.append(section('themes', 'Themes', themeLinks()));
   body.append(section('figures', 'The figures', figuresNote()));
 
   panel.append(head, body);
@@ -118,7 +120,15 @@ function section(id: string, heading: string, content: HTMLElement): HTMLElement
 export function scrollTo(id: string): void {
   open();
   const target = document.getElementById(`dr-${id}`);
-  target?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  // Asked for in script, `smooth` outranks the stylesheet's reduced-motion rule,
+  // so the preference is read here as well.
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  target?.scrollIntoView({ block: 'start', behavior: still ? 'auto' : 'smooth' });
+  // The last two sections both sit within the drawer's final screenful, so
+  // scrolling to either ends in the same place. The section that was asked for
+  // is marked, which says where you were sent when the scroll position cannot.
+  for (const marked of root!.querySelectorAll('.is-target')) marked.classList.remove('is-target');
+  target?.classList.add('is-target');
 }
 
 function overview(): HTMLElement {
@@ -181,6 +191,25 @@ function countryChips(): HTMLElement {
     wrap.append(chip);
   }
   return wrap;
+}
+
+/** The twelve themes as links to their pages — the deck's own names and counts. */
+function themeLinks(): HTMLElement {
+  const list = document.createElement('ul');
+  list.className = 'dr-themes';
+  for (const theme of themes) {
+    const item = document.createElement('li');
+    const link = document.createElement('a');
+    link.className = 'dr-link';
+    link.href = `#/theme/${theme.slug}`;
+    link.textContent = theme.name;
+    link.addEventListener('click', close);
+    const count = document.createElement('span');
+    count.textContent = `${theme.questions.length} question${theme.questions.length === 1 ? '' : 's'}`;
+    item.append(link, count);
+    list.append(item);
+  }
+  return list;
 }
 
 function figuresNote(): HTMLElement {

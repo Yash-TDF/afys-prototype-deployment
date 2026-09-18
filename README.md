@@ -60,14 +60,14 @@ the open risk in ADR 0018; it renders Natural Earth geometry at 110m fine.
 
 | | gzipped |
 |---|---|
-| Landing page — HTML, CSS, app shell, the deck's structure | **18.1 KB** |
+| Landing page — HTML, CSS, app shell, the deck's structure | **18.5 KB** |
 | The view model and the generators, first time any figure is shown | +5.1 KB |
 | The question search, first time it is opened | +1.6 KB |
-| The data drawer, first time it is opened | +1.4 KB |
+| The data drawer, first time it is opened | +1.6 KB |
 | Chart.js core, first time any chart is drawn | +30.2 KB |
 | `chartjs-chart-geo` + `d3-geo`, only when a map is drawn | +64.0 KB |
 | Africa outline, 51 countries at 110m | +11.9 KB |
-| Worst case: a cold cache landing straight on a map | 147.0 KB |
+| Worst case: a cold cache landing straight on a map | 147.7 KB |
 
 Everything below the first line is deferred for the same reason: the card names
 and question counts are the page's content, and they should not wait on the
@@ -78,7 +78,7 @@ yet. The theme cards' figures arrive after the grid is already readable, and
 The styles are the exception, and worth naming: they build as one asset, so the
 drawer and the search cost their CSS on every page even though their code loads
 on neither. That is what took the landing page from 14.8 KB to 17.4, and matching
-the prototype's card, rail and filter-bar treatment took it to 18.1.
+the prototype's card, rail and filter-bar treatment took it to 18.5.
 
 Not in these figures: the two webfonts, which come from Google Fonts and are
 cached across sites. They are `display=swap`, so text is readable before they
@@ -146,6 +146,13 @@ filter change. Bars fill over 700ms on a cubic ease-out, each 18ms after the
 last, which is the prototype's ECharts timing restated for Chart.js. A redrawn
 chart settles in over 0.22s. All of it stops for a reader who has asked for less
 motion, including the canvas, which a stylesheet cannot reach.
+
+**The four summary cards open the data drawer**, as the prototype's do, each at
+the section behind its figure: the countries, the study, the waves, the themes.
+They are buttons, so a keyboard opens them too, and Escape puts focus back on
+the card. The drawer is still fetched on the first click rather than with the
+page. The prototype's third card, "Right Direction 55%", opens the explorer; we
+have no such card — see item 14 below — and ours is Themes.
 
 One thing worth knowing if the bars ever stop animating: Chart.js floors the
 canvas it draws but compares against its container's real width, so in a card
