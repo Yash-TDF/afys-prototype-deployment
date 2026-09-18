@@ -141,7 +141,7 @@ export function filterBar(
 
   bar.append(select(
     'Region',
-    [{ value: '', label: ALL_COUNTRIES }, ...regionOptions],
+    [{ value: '', label: 'All regions' }, ...regionOptions],
     current.region,
     (value) => {
       const names = value ? surveyed.filter((c) => REGIONS[value]!.includes(c.name)).map((c) => c.name) : [];

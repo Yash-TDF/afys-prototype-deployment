@@ -102,6 +102,7 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
   searchWrap.append(searchInput);
 
   const listHost = document.createElement('div');
+  listHost.className = 'qlist';
   listHost.setAttribute('aria-labelledby', sideHeading.id);
 
   side.append(sideHeading, searchWrap, listHost);
@@ -171,6 +172,9 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
   }
 
   function renderList(): void {
+    // Emptying a scroller puts it back at the top. Kept and handed back, so
+    // choosing a question halfway down does not throw the list to its start.
+    const scrolled = listHost.scrollTop;
     listHost.replaceChildren();
     const list = visible();
 
@@ -209,6 +213,24 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
       block.append(name, items);
       listHost.append(block);
     }
+    listHost.scrollTop = scrolled;
+    reveal();
+  }
+
+  // Bring the current question into the list's view — arriving from a link to
+  // the fortieth question should not show the first ten. The list's own
+  // scrollTop is set rather than calling scrollIntoView, which would scroll the
+  // page as well whenever the rail is partly off screen.
+  function reveal(): void {
+    const active = listHost.querySelector<HTMLElement>('button[aria-current="true"]');
+    if (!active) return;
+    const box = listHost.getBoundingClientRect();
+    const item = active.getBoundingClientRect();
+    // Before the rail sticks, its lower end is below the window, so the bottom
+    // that counts is whichever comes first: the list's or the screen's.
+    const floor = Math.min(box.bottom, window.innerHeight);
+    if (item.top < box.top) listHost.scrollTop -= box.top - item.top + 12;
+    else if (item.bottom > floor) listHost.scrollTop += item.bottom - floor + 12;
   }
 
   function syncNav(): void {

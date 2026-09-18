@@ -41,10 +41,18 @@ figcaption > .exports { margin: 0 0 0 auto; }
    sticky, with the controls and the chart beside it. Below 1100px there is not
    room for two columns, so the list gives way to the question dropdown. */
 .elayout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-items: start; }
-.qside { display: none; position: sticky; top: 92px; max-height: calc(100vh - 120px); overflow-y: auto; }
-.qside h2 { font: 600 11px/1.6 var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); margin: 0 0 12px; padding-left: 4px; }
+/* The rail stays put and only the list inside it scrolls, so "Questions" and
+   the search box are always there and the rail's top edge stays level with the
+   column beside it. When the whole rail scrolled, both slid away. */
+.qside { display: none; position: sticky; top: 92px; max-height: calc(100vh - 116px); max-height: calc(100dvh - 116px); flex-direction: column; }
+/* 8px between the cards and the scrollbar, which used to sit 2px off the
+   current question's edge. */
+.qlist { min-height: 0; overflow-y: auto; padding-right: 8px; }
+/* Both kinds of label start where the questions' own text starts: the button's
+   16px of padding and its 1px border. */
+.qside h2 { font: 600 11px/1.6 var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); margin: 0 0 12px; padding-left: 17px; }
 .qside-theme { margin-bottom: 18px; }
-.qside-theme h3 { font: 700 11px var(--body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); margin: 0 0 6px; }
+.qside-theme h3 { font: 700 11px var(--body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); margin: 0 0 6px; padding-left: 17px; }
 .qside ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .qside button {
   width: 100%;
@@ -61,8 +69,8 @@ figcaption > .exports { margin: 0 0 0 auto; }
 /* Hovering lifts the row onto a card of its own, rather than tinting it. */
 .qside button:hover { background: var(--card); border-color: var(--line); color: var(--ink); }
 .qside button[aria-current="true"] { background: var(--wash); color: var(--green-mid); font-weight: 700; }
-.qside::-webkit-scrollbar { width: 3px; }
-.qside::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 4px; }
+.qlist::-webkit-scrollbar { width: 3px; }
+.qlist::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 4px; }
 /* The right column, spaced the way the approved prototype spaces it: one gap
    between every child rather than a margin on each. Several of ours carried no
    margin at all, so the question wording, the base note and the filter bar sat
@@ -78,7 +86,9 @@ figcaption > .exports { margin: 0 0 0 auto; }
 
 /* Question search, empty state and prev/next ------------------------------ */
 
-.qsearch { position: relative; margin-bottom: 10px; }
+/* Inset by what the list gives up on its right — the 8px gutter and the 3px
+   scrollbar — so the box and the cards under it share an edge. */
+.qsearch { position: relative; margin: 0 11px 16px 0; }
 .qsearch input {
   width: 100%;
   padding: 11px 14px 11px 38px;

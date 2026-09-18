@@ -25,6 +25,11 @@
    approved. The row takes the bar's full width so it sits under the controls,
    and it stays visible when the phone bar is collapsed - that is the point of it. */
 .ftags { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 8px; }
+/* The row is marked hidden when nothing is applied, but `display: flex` above
+   outranks the browser's own rule for that attribute — so an empty row was still
+   a flex item, still took the bar's 16px gap, and left the card 16px deeper
+   under its controls than over them. */
+.ftags[hidden] { display: none; }
 .ftag {
   display: inline-flex;
   align-items: center;
@@ -157,7 +162,9 @@
 
 .question-text {
   margin: 0;
-  padding: 14px 18px;
+  /* Every card in this column starts its content 29px in: 28px of padding and a
+     1px border. This one's left border is 3px, so its padding gives two back. */
+  padding: 16px 28px 16px 26px;
   background: var(--card);
   border: 1px solid var(--line);
   border-left: 3px solid var(--accent);

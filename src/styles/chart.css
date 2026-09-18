@@ -5,7 +5,7 @@
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 28px 32px;
+  padding: 28px;
 }
 
 /* A chart that has just been redrawn settles in rather than snapping: the second
