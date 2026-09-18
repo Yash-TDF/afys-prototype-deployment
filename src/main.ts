@@ -2,6 +2,7 @@
 // deployment or a laptop without any rewrite rules — and so a link to a
 // particular theme or question survives being pasted into Slack.
 import { themesView } from './views/themes';
+import { showWave } from './wave-badge';
 
 // Every view except the landing page is imported on demand. The landing page is
 // tiles and text — it should not download a charting library to render a grid of
@@ -93,6 +94,13 @@ function route(): void {
     current.update(params);
     return;
   }
+
+  // Back to the latest wave on every navigation: a view that has a wave names it
+  // again as it draws, and one that has none (the landing page) should not be left
+  // wearing the wave somebody chose on the page before. Below the update-in-place
+  // return on purpose: a view left standing may decide it has nothing to redraw,
+  // and would then be wearing a reset it never answered.
+  showWave();
 
   current?.destroy();
   current = null;
