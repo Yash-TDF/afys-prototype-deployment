@@ -215,7 +215,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-width: 170px;
+  min-width: 150px;
   padding: 10px 14px;
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -250,7 +250,9 @@
   min-width: 20px;
   height: 20px;
   padding: 0 6px;
-  margin-left: auto;
+  /* Taller than the text beside it, so without this the button grew 4px when a
+     count appeared and stood proud of the selects either side. */
+  margin: -2px 0 -2px auto;
   background: var(--green-mid);
   color: #fff;
   border-radius: 100px;

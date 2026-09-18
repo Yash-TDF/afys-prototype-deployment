@@ -32,6 +32,14 @@
 /* In the explorer the downloads sit in the chart's own header, on the title's
    row and pushed to its far end, which is where the prototype puts them. */
 figcaption > .exports { margin: 0 0 0 auto; }
+/* Pinned to the corner rather than left in the row. In the row, a long title
+   pushed the buttons onto a line of their own for some questions and not others;
+   pinned, the title wraps beside them instead, which is what the prototype's
+   header does with its 550px cap. The padding is the buttons' width and a gap. */
+@media (min-width: 701px) {
+  .explorer-figure figcaption { position: relative; padding-right: 214px; min-height: 30px; }
+  .explorer-figure figcaption > .exports { position: absolute; top: 0; right: 0; margin: 0; }
+}
 .exports button { transition: color 0.25s var(--ease), border-color 0.25s var(--ease), background 0.25s var(--ease); }
 .exports button:hover { color: var(--green); border-color: var(--accent); background: var(--wash); }
 

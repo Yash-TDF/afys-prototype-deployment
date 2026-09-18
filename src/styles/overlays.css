@@ -60,7 +60,7 @@
   border-bottom: 1px solid var(--line);
 }
 .dr-sub { margin: 0 0 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
-.dr-head h3 { font-family: var(--display); font-size: 26px; font-weight: 400; line-height: 1.15; color: var(--green); }
+.dr-head h3 { font-family: var(--display); font-size: 26px; font-weight: var(--display-weight); letter-spacing: var(--display-tracking); line-height: 1.15; color: var(--green); }
 .dr-close {
   display: grid;
   place-items: center;

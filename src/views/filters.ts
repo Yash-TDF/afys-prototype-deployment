@@ -40,7 +40,10 @@ const COMPARE_LABELS: Record<CompareBy, string> = {
   wave: 'Waves',
 };
 
-const ALL_COUNTRIES = 'All surveyed countries';
+// Short, so five controls share a row in Montserrat. It does not need to say
+// "surveyed": the Wave control beside it already reads "2026 · 16 countries", and
+// the list it opens holds only those sixteen.
+const ALL_COUNTRIES = 'All countries';
 
 /**
  * The applied filters, defined once.

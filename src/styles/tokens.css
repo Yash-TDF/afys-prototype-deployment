@@ -1,11 +1,16 @@
 /* Round-zero styling.
 
-   **Typeface: Instrument Serif and Plus Jakarta Sans**, the two faces of the
-   prototype the client approved. AfricanYS_style.pdf in their asset pack
-   specifies Montserrat, and an earlier round shipped that — but set in
-   Montserrat at weight 800 the page stopped reading as the thing they signed
-   off, which defeats the purpose of a round that asks them to approve structure
-   and nothing else. The brand face is a conversation for the production build.
+   **Typeface: Montserrat throughout**, from AfricanYS_style.pdf in the asset pack
+   the client sent — and what we told them in writing we would use. The approved
+   prototype is set in Instrument Serif and Plus Jakarta Sans, which appear in
+   neither their guide nor their published material; they were the pitch's own
+   choice. Everything else about the prototype's type is kept: the sizes, the
+   leading, the weights of the body text.
+
+   The one thing a swap of family cannot carry over is the title's weight. The
+   serif has a single light weight and the page was built around it, so
+   Montserrat takes 700 there — the 800 an earlier round used made the titles the
+   loudest thing on the page, which the approved design never was.
 
    **Palette: the deck's eight brand colours**, which the style guide and the
    theme accents already agree on — #fff8e9, #fec648, #f1676a, #e82d4e, #0a734d,
@@ -15,8 +20,9 @@
    follows the approved prototype, read off its deployed stylesheet, so the
    structure is what gets reviewed rather than a redesign.
 
-   To move to the style guide's Montserrat: change --display and --body below
-   and the font link in index.html. Nothing else depends on them. */
+   To try the prototype's faces: change --display, --display-weight and --body
+   below and the font link in index.html. Nothing else names a typeface — the
+   charts read --body from here. */
 
 :root {
   --ground: #faf8f4;
@@ -46,7 +52,9 @@
   --lift: 0 16px 40px rgba(26, 58, 42, 0.10);
   --wash: rgba(47, 122, 90, 0.06);
   --mint: #d8f3dc;
-  --display: "Instrument Serif", Georgia, "Times New Roman", serif;
-  --body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display-weight: 700;
+  --display-tracking: -0.02em;
+  --body: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
