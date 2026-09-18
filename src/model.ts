@@ -9,8 +9,23 @@ import {
   type ChartSpec, type Question, type Theme, inWave, latestWave, likeForLike, question, waves,
 } from './content';
 import { base, distribution, headline, multi, optionsFor, trend } from './illustrative';
+import { type Part, partsOf } from './aggregate';
 
-export interface Series { label: string; values: number[]; }
+export interface Series {
+  label: string;
+  values: number[];
+  /**
+   * Unweighted n behind each value, aligned with `categories`.
+   *
+   * Null where the categories are not independent samples. Fifteen answer options
+   * are fifteen cuts of one sample, so printing an n beside each would assert
+   * fifteen denominators that do not exist — and would let something downstream
+   * combine them as though they were separate measurements.
+   */
+  bases: number[] | null;
+}
+
+const sum = (values: number[]): number => values.reduce((a, b) => a + b, 0);
 
 /**
  * What the categories along the axis are.
@@ -85,7 +100,11 @@ export function buildViewModel(spec: ChartSpec, theme: Theme, filters: Filters):
     return {
       ...common,
       categories: cells.map((c) => c.label),
-      series: [{ label: spec.showing ?? 'Share choosing each option', values: cells.map((c) => c.pct) }],
+      series: [{
+        label: spec.showing ?? 'Share choosing each option',
+        values: cells.map((c) => c.pct),
+        bases: null,
+      }],
       likeForLike: null,
       categoryKind: 'options',
       // Respondents pick more than one, so these do not sum to 100. The real
@@ -100,7 +119,12 @@ export function buildViewModel(spec: ChartSpec, theme: Theme, filters: Filters):
     const years = waves.map((w) => w.year).filter((y) => !notAsked(caveats).has(y));
     const shared = likeForLike(years);
     const labels = options.labels.slice(0, 3);
-    const series = labels.map((label) => ({ label, values: trend(key([seed, label]), years) }));
+    // One base per wave, shared by every series: the options are cuts of the same
+    // interviews, so the denominator belongs to the year, not to the answer.
+    const waveBases = years.map((year) => base(key([seed, 'n', year])));
+    const series = labels.map((label) => ({
+      label, values: trend(key([seed, label]), years), bases: waveBases,
+    }));
     // A stacked bar is a distribution: the segments of one bar are shares of the
     // same respondents and have to total 100. Drawing three independent trends and
     // stacking them produces bars that run past the axis — which is exactly the
@@ -110,6 +134,7 @@ export function buildViewModel(spec: ChartSpec, theme: Theme, filters: Filters):
       ...common,
       categories: years.map(String),
       series,
+      base: sum(waveBases),
       categoryKind: 'waves',
       // The deck already carries this restriction in its own words on most of
       // these charts. Saying it twice makes both copies look like boilerplate.
@@ -125,13 +150,24 @@ export function buildViewModel(spec: ChartSpec, theme: Theme, filters: Filters):
     const surveyed = inWave(filters.wave)
       .filter((c) => filters.countries.length === 0 || filters.countries.includes(c.name));
     const label = options.labels[0] ?? 'Selected';
+    // Base travels with its country through the sort. Computed afterwards against
+    // the sorted names it would still line up, but only by accident — one more
+    // sort key and every country would be carrying its neighbour's denominator.
     const rows = surveyed
-      .map((c) => ({ name: c.name, value: headline(key([seed, c.name, label])) }))
+      .map((c) => ({
+        name: c.name,
+        value: headline(key([seed, c.name, label])),
+        base: base(key([seed, 'n', c.name])),
+      }))
       .sort((a, b) => b.value - a.value);
+    const countryBases = rows.map((r) => r.base);
     return {
       ...common,
       categories: rows.map((r) => r.name),
-      series: [{ label: spec.showing ?? label, values: rows.map((r) => r.value) }],
+      series: [{ label: spec.showing ?? label, values: rows.map((r) => r.value), bases: countryBases }],
+      // Sixteen countries are sixteen samples, so the chart's base is their total
+      // rather than a figure of its own.
+      base: sum(countryBases),
       likeForLike: null,
       categoryKind: 'countries',
     };
@@ -144,10 +180,61 @@ export function buildViewModel(spec: ChartSpec, theme: Theme, filters: Filters):
   return {
     ...common,
     categories: cells.map((c) => c.label),
-    series: [{ label: spec.showing ?? 'Share of respondents', values: cells.map((c) => c.pct) }],
+    series: [{ label: spec.showing ?? 'Share of respondents', values: cells.map((c) => c.pct), bases: null }],
     likeForLike: null,
     categoryKind: 'options',
   };
+}
+
+/** One row per category, for the table, the chips and the tooltips. */
+export interface Row {
+  label: string;
+  value: number | undefined;
+  base: number | null;
+}
+
+export function rows(model: ViewModel, seriesIndex = 0): Row[] {
+  const series = model.series[seriesIndex];
+  return model.categories.map((label, i) => ({
+    label,
+    value: series?.values[i],
+    base: series?.bases?.[i] ?? null,
+  }));
+}
+
+/**
+ * The parts of a combined figure, or null when there is no honest combination to
+ * make.
+ *
+ * Null is the answer for an option axis, and it is not a refusal to be handled at
+ * runtime — it means the call cannot be constructed at all. Combining the fifteen
+ * options of one question would be adding up cuts of a single sample as though
+ * they were separate measurements.
+ */
+export function partsFor(model: ViewModel, seriesIndex = 0): Part[] | null {
+  const series = model.series[seriesIndex];
+  if (!series?.bases) return null;
+  const cells = model.categories
+    .map((label, i) => ({ label, pct: series.values[i], base: series.bases![i] }))
+    .filter((c): c is { label: string; pct: number; base: number } =>
+      c.pct !== undefined && c.base !== undefined);
+  return partsOf(cells);
+}
+
+/**
+ * The per-category bases, but only when every series agrees on them.
+ *
+ * A gender split is two samples with two different denominators, so a single
+ * "Base (n)" column would attribute one series' base to both. Null there, and the
+ * column is simply not drawn.
+ */
+export function sharedBases(model: ViewModel): number[] | null {
+  const first = model.series[0]?.bases;
+  if (!first) return null;
+  const same = model.series.every((s) => s.bases
+    && s.bases.length === first.length
+    && s.bases.every((v, i) => v === first[i]));
+  return same ? first : null;
 }
 
 /**

@@ -7,7 +7,7 @@
 // own right, so the markup is owed twice over.
 import type { ChartConfiguration, ChartType as ChartJsType } from 'chart.js';
 import type { ChartType } from '../content';
-import type { ViewModel } from '../model';
+import { type CategoryKind, type ViewModel, sharedBases } from '../model';
 import { GRID, NO_DATA, ramp, SCALE_3, SCALE_4, SERIES } from './palette';
 import { Chart, registerGeo, setupCharts, valueLabels } from './setup';
 
@@ -24,7 +24,7 @@ function outline(): Promise<{ features: FeatureLike[] }> {
   return africa;
 }
 
-const palette = (model: ViewModel, kind: ChartType): string[] => {
+export const palette = (model: ViewModel, kind: ChartType): string[] => {
   if (model.series.length > 1) {
     return Array.from({ length: model.series.length }, (_, i) => SERIES[i % SERIES.length]!);
   }
@@ -213,6 +213,13 @@ async function mapConfig(model: ViewModel, accent: string): Promise<ChartConfigu
   };
 }
 
+/** What the first column holds. */
+const CORNER: Record<CategoryKind, string> = {
+  countries: 'Country',
+  options: 'Response',
+  waves: 'Wave',
+};
+
 function table(model: ViewModel): HTMLDetailsElement {
   const wrap = document.createElement('details');
   wrap.className = 'chart-table';
@@ -222,18 +229,28 @@ function table(model: ViewModel): HTMLDetailsElement {
 
   const el = document.createElement('table');
   const caption = document.createElement('caption');
-  caption.textContent = `${model.title} — illustrative figures, base ${model.base} respondents`;
+  caption.textContent = `${model.title} — illustrative figures, `
+    + `base ${model.base.toLocaleString('en-GB')} respondents`;
   el.append(caption);
 
   const head = document.createElement('tr');
   const corner = document.createElement('th');
   corner.scope = 'col';
-  corner.textContent = model.series.length > 1 ? 'Wave' : 'Category';
+  corner.textContent = CORNER[model.categoryKind];
   head.append(corner);
   for (const s of model.series) {
     const th = document.createElement('th');
     th.scope = 'col';
     th.textContent = s.label;
+    head.append(th);
+  }
+  // Only where the categories are separate samples, and only where every series
+  // was measured on the same ones. See sharedBases.
+  const bases = sharedBases(model);
+  if (bases) {
+    const th = document.createElement('th');
+    th.scope = 'col';
+    th.textContent = 'Base (n)';
     head.append(th);
   }
   el.append(head);
@@ -260,6 +277,12 @@ function table(model: ViewModel): HTMLDetailsElement {
         bar.setAttribute('aria-hidden', 'true');
         td.append(bar);
       }
+      row.append(td);
+    }
+    if (bases) {
+      const td = document.createElement('td');
+      const n = bases[i];
+      td.textContent = n === undefined ? '—' : n.toLocaleString('en-GB');
       row.append(td);
     }
     el.append(row);
@@ -290,7 +313,7 @@ function notes(model: ViewModel): string[] {
       + 'them. The real list is one of the things we need from PSB.',
     );
   }
-  out.push(`Base: ${model.base} respondents (illustrative).`);
+  out.push(`Base: ${model.base.toLocaleString('en-GB')} respondents (illustrative).`);
   return out;
 }
 
