@@ -37,6 +37,18 @@ const sum = (values: number[]): number => values.reduce((a, b) => a + b, 0);
  */
 export type CategoryKind = 'countries' | 'options' | 'waves';
 
+/**
+ * What the *series* are, as distinct from what the axis is.
+ *
+ * Needed because more than one series used to mean only one thing — waves — and
+ * now it can mean Men and Women. Anything that describes a chart in words has to
+ * say which, or a gender split is announced as a comparison of waves.
+ */
+export type SeriesKind = 'single' | 'options' | 'waves' | 'gender';
+
+/** The dimension split into series. Never also a filter — see `coherent`. */
+export type CompareBy = 'none' | 'wave' | 'gender';
+
 export interface ViewModel {
   title: string;
   /** What the chart is plotting, in the deck's own words where it gives them. */
@@ -51,6 +63,10 @@ export interface ViewModel {
   base: number;
   question: Question | undefined;
   categoryKind: CategoryKind;
+  seriesKind: SeriesKind;
+  compare: CompareBy;
+  /** Why a requested comparison was not drawn. Shown on the figure, never swallowed. */
+  compareNote: string | null;
 }
 
 export interface Filters {
@@ -59,9 +75,25 @@ export interface Filters {
   gender: 'all' | 'male' | 'female';
   /** The region chosen in the filter bar, '' for none. Only for showing the choice: the figures use `countries`. */
   region: string;
+  compare: CompareBy;
 }
 
-export const DEFAULT_FILTERS: Filters = { wave: latestWave, countries: [], gender: 'all', region: '' };
+export const DEFAULT_FILTERS: Filters = {
+  wave: latestWave, countries: [], gender: 'all', region: '', compare: 'none',
+};
+
+/**
+ * The only legal reading of a Filters value.
+ *
+ * A dimension cannot be a filter and a split at the same time. Splitting by
+ * gender while gender is still cut to 'female' would seed the "Men" series from
+ * a female-only scope — two series that claim to be a comparison and are not.
+ * The wave field is left alone: comparing waves within women is legitimate, and
+ * keeping the value means leaving compare mode restores the wave you were on.
+ */
+export function coherent(filters: Filters): Filters {
+  return filters.compare === 'gender' ? { ...filters, gender: 'all' } : filters;
+}
 
 const key = (parts: (string | number)[]) => parts.join('~');
 
@@ -74,6 +106,104 @@ const MULTI_PLACEHOLDER = [
 ];
 
 export function buildViewModel(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
+  const f = coherent(filters);
+  if (f.compare === 'none') return single(spec, theme, f);
+
+  const refusal = refuse(spec, f);
+  if (refusal) return { ...single(spec, theme, { ...f, compare: 'none' }), compareNote: refusal };
+
+  const parts = cuts(spec, f);
+  return merge(parts.map((p) => single(spec, theme, p.filters)), parts.map((p) => p.label), f);
+}
+
+/**
+ * When a comparison cannot be drawn honestly, and what to say instead.
+ *
+ * Each of these would otherwise produce a chart that looks fine and means
+ * something else, which is worse than not drawing it.
+ */
+function refuse(spec: ChartSpec, filters: Filters): string | null {
+  if (filters.compare === 'wave' && spec.comparison === 'tracked') {
+    return 'This chart already plots every wave, so there is nothing to compare it against.';
+  }
+  // mapConfig reads series[0] and nothing else, so a split map would draw one
+  // half of the comparison and label it as everyone. A pie has the same problem
+  // for the same reason.
+  if (spec.type === 'map') return 'A map draws one figure per country, so it cannot show two series at once.';
+  if (spec.type === 'pie') return 'A share chart is one whole, so it cannot show two series at once.';
+  return null;
+}
+
+/** The filter values a comparison expands into, one per series. */
+function cuts(spec: ChartSpec, filters: Filters): { label: string; filters: Filters }[] {
+  if (filters.compare === 'gender') {
+    return [
+      { label: 'Men', filters: { ...filters, gender: 'male', compare: 'none' } },
+      { label: 'Women', filters: { ...filters, gender: 'female', compare: 'none' } },
+    ];
+  }
+  const caveats = (spec.caveat ?? '').split('|').map((c) => c.trim()).filter(Boolean);
+  const skip = notAsked(caveats);
+  return waves
+    .map((w) => w.year)
+    .filter((year) => !skip.has(year))
+    .map((year) => ({ label: String(year), filters: { ...filters, wave: year, compare: 'none' as const } }));
+}
+
+/**
+ * Stack the cuts as series over one set of categories.
+ *
+ * Only the categories every cut measured survive. On a country axis compared
+ * across waves that is exactly the like-for-like set — 2020 covered fourteen
+ * markets and 2026 covers sixteen — and carrying the extras with a blank or a
+ * zero for the years they were not asked is the absence-is-not-zero mistake in
+ * its most believable form. Dropping them also means every series has a value
+ * for every category, so there is no gap to render and nothing to guess at.
+ *
+ * Values are looked up by name rather than by position. The per-country branch
+ * sorts by value and `multi` sorts descending, so cuts left in their own order
+ * would put the Men and Women bars against different countries while looking
+ * entirely reasonable.
+ */
+function merge(built: ViewModel[], labels: string[], filters: Filters): ViewModel {
+  const first = built[0]!;
+
+  const others = built.slice(1).map((model) => new Set(model.categories));
+  const categories = first.categories.filter((name) => others.every((set) => set.has(name)));
+  const dropped = first.categories.length - categories.length;
+
+  const series: Series[] = built.map((model, i) => {
+    const at = new Map(model.categories.map((name, index) => [name, index]));
+    const source = model.series[0]!;
+    const indexes = categories.map((name) => at.get(name)!);
+    return {
+      label: labels[i]!,
+      values: indexes.map((index) => source.values[index]!),
+      bases: source.bases ? indexes.map((index) => source.bases![index]!) : null,
+    };
+  });
+
+  const years = labels.map(Number);
+  const restriction = filters.compare === 'wave'
+    ? `Comparing only the ${likeForLike(years).length} countries surveyed in ${labels.join(', ')}, `
+      + 'so figures differ from the single-wave totals.'
+      + (dropped > 0 ? ` ${dropped} shown here in some waves only have been left out.` : '')
+    : first.likeForLike;
+
+  return {
+    ...first,
+    categories,
+    series,
+    // Each cut is its own sample, so the chart's base is all of them together.
+    base: series.every((s) => s.bases) ? sum(series.flatMap((s) => s.bases!)) : first.base,
+    seriesKind: filters.compare === 'gender' ? 'gender' : 'waves',
+    compare: filters.compare,
+    compareNote: null,
+    likeForLike: restriction,
+  };
+}
+
+function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
   const q = question(spec.questions[0] ?? '');
   const text = q?.text ?? spec.title;
   const options = optionsFor(spec.questions[0] ?? spec.title, text, spec.showing);
@@ -88,6 +218,11 @@ export function buildViewModel(spec: ChartSpec, theme: Theme, filters: Filters):
     optionsInvented: options.illustrative,
     base: base(seed),
     question: q,
+    // A single cut: one series, and no comparison. merge() overrides these when
+    // several cuts are stacked together.
+    seriesKind: 'single' as SeriesKind,
+    compare: 'none' as CompareBy,
+    compareNote: null,
   };
 
   // A multi-select question is a ranking rather than a distribution: the deck
@@ -136,6 +271,8 @@ export function buildViewModel(spec: ChartSpec, theme: Theme, filters: Filters):
       series,
       base: sum(waveBases),
       categoryKind: 'waves',
+      // One line per answer option, so that is what the series are.
+      seriesKind: 'options' as SeriesKind,
       // The deck already carries this restriction in its own words on most of
       // these charts. Saying it twice makes both copies look like boilerplate.
       likeForLike: caveats.some((c) => c.toLowerCase().includes('comparing only'))

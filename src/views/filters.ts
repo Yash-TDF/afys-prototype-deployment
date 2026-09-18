@@ -12,7 +12,7 @@
 //     the count, and the clear-everything button — and they have already drifted
 //     apart there. Adding one here touches one list.
 import { countries, inWave, waves, type Country } from '../content';
-import type { Filters } from '../model';
+import type { CompareBy, Filters } from '../model';
 import { enhance, multiPicker } from './dropdown';
 
 export const REGIONS: Record<string, string[]> = {
@@ -33,6 +33,12 @@ export interface FilterOptions {
 let filtersOpen = false;
 
 const GENDER_LABELS: Record<Filters['gender'], string> = { all: 'All respondents', male: 'Men', female: 'Women' };
+
+const COMPARE_LABELS: Record<CompareBy, string> = {
+  none: 'Nothing',
+  gender: 'Men and women',
+  wave: 'Waves',
+};
 
 const ALL_COUNTRIES = 'All surveyed countries';
 
@@ -64,6 +70,11 @@ const FIELDS: FilterField[] = [
     key: 'gender',
     pill: (f) => (f.gender === 'all' ? null : GENDER_LABELS[f.gender]),
     clear: (f) => ({ ...f, gender: 'all' }),
+  },
+  {
+    key: 'compare',
+    pill: (f) => (f.compare === 'none' ? null : `Compared by ${f.compare}`),
+    clear: (f) => ({ ...f, compare: 'none' }),
   },
 ];
 
@@ -148,11 +159,25 @@ export function filterBar(
     (names) => onChange({ ...current, countries: names, region: '' }),
   ));
 
+  // Disabled while gender is the thing being compared. The model forces gender
+  // back to 'all' in that mode — a split whose seed still carried a women-only
+  // scope would draw a "Men" series out of it — so a live control here would take
+  // a value and silently drop it.
+  const splittingByGender = current.compare === 'gender';
   bar.append(select(
     'Gender',
     (Object.keys(GENDER_LABELS) as Filters['gender'][]).map((value) => ({ value, label: GENDER_LABELS[value] })),
-    current.gender,
+    splittingByGender ? 'all' : current.gender,
     (value) => onChange({ ...current, gender: value as Filters['gender'] }),
+    '',
+    { disabled: splittingByGender, hint: 'Split into Men and Women instead' },
+  ));
+
+  bar.append(select(
+    'Compare by',
+    (Object.keys(COMPARE_LABELS) as CompareBy[]).map((value) => ({ value, label: COMPARE_LABELS[value] })),
+    current.compare,
+    (value) => onChange({ ...current, compare: value as CompareBy }),
   ));
 
   bar.append(tags(current, onChange));
@@ -223,12 +248,17 @@ function select(
   value: string,
   onChange: (value: string) => void,
   searchFor = '',
+  state: { disabled?: boolean; hint?: string } = {},
 ): HTMLElement {
   const wrap = document.createElement('label');
   wrap.className = 'field';
   const text = document.createElement('span');
   text.textContent = label;
   const el = document.createElement('select');
+  if (state.disabled) {
+    el.disabled = true;
+    if (state.hint) el.title = state.hint;
+  }
   for (const option of options) {
     const node = document.createElement('option');
     node.value = option.value;
@@ -238,7 +268,9 @@ function select(
   }
   el.addEventListener('change', () => onChange(el.value));
   wrap.append(text, el);
-  enhance(wrap, el, searchFor);
+  // A disabled control has no list to open, and enhance() would sit listeners on
+  // something that can never fire them.
+  if (!state.disabled) enhance(wrap, el, searchFor);
   return wrap;
 }
 

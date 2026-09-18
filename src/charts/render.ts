@@ -7,7 +7,7 @@
 // own right, so the markup is owed twice over.
 import type { ChartConfiguration, ChartType as ChartJsType } from 'chart.js';
 import type { ChartType } from '../content';
-import { type CategoryKind, type ViewModel, sharedBases } from '../model';
+import { type CategoryKind, type SeriesKind, type ViewModel, sharedBases } from '../model';
 import { GRID, NO_DATA, ramp, SCALE_3, SCALE_4, SERIES } from './palette';
 import { Chart, registerGeo, setupCharts, valueLabels } from './setup';
 
@@ -44,7 +44,19 @@ const labelColumn = (chartWidth: number): number => (chartWidth < 400 ? Math.rou
 /** 205px holds the 28 characters the labels are cut to, about 7.3px a character. */
 const LABEL_CHAR_PX = 205 / 28;
 
-function baseConfig(model: ViewModel, kind: ChartType): ChartConfiguration {
+/**
+ * Stacking a comparison would be wrong, so it is not drawn that way.
+ *
+ * Each series in a comparison is its own distribution summing to 100; stacked on
+ * one axis they reach 200. This is the only place that knows both the model and
+ * the chart type, so the substitution belongs here rather than being asserted by
+ * a model that cannot see which chart was asked for.
+ */
+const drawnAs = (model: ViewModel, kind: ChartType): ChartType =>
+  (model.compare !== 'none' && kind === 'stacked' ? 'bar' : kind);
+
+function baseConfig(model: ViewModel, requested: ChartType): ChartConfiguration {
+  const kind = drawnAs(model, requested);
   const horizontal = kind === 'hbar' || kind === 'stacked';
   const multiSeries = model.series.length > 1;
   const colours = palette(model, kind);
@@ -292,20 +304,37 @@ function table(model: ViewModel): HTMLDetailsElement {
   return wrap;
 }
 
+/** What the series are, said out loud. Without it a gender split is announced as waves. */
+const SPLIT: Record<SeriesKind, string> = {
+  single: '',
+  options: ', one per answer option',
+  waves: ', one per wave',
+  gender: ', compared by gender',
+};
+
 /** A one-sentence description of the chart, for anyone who cannot see it. */
 function summarise(model: ViewModel, kind: ChartType): string {
   const values = model.series.flatMap((s) => s.values);
   const low = Math.min(...values);
   const high = Math.max(...values);
   return `${kind === 'map' ? 'Map' : 'Chart'}: ${model.title}. `
-    + `${model.series.length} series across ${model.categories.length} categories, `
+    + `${model.series.length} series${SPLIT[model.seriesKind]} `
+    + `across ${model.categories.length} categories, `
     + `ranging from ${low}% to ${high}%. Illustrative figures. `
     + 'The same values follow as a table.';
 }
 
-function notes(model: ViewModel): string[] {
+function notes(model: ViewModel, requested: ChartType): string[] {
   const out: string[] = [];
   if (model.likeForLike) out.push(model.likeForLike);
+  // A refused comparison is said, not swallowed.
+  if (model.compareNote) out.push(model.compareNote);
+  if (drawnAs(model, requested) !== requested) {
+    out.push(
+      'Each series is its own distribution, so they are drawn side by side rather '
+      + 'than stacked — stacked they would total more than 100%.',
+    );
+  }
   out.push(...model.caveats);
   if (model.optionsInvented) {
     out.push(
@@ -367,7 +396,7 @@ export function renderFigure(
     kindForChart = kind;
   }
 
-  for (const note of notes(model)) {
+  for (const note of notes(model, kind)) {
     const p = document.createElement('p');
     p.className = 'note';
     p.textContent = note;

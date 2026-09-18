@@ -20,7 +20,9 @@ import {
   type ChartSpec, type ChartType, type Question,
 } from '../content';
 import { renderFigure, type Figure } from '../charts/render';
-import { buildViewModel, DEFAULT_FILTERS, type Filters, type ViewModel } from '../model';
+import {
+  buildViewModel, DEFAULT_FILTERS, type CompareBy, type Filters, type ViewModel,
+} from '../model';
 import type { View } from '../main';
 import { csvEscape, copyText, downloadBlob, saveAs, slug } from '../ui/download';
 import { toast } from '../ui/toast';
@@ -40,6 +42,7 @@ const TYPES: { value: ChartType; label: string }[] = [
 ];
 
 const GENDERS: Filters['gender'][] = ['all', 'male', 'female'];
+const COMPARES: CompareBy[] = ['none', 'wave', 'gender'];
 
 interface State {
   code: string;
@@ -386,6 +389,7 @@ function parse(params: URLSearchParams, ordered: Question[]): State {
   const waveParam = Number(params.get('wave'));
   const gender = params.get('gender');
   const region = params.get('region') ?? '';
+  const compare = params.get('cmp');
 
   const wave = waves.some((w) => w.year === waveParam) ? waveParam : DEFAULT_FILTERS.wave;
   const surveyed = new Set(inWave(wave).map((c) => c.name));
@@ -401,6 +405,7 @@ function parse(params: URLSearchParams, ordered: Question[]): State {
       countries: params.getAll('country').filter((name) => surveyed.has(name)),
       gender: GENDERS.includes(gender as Filters['gender']) ? gender as Filters['gender'] : 'all',
       region: region in REGIONS ? region : '',
+      compare: COMPARES.includes(compare as CompareBy) ? compare as CompareBy : 'none',
     },
   };
 }
@@ -414,6 +419,7 @@ function query(state: State): string {
   if (state.filters.region) params.set('region', state.filters.region);
   for (const name of state.filters.countries) params.append('country', name);
   if (state.filters.gender !== 'all') params.set('gender', state.filters.gender);
+  if (state.filters.compare !== 'none') params.set('cmp', state.filters.compare);
   return params.toString();
 }
 
