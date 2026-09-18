@@ -184,3 +184,103 @@
 .type-switch button:hover { color: var(--ink); }
 .type-switch button.active { background: var(--green); color: #fff; }
 
+
+/* Several choices: the trigger, the tick boxes and the count badge ---------- */
+
+/* The Country control is a button, not a select, so it has to be given the
+   select's own look — a filter bar where one control is visibly a different
+   species reads as a bug rather than a feature. These values are the ones in
+   `.field select` above; if that changes, this changes with it. */
+.picker-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 200px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  font: 500 14px var(--body);
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
+.picker-trigger:hover { border-color: var(--muted); }
+.field.is-open .picker-trigger { border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(47, 122, 90, 0.10); }
+
+/* The label is a span now rather than the text of a <label>, because the control
+   it names is a button and a label around a button gives the field two
+   accessible names. */
+.field-label {
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* "Kenya +3" — the rest of the selection, without a line that grows without end. */
+.picker-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: auto;
+  background: var(--green-mid);
+  color: #fff;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.picker-actions {
+  display: flex;
+  gap: 6px;
+  padding: 2px 2px 8px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+.picker-action {
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: none;
+  font: 600 11px var(--body);
+  color: var(--ink);
+  cursor: pointer;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease), background 0.2s var(--ease);
+}
+.picker-action:hover { border-color: var(--accent); color: var(--accent); background: var(--wash); }
+
+/* A multi option carries its own box, so it does not need the single-choice
+   tick that is drawn in the gutter by `.picker-option[aria-selected]`. */
+.picker-option-multi { display: flex; align-items: center; gap: 10px; padding-left: 10px; }
+.picker-option-multi[aria-selected="true"] { color: var(--ink); font-weight: 500; }
+.picker-option-multi[aria-selected="true"]::before { content: none; }
+
+.picker-check {
+  position: relative;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--faint);
+  border-radius: 4px;
+  transition: background 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+.picker-option-multi[aria-selected="true"] .picker-check { background: var(--green-mid); border-color: var(--green-mid); }
+.picker-option-multi[aria-selected="true"] .picker-check::after {
+  content: '';
+  position: absolute;
+  left: 4.5px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
