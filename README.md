@@ -69,7 +69,7 @@ the open risk in ADR 0018; it renders Natural Earth geometry at 110m fine.
 | Chart.js core, first time any chart is drawn | +30.2 KB |
 | `chartjs-chart-geo` + `d3-geo`, only when a map is drawn | +64.0 KB |
 | Africa outline, 51 countries at 110m | +11.9 KB |
-| Worst case: a cold cache landing straight on a map | 147.7 KB |
+| Worst case: a cold cache landing straight on a map | 148.1 KB |
 
 Everything below the first line is deferred for the same reason: the card names
 and question counts are the page's content, and they should not wait on the
