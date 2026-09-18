@@ -91,3 +91,81 @@
 .tile .arrow { transition: background 0.35s var(--ease), color 0.35s var(--ease); }
 .tile:hover .arrow { background: var(--accent); color: #fff; }
 
+
+/* Stat-card and theme-card furniture, from the approved prototype ---------- */
+
+/* The top border wipes in on hover. Their .sc is a button that opens the
+   methodology drawer; ours is not clickable yet, so it gets the reveal and not
+   the arrow — an arrow on something that does not go anywhere is a lie. */
+.stat { position: relative; overflow: hidden; }
+.stat::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--green-mid), var(--gold));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s var(--ease);
+}
+.stat:hover::before { transform: scaleX(1); }
+
+.stat-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.stat-left { min-width: 0; }
+
+.sparkline { width: 80px; height: 40px; flex-shrink: 0; margin-top: 4px; }
+.sparkline polyline { fill: none; stroke: var(--green-mid); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+/* #sparkGrad is defined in index.html, outside the routed element — a def inside
+   a view is destroyed on the first navigation. */
+.sparkline .spark-area { fill: url(#sparkGrad); opacity: 0.15; }
+
+/* The figure row at the foot of a theme card. */
+.tile .tstats {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  /* Reserved, because the figures arrive on a separate chunk a moment after the
+     grid draws. Without a height here every card would jump when they land. The
+     value is the tallest content: a 26px figure, a 5px gap and a 21px pill, over
+     the padding and the rule. */
+  min-height: 69px;
+}
+.tstat-l { display: grid; gap: 5px; min-width: 0; }
+.tstat-v { font-size: 26px; font-weight: 800; color: var(--green); line-height: 1; letter-spacing: -0.02em; }
+.tstat-none { color: var(--muted); font-size: 13px; }
+.tstat-d {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  width: fit-content;
+}
+.tstat-d.up { background: var(--wash); color: var(--green-mid); }
+.tstat-d.down { background: rgba(232, 83, 106, 0.10); color: var(--rose); }
+.tstat-d.flat { background: var(--tag); color: var(--muted); }
+
+/* One rule each, instead of the prototype's six-name accent enum: our themes
+   carry their colour as hex in content.json, set on the tile as --accent. */
+.tspark { width: 78px; height: 36px; flex-shrink: 0; }
+.tspark polyline { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tspark polygon { fill: var(--accent); opacity: 0.12; }
+.tspark circle { fill: var(--accent); }
+
+/* Two of the deck's accents — the yellow and the pale blue — are unreadable on
+   cream, which headers.css already handles for the tag and the arrow. A 2px
+   stroke has the same problem. Same treatment, same @supports guard: Safari
+   before 16.2 has no color-mix and keeps the plain colour above. */
+@supports (color: color-mix(in srgb, red 50%, white)) {
+  .tspark polyline { stroke: color-mix(in srgb, var(--accent) 72%, var(--green)); }
+  .tspark circle { fill: color-mix(in srgb, var(--accent) 72%, var(--green)); }
+}
+
+.tile .chip { justify-self: start; margin-top: 12px; }

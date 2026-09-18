@@ -1,16 +1,28 @@
 // The landing view: what the survey is, then the twelve tiles.
 //
-// Two departures from the prototype the client has seen, both deliberate:
+// Three departures from the prototype the client has seen:
 //
 //   - The tiles are the deck's twelve. The live prototype still shows the 2024
 //     report's chapter names — "Quality of Life", "Future Ambitions",
 //     "Corruption" — which are not in the deck at all.
-//   - Nothing on this page is a generated figure. The live prototype leads with
-//     "RIGHT DIRECTION 55%", which is the report's *wrong*-direction number (the
-//     right-direction figure on printed page 18 is 37%). Rather than replace one
-//     invented headline with another, the summary row carries only facts we can
-//     source: how many countries, how many waves, how many themes.
-import { countries, inWave, latestWave, themes, waves } from '../content';
+//   - The summary row carries only facts we can source: how many countries, how
+//     many waves, how many themes, and the respondent count the client publishes.
+//     Its sparkline is the real count of countries per wave, out of content.json.
+//     The live prototype's third card leads with "RIGHT DIRECTION 55%", which is
+//     the report's *wrong*-direction number — printed page 18 gives 37% right and
+//     55% wrong — and that card is not reproduced here at any figure.
+//   - The theme cards do carry a generated headline, a delta and a sparkline,
+//     which is the shape the client approved. Every one is illustrative and says
+//     so: the banner above, a chip on each card, and the reading spelled out in
+//     each card's own label. They come from the same buildViewModel the explorer
+//     uses, so a card agrees with the chart it leads to.
+//
+// This page loads no charting library, and the sparklines are hand-written SVG —
+// that is the point of them. It also does not wait for the figures: see the
+// dynamic import at the foot of this file.
+import { type Theme, countries, inWave, latestWave, themes, waves } from '../content';
+import { sparkline } from '../ui/sparkline';
+import type { ThemeCardFigures } from './theme-card';
 
 export function themesView(host: HTMLElement): void {
   host.replaceChildren();
@@ -27,19 +39,33 @@ export function themesView(host: HTMLElement): void {
 
   const stats = document.createElement('div');
   stats.className = 'stat-row';
-  const facts = [
+
+  // The countries-per-wave line is a real series out of the seeds, so it carries
+  // no illustrative marking. The other three cards have no series behind them and
+  // get no line rather than an invented one.
+  const perWave = waves.map((w) => inWave(w.year).length);
+  const facts: { label: string; value: string; sub: string; spark?: number[]; sparkLabel?: string }[] = [
     {
       label: 'Countries',
       value: String(countries.length),
       sub: `Sub-Saharan Africa · ${inWave(latestWave).length} surveyed in ${latestWave}`,
+      spark: perWave,
+      sparkLabel: `Countries surveyed per wave: ${waves.map((w, i) => `${w.year}, ${perWave[i]}`).join('; ')}`,
     },
     { label: 'Respondents', value: '14,000+', sub: 'Aged 18 to 24, in each wave' },
     { label: 'Survey waves', value: String(waves.length), sub: waves.map((w) => w.year).join(' · ') },
     { label: 'Themes', value: String(themes.length), sub: 'From the Portal Content deck' },
   ];
-  for (const fact of facts) {
+
+  facts.forEach((fact, i) => {
     const card = document.createElement('div');
-    card.className = 'stat';
+    card.className = `stat an a${i + 1}`;
+
+    const top = document.createElement('div');
+    top.className = 'stat-top';
+
+    const left = document.createElement('div');
+    left.className = 'stat-left';
     const label = document.createElement('span');
     label.className = 'label';
     label.textContent = fact.label;
@@ -49,9 +75,20 @@ export function themesView(host: HTMLElement): void {
     const sub = document.createElement('span');
     sub.className = 'sub';
     sub.textContent = fact.sub;
-    card.append(label, value, sub);
+    left.append(label, value, sub);
+    top.append(left);
+
+    if (fact.spark) {
+      const line = sparkline(fact.spark, {
+        width: 80, height: 40, className: 'sparkline', label: fact.sparkLabel,
+      });
+      if (line) top.append(line);
+    }
+
+    card.append(top);
     stats.append(card);
-  }
+  });
+
   intro.append(stats);
   host.append(intro);
 
@@ -68,9 +105,11 @@ export function themesView(host: HTMLElement): void {
   grid.className = 'tile-grid';
   host.append(grid);
 
-  for (const theme of themes) {
+  const pending: { theme: Theme; tile: HTMLAnchorElement; slot: HTMLDivElement }[] = [];
+
+  themes.forEach((theme, i) => {
     const tile = document.createElement('a');
-    tile.className = 'tile';
+    tile.className = `tile an a${Math.min(i + 5, 12)}`;
     tile.href = `#/theme/${theme.slug}`;
     tile.style.setProperty('--accent', theme.accent);
 
@@ -90,14 +129,84 @@ export function themesView(host: HTMLElement): void {
     meta.className = 'meta';
     meta.textContent = `${theme.questions.length} question${theme.questions.length === 1 ? '' : 's'}`;
 
-    const rule = document.createElement('hr');
-    rule.className = 'rule';
+    // Empty, but present and height-reserved in CSS, so the figures landing a
+    // moment later move nothing on the page.
+    const slot = document.createElement('div');
+    slot.className = 'tstats';
 
-    const charts = document.createElement('p');
-    charts.className = 'meta';
-    charts.textContent = `${theme.charts.length} chart${theme.charts.length === 1 ? '' : 's'} from the deck`;
-
-    tile.append(tag, arrow, name, meta, rule, charts);
+    tile.append(tag, arrow, name, meta, slot);
     grid.append(tile);
+    pending.push({ theme, tile, slot });
+  });
+
+  // The figures need the view model, which drags in the generators and the deck's
+  // recovered answer options — about 5 KB gzipped that the names and question
+  // counts above do not need. Loading it separately keeps the page everyone opens
+  // as small as it was: the grid is readable immediately and the numbers arrive
+  // after, rather than the whole landing page waiting on them.
+  void import('./theme-card').then(({ themeCardFigures }) => {
+    for (const { theme, tile, slot } of pending) {
+      fill(theme, tile, slot, themeCardFigures(theme));
+    }
+  });
+}
+
+function fill(
+  theme: Theme,
+  tile: HTMLAnchorElement,
+  slot: HTMLDivElement,
+  figures: ThemeCardFigures,
+): void {
+  const left = document.createElement('div');
+  left.className = 'tstat-l';
+
+  if (figures.headline === null) {
+    const none = document.createElement('span');
+    none.className = 'tstat-none';
+    none.textContent = `${theme.charts.length} chart${theme.charts.length === 1 ? '' : 's'} from the deck`;
+    left.append(none);
+    slot.append(left);
+    return;
   }
+
+  const headline = document.createElement('span');
+  headline.className = 'tstat-v';
+  headline.textContent = `${figures.headline}%`;
+  left.append(headline);
+
+  const badge = document.createElement('span');
+  if (figures.delta) {
+    const { points, from } = figures.delta;
+    badge.className = `tstat-d ${points > 0 ? 'up' : points < 0 ? 'down' : 'flat'}`;
+    badge.textContent = `${points > 0 ? '+' : ''}${points}pts since ${from}`;
+  } else {
+    badge.className = 'tstat-d flat';
+    badge.textContent = figures.note ?? '';
+  }
+  left.append(badge);
+  slot.append(left);
+
+  if (figures.spark.length >= 2) {
+    const line = sparkline(figures.spark, {
+      width: 78, height: 36, className: 'tspark', activeIndex: figures.activeIndex,
+    });
+    if (line) slot.append(line);
+  }
+
+  // The third of the three places. This page loads no charting library, so there
+  // is no renderer chip to inherit — the card carries its own.
+  const chip = document.createElement('span');
+  chip.className = 'chip';
+  chip.textContent = 'Illustrative';
+  tile.append(chip);
+
+  const reading = figures.delta
+    ? `${figures.headline}% in ${figures.delta.to}, ${figures.delta.points >= 0 ? 'up' : 'down'} `
+      + `${Math.abs(figures.delta.points)} points since ${figures.delta.from}`
+    : `${figures.headline}%${figures.note ? `, ${figures.note.toLowerCase()}` : ''}`;
+  tile.setAttribute(
+    'aria-label',
+    `${theme.name}. ${theme.questions.length} questions. `
+    + `${figures.of ?? 'Illustrative figure'}: ${reading}. Illustrative figure, not a survey result.`,
+  );
 }

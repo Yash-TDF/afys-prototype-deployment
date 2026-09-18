@@ -59,11 +59,18 @@ the open risk in ADR 0018; it renders Natural Earth geometry at 110m fine.
 
 | | gzipped |
 |---|---|
-| Landing page — HTML, CSS, app shell, the deck's structure | **10.6 KB** |
+| Landing page — HTML, CSS, app shell, the deck's structure | **14.8 KB** |
+| The view model and the generators, first time any figure is shown | +4.4 KB |
 | Chart.js core, first time any chart is drawn | +30.2 KB |
-| `chartjs-chart-geo` + `d3-geo`, only when a map is drawn | +64.0 KB |
+| `chartjs-chart-geo` + `d3-geo`, only when a map is drawn | +63.9 KB |
 | Africa outline, 51 countries at 110m | +11.9 KB |
-| Worst case: a cold cache landing straight on a map | 124.3 KB |
+| Worst case: a cold cache landing straight on a map | 134.9 KB |
+
+The theme cards' figures are on that second line rather than the first for the
+same reason: the card names and question counts are the page's content, and they
+should not wait on the generators and the deck's recovered answer options. Loading
+them separately costs 4 KB on the landing page and the grid is readable before
+they arrive.
 
 The geo controller is over half of the worst case, which is why it is behind a
 dynamic import and why the landing view — the one page everyone loads — ships no
@@ -112,11 +119,19 @@ give: hover and transition behaviour, and the exact spacing scale.
    cannot be selected into an empty chart
 7. Cross-wave charts carry the like-for-like restriction as a footnote
 8. Filtered-base questions say who was actually asked
-9. The "Right Direction 55%" headline card is gone. 55% is the *wrong*-direction
-   figure on the report's printed page 18; the right-direction figure is 37%.
-   Rather than swap one invented headline for another, the summary row now carries
-   only facts we can source — 28 countries, 4 waves, 12 themes, 14,000+
-   respondents. **There is no generated number anywhere on the landing page**
+9. The "Right Direction 55%" headline card is gone, and stays gone at any figure.
+   55% is the *wrong*-direction number on the report's printed page 18; the
+   right-direction figure is 37%. The summary row carries only facts we can
+   source — 28 countries, 4 waves, 12 themes, 14,000+ respondents — and its one
+   sparkline is the real count of countries per wave.
+
+   The theme cards *do* carry a generated headline, a trend delta and a
+   sparkline, because that is the shape the client approved and round zero is
+   asking them to approve a shape. Each is marked in three places: the banner
+   above the page, a chip on the card, and the card's own label, which reads the
+   figure out and ends "illustrative figure, not a survey result". They are
+   computed by the same `buildViewModel` the explorer uses, so a card and the
+   chart it leads to cannot disagree.
 
 ## Layout
 
@@ -128,8 +143,11 @@ tools/audit-options.ts    which questions we cannot draw honestly yet
 src/content.ts            the deck, typed
 src/illustrative.ts       the generated figures — deleted when the API is wired up
 src/model.ts              chart spec + filters → view model (shaped like the API response)
+src/aggregate.ts          the only place percentages are combined — never averaged
 src/charts/               Chart.js setup, the value-label plugin, the renderer
-src/views/                themes · tile · explorer · methodology · filters
+src/ui/                   sparklines, and the pieces shared between views
+src/styles/               the stylesheet by section; styles.css is the import list
+src/views/                themes · theme-card · tile · explorer · methodology · filters
 ```
 
 `src/model.ts` is the seam. When this becomes real, `buildViewModel` is replaced by
