@@ -85,7 +85,7 @@ function baseConfig(model: ViewModel, requested: ChartType): ChartConfiguration 
   const categoryAxis = {
     grid: { display: false },
     // Chart.js would otherwise allot the category axis a fraction of the canvas
-    // and clip anything longer. Thirty characters of Montserrat at 12px needs
+    // and clip anything longer. Thirty characters of the body face at 12px needs
     // about this much. On a phone-width chart that would leave no room for the
     // bars themselves, so on a chart under 400px wide the column takes 40% of it.
     ...(horizontal ? {

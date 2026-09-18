@@ -25,6 +25,20 @@ import { GRID, INK, MUTED } from './palette';
  * this is not decoration. Forty lines — and it is the whole of the gap people
  * mean when they say Chart.js "needs plugins" for this design.
  */
+/**
+ * The page's body face, read from the stylesheet rather than named again here.
+ *
+ * A canvas does not inherit CSS, so Chart.js has to be told the font — and it
+ * used to be told by name, in two places, which meant the comment in tokens.css
+ * promising that --body was the only thing to change was not true.
+ */
+let family: string | null = null;
+export function bodyFont(): string {
+  family ??= getComputedStyle(document.documentElement).getPropertyValue('--body').trim()
+    || 'system-ui, sans-serif';
+  return family;
+}
+
 export const valueLabels: Plugin<'bar'> = {
   id: 'valueLabels',
   afterDatasetsDraw(chart) {
@@ -32,7 +46,7 @@ export const valueLabels: Plugin<'bar'> = {
     const horizontal = chart.options.indexAxis === 'y';
     const stacked = chart.options.scales?.['x']?.stacked === true;
     ctx.save();
-    ctx.font = '600 11px Montserrat, system-ui, sans-serif';
+    ctx.font = `600 11px ${bodyFont()}`;
     chart.data.datasets.forEach((dataset, i) => {
       const meta = chart.getDatasetMeta(i);
       if (meta.hidden) return;
@@ -62,7 +76,7 @@ export function setupCharts(): void {
     ArcElement, BarController, BarElement, CategoryScale, Filler, Legend,
     LineController, LineElement, LinearScale, PieController, PointElement, Tooltip,
   );
-  Chart.defaults.font.family = 'Montserrat, system-ui, sans-serif';
+  Chart.defaults.font.family = bodyFont();
   Chart.defaults.font.size = 12;
   Chart.defaults.color = MUTED;
   Chart.defaults.borderColor = GRID;

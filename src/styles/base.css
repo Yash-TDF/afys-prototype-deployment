@@ -4,7 +4,7 @@ body {
   margin: 0;
   background: var(--ground);
   color: var(--ink);
-  font: 15px/1.6 var(--body);
+  font: 16px/1.6 var(--body);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -14,8 +14,9 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
 /* Display type is the serif; everything else is the sans. */
 .hero h1, .tile-header h1, .explorer-header h1, .method-header h1, .section-heading {
   font-family: var(--display);
-  font-weight: 800;
+  /* Instrument Serif has one weight. Asking for more makes the browser smear a
+     false bold over it. */
+  font-weight: 400;
   color: var(--green);
-  letter-spacing: -0.02em;
 }
 
