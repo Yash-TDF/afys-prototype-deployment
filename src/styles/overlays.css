@@ -1,0 +1,21 @@
+/* Things that sit above the page rather than in it. The methodology drawer and
+   the question palette join this file later; for now it is the toast. */
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  z-index: 200;
+  padding: 12px 20px;
+  background: var(--green);
+  color: #fff;
+  border-radius: 10px;
+  font: 500 13px var(--body);
+  box-shadow: 0 12px 32px rgba(26, 58, 42, 0.22);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+}
+
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }

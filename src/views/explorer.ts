@@ -10,10 +10,21 @@
 // is built once for a different reason — it carries an aria-live region, and
 // replacing the element that holds one means a screen reader sees a new region
 // rather than a change to the old, and usually says nothing at all.
-import { questions, theme, themes, type ChartSpec, type ChartType, type Question } from '../content';
+//
+// The view records where it is in the URL, so a link to a question with filters
+// applied can be pasted to someone else. Writes go through history.pushState and
+// replaceState rather than assigning to location.hash: assigning fires
+// hashchange, and the view would be told about a change it had just made.
+import {
+  inWave, questions, theme, themes, waves,
+  type ChartSpec, type ChartType, type Question,
+} from '../content';
 import { renderFigure, type Figure } from '../charts/render';
 import { buildViewModel, DEFAULT_FILTERS, type Filters, type ViewModel } from '../model';
-import { filterBar } from './filters';
+import type { View } from '../main';
+import { csvEscape, copyText, downloadBlob, saveAs, slug } from '../ui/download';
+import { toast } from '../ui/toast';
+import { filterBar, REGIONS } from './filters';
 import { enhance } from './dropdown';
 
 const SVG = 'http://www.w3.org/2000/svg';
@@ -28,14 +39,20 @@ const TYPES: { value: ChartType; label: string }[] = [
   { value: 'table', label: 'Table' },
 ];
 
-export function explorerView(host: HTMLElement, params: URLSearchParams): () => void {
+const GENDERS: Filters['gender'][] = ['all', 'male', 'female'];
+
+interface State {
+  code: string;
+  kind: ChartType;
+  filters: Filters;
+}
+
+export function explorerView(host: HTMLElement, params: URLSearchParams): View {
   // The rail groups by theme, and prev/next walks the same sequence. Both read
   // this, so the order on screen and the order the arrow keys follow cannot drift.
   const ordered: Question[] = themes.flatMap((t) => questions.filter((q) => q.theme === t.order));
 
-  let code = params.get('q') ?? ordered[0]!.code;
-  let kind: ChartType = 'bar';
-  let filters: Filters = { ...DEFAULT_FILTERS };
+  let state = parse(params, ordered);
   let figure: Figure | null = null;
   let search = '';
 
@@ -66,6 +83,9 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): () => 
   searchInput.type = 'search';
   searchInput.placeholder = 'Search questions…';
   searchInput.setAttribute('aria-label', `Search all ${ordered.length} questions`);
+  // Deliberately not in the URL. It is a way of finding a question, not a place
+  // to come back to, and putting it in history would make Back step backwards
+  // through the typing.
   searchInput.addEventListener('input', () => {
     search = searchInput.value;
     renderList();
@@ -83,7 +103,6 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): () => 
   const main = document.createElement('div');
   main.className = 'emain';
 
-  // Redrawn wholesale; the bar below it is not.
   const content = document.createElement('div');
 
   const nav = document.createElement('div');
@@ -96,8 +115,6 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): () => 
   const hint = document.createElement('span');
   hint.className = 'khint';
   hint.setAttribute('aria-hidden', 'true');
-  // Outside the live region on purpose: it never changes, and announcing "left
-  // right to navigate" after every question would be noise.
   hint.append(kbd('←'), kbd('→'), ' to navigate');
   prev.addEventListener('click', () => step(-1));
   next.addEventListener('click', () => step(1));
@@ -109,7 +126,6 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): () => 
 
   // --- behaviour -----------------------------------------------------------
 
-  /** The questions the rail is showing: all of them, or those matching the search. */
   function visible(): Question[] {
     const term = search.trim().toLowerCase();
     if (!term) return ordered;
@@ -119,15 +135,29 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): () => 
       || q.code.toLowerCase().includes(term));
   }
 
+  /**
+   * Record the current state in the URL.
+   *
+   * Push for a place — a different question, a different chart. Replace for an
+   * adjustment to the place you are already at, so Back does not have to walk
+   * through every filter change to leave the view.
+   */
+  function record(how: 'push' | 'replace'): void {
+    const target = `#/explore?${query(state)}`;
+    if (target === window.location.hash) return;
+    window.history[how === 'push' ? 'pushState' : 'replaceState'](null, '', target);
+  }
+
   function step(delta: number): void {
     const list = visible();
     if (list.length === 0) return;
-    const at = list.findIndex((q) => q.code === code);
+    const at = list.findIndex((q) => q.code === state.code);
     // Searching can put the current question out of the list. Stepping from
     // nowhere lands on the first or last match rather than doing nothing.
     const to = at === -1 ? (delta > 0 ? 0 : list.length - 1) : at + delta;
     if (to < 0 || to >= list.length) return;
-    code = list[to]!.code;
+    state = { ...state, code: list[to]!.code };
+    record('push');
     draw();
   }
 
@@ -158,8 +188,12 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): () => 
         const button = document.createElement('button');
         button.type = 'button';
         button.textContent = q.label;
-        button.setAttribute('aria-current', String(q.code === code));
-        button.addEventListener('click', () => { code = q.code; draw(); });
+        button.setAttribute('aria-current', String(q.code === state.code));
+        button.addEventListener('click', () => {
+          state = { ...state, code: q.code };
+          record('push');
+          draw();
+        });
         li.append(button);
         items.append(li);
       }
@@ -170,7 +204,7 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): () => 
 
   function syncNav(): void {
     const list = visible();
-    const at = list.findIndex((q) => q.code === code);
+    const at = list.findIndex((q) => q.code === state.code);
     prev.disabled = at <= 0;
     next.disabled = at === -1 || at >= list.length - 1;
 
@@ -186,11 +220,14 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): () => 
     }
   }
 
+  // Never records the URL: it is called by update(), which is itself the result
+  // of a history navigation. Writing there would push a new entry while consuming
+  // one, and Back would stop working.
   function draw(): void {
     figure?.destroy();
     content.replaceChildren();
 
-    const found = ordered.find((q) => q.code === code) ?? ordered[0]!;
+    const found = ordered.find((q) => q.code === state.code) ?? ordered[0]!;
     const parent = themes.find((t) => t.order === found.theme)!;
     host.style.setProperty('--accent', parent.accent);
 
@@ -211,7 +248,11 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): () => 
       }
       select.append(group);
     }
-    select.addEventListener('change', () => { code = select.value; draw(); });
+    select.addEventListener('change', () => {
+      state = { ...state, code: select.value };
+      record('push');
+      draw();
+    });
     picker.append(pickerLabel, select);
     enhance(picker, select, 'questions');
     content.append(picker);
@@ -231,7 +272,11 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): () => 
     // Kept on `map` and `line` deliberately: a map still needs a wave, and the
     // line chart ignores the wave filter rather than hiding it, which is what the
     // portal will do.
-    content.append(filterBar(filters, (nextFilters) => { filters = nextFilters; draw(); }));
+    content.append(filterBar(state.filters, (nextFilters) => {
+      state = { ...state, filters: nextFilters };
+      record('replace');
+      draw();
+    }));
 
     const switcher = document.createElement('div');
     switcher.className = 'type-switch';
@@ -241,9 +286,13 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): () => 
       const button = document.createElement('button');
       button.type = 'button';
       button.textContent = option.label;
-      button.className = option.value === kind ? 'active' : '';
-      button.setAttribute('aria-pressed', String(option.value === kind));
-      button.addEventListener('click', () => { kind = option.value; draw(); });
+      button.className = option.value === state.kind ? 'active' : '';
+      button.setAttribute('aria-pressed', String(option.value === state.kind));
+      button.addEventListener('click', () => {
+        state = { ...state, kind: option.value };
+        record('push');
+        draw();
+      });
       switcher.append(button);
     }
     content.append(switcher);
@@ -252,23 +301,24 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): () => 
       theme: found.theme,
       order: 1,
       title: found.label,
-      type: kind,
+      type: state.kind,
       questions: [found.code],
       // A map and a country bar chart are both "one value per country"; a line is
       // "one value per wave"; everything else is the distribution.
-      comparison: kind === 'map' || kind === 'bar' ? 'country' : kind === 'line' ? 'tracked' : 'none',
+      comparison: state.kind === 'map' || state.kind === 'bar' ? 'country'
+        : state.kind === 'line' ? 'tracked' : 'none',
       slide: null,
       caveat: null,
       showing: null,
     };
 
-    const model: ViewModel = buildViewModel(spec, theme(parent.slug)!, filters);
+    const model: ViewModel = buildViewModel(spec, theme(parent.slug)!, state.filters);
     const holder = document.createElement('div');
-    holder.className = kind === 'map' ? 'explorer-figure explorer-figure-map' : 'explorer-figure';
+    holder.className = state.kind === 'map' ? 'explorer-figure explorer-figure-map' : 'explorer-figure';
     content.append(holder);
-    figure = renderFigure(holder, model, kind, parent.accent);
+    figure = renderFigure(holder, model, state.kind, parent.accent);
 
-    content.append(exports(model, found.code));
+    content.append(exports(model, found.code, () => record('replace')));
 
     renderList();
     syncNav();
@@ -288,14 +338,83 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): () => 
   };
   document.addEventListener('keydown', onKey);
 
+  // Put the state we actually opened with in the URL, so the link is shareable
+  // before anything has been touched. Replace, not push: arriving somewhere is
+  // not a step to go back from.
+  record('replace');
   draw();
 
-  // The listener is removed here. One added per visit and never taken away is how
-  // a view that has been navigated away from goes on answering key presses.
-  return () => {
-    document.removeEventListener('keydown', onKey);
-    figure?.destroy();
+  return {
+    // The listener is removed here. One added per visit and never taken away is
+    // how a view that has been navigated away from goes on answering key presses.
+    destroy: () => {
+      document.removeEventListener('keydown', onKey);
+      figure?.destroy();
+    },
+    update: (next: URLSearchParams) => {
+      const parsed = parse(next, ordered);
+      const canonical = query(parsed);
+
+      // A stale or hand-edited link can name a question, wave or country we
+      // cannot honour. parse() drops those, but without this the address bar
+      // would go on claiming them — and a reader who copies the URL, or presses
+      // Copy link, would pass on something that does not describe what they are
+      // looking at. Replace, so correcting it costs no history entry.
+      if (canonical !== next.toString()) {
+        window.history.replaceState(null, '', `#/explore?${canonical}`);
+      }
+
+      // Back onto identical state still fires hashchange. Redrawing would
+      // destroy and rebuild the chart for no change at all.
+      if (canonical === query(state)) return;
+      state = parsed;
+      draw();
+    },
   };
+}
+
+/**
+ * Read state out of the query, keeping nothing we cannot honour.
+ *
+ * A hand-edited or stale link is the normal case here, not an attack: a country
+ * that was not surveyed in the wave it is paired with would draw an empty chart,
+ * and an empty chart is indistinguishable from a real finding of zero.
+ */
+function parse(params: URLSearchParams, ordered: Question[]): State {
+  const code = params.get('q');
+  const kind = params.get('chart');
+  const waveParam = Number(params.get('wave'));
+  const gender = params.get('gender');
+  const region = params.get('region') ?? '';
+
+  const wave = waves.some((w) => w.year === waveParam) ? waveParam : DEFAULT_FILTERS.wave;
+  const surveyed = new Set(inWave(wave).map((c) => c.name));
+
+  return {
+    code: ordered.some((q) => q.code === code) ? code! : ordered[0]!.code,
+    kind: TYPES.some((t) => t.value === kind) ? kind as ChartType : 'bar',
+    filters: {
+      wave,
+      // Repeated params rather than one comma-joined value: the prototype packs
+      // its country list into a single string, which breaks on any value holding
+      // a separator. Nothing here has to know what is inside a country's name.
+      countries: params.getAll('country').filter((name) => surveyed.has(name)),
+      gender: GENDERS.includes(gender as Filters['gender']) ? gender as Filters['gender'] : 'all',
+      region: region in REGIONS ? region : '',
+    },
+  };
+}
+
+/** The canonical query for a state — also how two states are compared. */
+function query(state: State): string {
+  const params = new URLSearchParams();
+  params.set('q', state.code);
+  if (state.kind !== 'bar') params.set('chart', state.kind);
+  if (state.filters.wave !== DEFAULT_FILTERS.wave) params.set('wave', String(state.filters.wave));
+  if (state.filters.region) params.set('region', state.filters.region);
+  for (const name of state.filters.countries) params.append('country', name);
+  if (state.filters.gender !== 'all') params.set('gender', state.filters.gender);
+  return params.toString();
 }
 
 function magnifier(): SVGSVGElement {
@@ -344,24 +463,26 @@ function kbd(text: string): HTMLElement {
 }
 
 /** The download row. Wired up because "can I have this as an image" arrives on day one. */
-function exports(model: ViewModel, code: string): HTMLElement {
+function exports(model: ViewModel, code: string, sync: () => void): HTMLElement {
   const row = document.createElement('div');
   row.className = 'exports';
+  const name = `${code}_${slug(model.title)}`;
 
   const csv = document.createElement('button');
   csv.type = 'button';
   csv.textContent = 'Download CSV';
   csv.addEventListener('click', () => {
-    const header = ['Category', ...model.series.map((s) => s.label)].join(',');
+    const header = ['Category', ...model.series.map((s) => csvEscape(s.label))].join(',');
     const lines = model.categories.map((category, i) =>
-      [quote(category), ...model.series.map((s) => s.values[i] ?? '')].join(','));
+      [csvEscape(category), ...model.series.map((s) => s.values[i] ?? '')].join(','));
     const meta = [
       `# ${model.title}`,
       '# ILLUSTRATIVE FIGURES — NOT SURVEY RESULTS',
       `# Base: ${model.base.toLocaleString('en-GB')} respondents`,
       ...(model.likeForLike ? [`# ${model.likeForLike}`] : []),
     ];
-    download(`${code}.csv`, [...meta, header, ...lines].join('\n'), 'text/csv');
+    downloadBlob([...meta, header, ...lines].join('\n'), 'text/csv;charset=utf-8;', `${name}.csv`);
+    toast('CSV downloaded');
   });
 
   const png = document.createElement('button');
@@ -369,21 +490,23 @@ function exports(model: ViewModel, code: string): HTMLElement {
   png.textContent = 'Download image';
   png.addEventListener('click', () => {
     const canvas = document.querySelector<HTMLCanvasElement>('.explorer-figure canvas');
-    if (!canvas) return;
-    download(`${code}.png`, null, '', canvas.toDataURL('image/png'));
+    if (!canvas) {
+      toast('This view has no chart to save');
+      return;
+    }
+    saveAs(canvas.toDataURL('image/png'), `${name}.png`);
+    toast('Image downloaded');
   });
 
-  row.append(csv, png);
+  const link = document.createElement('button');
+  link.type = 'button';
+  link.textContent = 'Copy link';
+  link.addEventListener('click', () => {
+    sync();
+    void copyText(window.location.href)
+      .then((ok) => toast(ok ? 'Link copied' : 'Could not copy the link'));
+  });
+
+  row.append(csv, png, link);
   return row;
-}
-
-const quote = (value: string): string => (value.includes(',') ? `"${value.replace(/"/g, '""')}"` : value);
-
-function download(name: string, body: string | null, mime: string, dataUrl?: string): void {
-  const href = dataUrl ?? URL.createObjectURL(new Blob([body ?? ''], { type: mime }));
-  const link = document.createElement('a');
-  link.href = href;
-  link.download = name;
-  link.click();
-  if (!dataUrl) URL.revokeObjectURL(href);
 }
