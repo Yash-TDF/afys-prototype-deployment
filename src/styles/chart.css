@@ -185,3 +185,32 @@ figure.chart { margin: 0; }
 @media (max-width: 600px) {
   .insight { font-size: 11.5px; padding: 6px 12px; }
 }
+
+/* Sortable headers --------------------------------------------------------- */
+
+/* The header is a button so it can be reached by keyboard and announce itself.
+   The prototype puts onclick on a bare th, which a keyboard never reaches. */
+.chart-table th .sort-btn,
+.coverage th .sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+.chart-table th[scope="col"]:not(:first-child) .sort-btn { justify-content: flex-end; }
+.chart-table th .sort-btn:hover { color: var(--green-mid); }
+
+.sort-ind { font-size: 9px; opacity: 0.4; transition: opacity 0.2s var(--ease); }
+.chart-table th.sorted .sort-ind { opacity: 1; }
+.chart-table th.sorted { color: var(--green-mid); }
+
+/* The bar takes its series' colour, set per cell. One rule instead of the
+   prototype's three fixed classes: it had exactly three series, we can have six. */
+.chart-table .mini-bar { background: var(--bar-colour, var(--green-mid)); }
