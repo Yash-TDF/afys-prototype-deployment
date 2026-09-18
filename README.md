@@ -60,14 +60,14 @@ the open risk in ADR 0018; it renders Natural Earth geometry at 110m fine.
 
 | | gzipped |
 |---|---|
-| Landing page — HTML, CSS, app shell, the deck's structure | **17.4 KB** |
+| Landing page — HTML, CSS, app shell, the deck's structure | **18.1 KB** |
 | The view model and the generators, first time any figure is shown | +5.1 KB |
 | The question search, first time it is opened | +1.6 KB |
 | The data drawer, first time it is opened | +1.4 KB |
 | Chart.js core, first time any chart is drawn | +30.2 KB |
 | `chartjs-chart-geo` + `d3-geo`, only when a map is drawn | +64.0 KB |
 | Africa outline, 51 countries at 110m | +11.9 KB |
-| Worst case: a cold cache landing straight on a map | 145.9 KB |
+| Worst case: a cold cache landing straight on a map | 147.0 KB |
 
 Everything below the first line is deferred for the same reason: the card names
 and question counts are the page's content, and they should not wait on the
@@ -77,7 +77,12 @@ yet. The theme cards' figures arrive after the grid is already readable, and
 
 The styles are the exception, and worth naming: they build as one asset, so the
 drawer and the search cost their CSS on every page even though their code loads
-on neither. That is what took the landing page from 14.8 KB to 17.4.
+on neither. That is what took the landing page from 14.8 KB to 17.4, and matching
+the prototype's card, rail and filter-bar treatment took it to 18.1.
+
+Not in these figures: the two webfonts, which come from Google Fonts and are
+cached across sites. They are `display=swap`, so text is readable before they
+arrive.
 
 The geo controller is over half of the worst case, which is why it is behind a
 dynamic import and why the landing view — the one page everyone loads — ships no
@@ -103,16 +108,52 @@ deployed stylesheet, not guessed:
 | Heading green | `#1a3a2a` |
 | Body | `#1e293b` |
 | Gold | `#d4a338` |
-| Cards | white, 16px radius, hairline `#ece8e0` |
-| Pills | 100px radius — nav, filters, chart-type switch |
+| Cards | warm white `#fefdfb`, 16px radius, hairline `rgba(0,0,0,.05)`, no shadow at rest |
+| Type | Instrument Serif for the one title a page has, Plus Jakarta Sans for the rest |
+| Page | 1360px, 40px gutters, a 68px glass header |
+| Pills | 100px radius — nav, filter tags, badges |
+| Chart-type switch | a segmented control set into the filter card |
 | Charts | the approved green / gold / rose triad |
 
-**The typeface is the one exception, and it is deliberate.** The prototype uses
-Instrument Serif and Plus Jakarta Sans, which appear in neither the client's style
-guide nor any of their published material — they were the pitch's own choice.
-`AfricanYS_style.pdf` in the asset pack specifies Montserrat, so that is what
-ships. Showing the client something off-brand invites the review to be about the
-brand. The revert is two custom properties in `src/styles/tokens.css`.
+**It was measured, not eyeballed.** With the prototype served beside ours, the
+computed style of 45 matched elements on the landing page and the explorer was
+read from both — type, padding, radius, border, shadow, animation and transition
+— and every differing property listed. Of 350 properties compared, 347 agree.
+(The comparison is not in this repository: it needs the prototype's source,
+which is client material and is never committed.)
+The three that do not are deliberate:
+
+- secondary text is `#7c8794`, not their `#94a3b8`. Theirs is about 2.4:1 on
+  the cream ground and ours about 3.5:1 — still short of AA for small text,
+  which is for the production build to fix, not a reason to go lighter now
+- the highlighted insight chip's ink is `#2f7a5a`, the same green the charts
+  draw with, rather than their `#2d6a4f` two shades away
+- the current question's shadow is the same value in a different notation,
+  because ours is mixed from the theme's colour instead of set from JavaScript
+
+**The typeface is the prototype's, which is not the client's brand face.**
+`AfricanYS_style.pdf` in the asset pack specifies Montserrat, and an earlier
+round shipped it. Set in Montserrat at weight 800 the page stopped reading as
+the thing the client approved, and this round asks them to approve structure and
+nothing else. The brand face is a decision for the production build; moving to
+it is two custom properties in `src/styles/tokens.css` and the font link in
+`index.html` — the charts read the body face from the stylesheet, so nothing
+else names it.
+
+**Motion is the prototype's too.** Content arrives on the 0.65s fade-up with its
+twelve delay steps, on every view and once per visit to it — not again on every
+filter change. Bars fill over 700ms on a cubic ease-out, each 18ms after the
+last, which is the prototype's ECharts timing restated for Chart.js. A redrawn
+chart settles in over 0.22s. All of it stops for a reader who has asked for less
+motion, including the canvas, which a stylesheet cannot reach.
+
+One thing worth knowing if the bars ever stop animating: Chart.js floors the
+canvas it draws but compares against its container's real width, so in a card
+with a 0.8px border — any Windows laptop at 125% scaling — its resize observer
+reports a change that is not one, and the zero-duration resize update that
+follows lands 10ms after the first draw and snaps every bar to full height.
+`.canvas` is rounded down to a whole pixel in `src/styles/chart.css` for that
+reason alone.
 
 Round zero asks the client to approve **structure**; if it also looked like a
 redesign, they would spend the review on the surface. The deck's own tile colours

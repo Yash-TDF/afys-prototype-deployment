@@ -62,10 +62,15 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
   host.replaceChildren();
 
   const head = document.createElement('section');
-  head.className = 'explorer-header';
+  head.className = 'explorer-header an';
+  // Which theme the question on screen belongs to, in that theme's colour. Built
+  // once and re-worded by draw(), so it changes colour in place rather than
+  // being replaced.
+  const themeBadge = document.createElement('span');
+  themeBadge.className = 'theme-pill';
   const h1 = document.createElement('h1');
   h1.textContent = 'Explore the data';
-  head.append(h1);
+  head.append(themeBadge, h1);
   host.append(head);
 
   const layout = document.createElement('div');
@@ -73,7 +78,7 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
 
   // --- the left rail, built once -------------------------------------------
   const side = document.createElement('aside');
-  side.className = 'qside';
+  side.className = 'qside an a2';
 
   const sideHeading = document.createElement('h2');
   sideHeading.id = 'qside-heading';
@@ -104,7 +109,7 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
 
   // --- the right column ----------------------------------------------------
   const main = document.createElement('div');
-  main.className = 'emain';
+  main.className = 'emain an a3';
 
   const content = document.createElement('div');
   content.className = 'estack';
@@ -234,6 +239,7 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
     const found = ordered.find((q) => q.code === state.code) ?? ordered[0]!;
     const parent = themes.find((t) => t.order === found.theme)!;
     host.style.setProperty('--accent', parent.accent);
+    themeBadge.textContent = `Theme ${parent.order} of ${themes.length} · ${parent.name}`;
 
     const picker = document.createElement('label');
     picker.className = 'field field-wide epicker';
@@ -276,11 +282,12 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
     // Kept on `map` and `line` deliberately: a map still needs a wave, and the
     // line chart ignores the wave filter rather than hiding it, which is what the
     // portal will do.
-    content.append(filterBar(state.filters, (nextFilters) => {
+    const bar = filterBar(state.filters, (nextFilters) => {
       state = { ...state, filters: nextFilters };
       record('replace');
       draw();
-    }));
+    });
+    content.append(bar);
 
     const switcher = document.createElement('div');
     switcher.className = 'type-switch';
@@ -299,7 +306,9 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
       });
       switcher.append(button);
     }
-    content.append(switcher);
+    // Inside the filter card, after the controls and before the row of applied
+    // filters — one card for everything that changes the chart.
+    bar.insertBefore(switcher, bar.querySelector('.ftags'));
 
     const spec: ChartSpec = {
       theme: found.theme,
@@ -322,7 +331,12 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
     content.append(holder);
     figure = renderFigure(holder, model, state.kind, parent.accent);
 
-    content.append(exports(model, found.code, () => record('replace')));
+    const downloads = exports(model, found.code, () => record('replace'));
+    const caption = holder.querySelector('figcaption');
+    // On the title's row. `.showing` takes a full row of its own, so going in
+    // ahead of it keeps the buttons level with the title.
+    if (caption) caption.insertBefore(downloads, caption.querySelector('.showing'));
+    else content.append(downloads);
 
     renderList();
     syncNav();
@@ -477,7 +491,8 @@ function exports(model: ViewModel, code: string, sync: () => void): HTMLElement 
 
   const csv = document.createElement('button');
   csv.type = 'button';
-  csv.textContent = 'Download CSV';
+  csv.textContent = 'CSV';
+  csv.setAttribute('aria-label', 'Download CSV');
   csv.addEventListener('click', () => {
     const header = ['Category', ...model.series.map((s) => csvEscape(s.label))].join(',');
     const lines = model.categories.map((category, i) =>
@@ -494,7 +509,8 @@ function exports(model: ViewModel, code: string, sync: () => void): HTMLElement 
 
   const png = document.createElement('button');
   png.type = 'button';
-  png.textContent = 'Download image';
+  png.textContent = 'PNG';
+  png.setAttribute('aria-label', 'Download PNG image');
   png.addEventListener('click', () => {
     const canvas = document.querySelector<HTMLCanvasElement>('.explorer-figure canvas');
     if (!canvas) {
@@ -507,7 +523,8 @@ function exports(model: ViewModel, code: string, sync: () => void): HTMLElement 
 
   const link = document.createElement('button');
   link.type = 'button';
-  link.textContent = 'Copy link';
+  link.textContent = 'Share';
+  link.setAttribute('aria-label', 'Share: copy a link to this view');
   link.addEventListener('click', () => {
     sync();
     void copyText(window.location.href)

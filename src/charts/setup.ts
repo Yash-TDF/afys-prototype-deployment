@@ -83,7 +83,25 @@ export function setupCharts(): void {
   // Merge into the defaults rather than replace them. Chart.js builds each animation from
   // the option names already on this object; replacing it dropped `type: 'color'`, so the
   // first hover threw inside the shared animation loop and no chart on the page drew again.
-  Chart.defaults.set('animation', { duration: 260 });
+  //
+  // The timing is the approved prototype's: 700ms on a cubic ease-out, each bar
+  // starting 18ms after the one before so a chart fills from the left instead of
+  // rising as a block. Bars only — a pie whose slices arrive one at a time reads
+  // as loading, and a map has fifty-one regions. Only the first draw is
+  // staggered: a hover or a resize that waited its turn would feel broken.
+  //
+  // A canvas is out of reach of the stylesheet's prefers-reduced-motion rule, so
+  // the same preference is read here.
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  Chart.defaults.set('animation', {
+    duration: still ? 0 : 700,
+    easing: 'easeOutCubic',
+    delay: (ctx: { type: string; mode: string; dataIndex: number; chart: Chart }): number => {
+      if (still || ctx.type !== 'data' || ctx.mode !== 'default') return 0;
+      const config = ctx.chart.config as { type?: string };
+      return config.type === 'bar' ? ctx.dataIndex * 18 : 0;
+    },
+  });
   Chart.defaults.plugins.legend.labels.boxWidth = 10;
   Chart.defaults.plugins.legend.labels.boxHeight = 10;
   Chart.defaults.plugins.legend.labels.usePointStyle = true;

@@ -5,14 +5,22 @@
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 26px 28px;
-  box-shadow: var(--shadow);
+  padding: 28px 32px;
 }
+
+/* A chart that has just been redrawn settles in rather than snapping: the second
+   half of the prototype's refresh, which dims the card, redraws it and lets it
+   back up. Ours replaces the card, so there is only the arrival to animate. */
+@keyframes figure-in {
+  from { opacity: 0.45; transform: translateY(2px); }
+  to { opacity: 1; transform: none; }
+}
+.explorer-figure { animation: figure-in 0.22s var(--ease); }
 
 /* A <figure> keeps the browser's 40px side margins unless told otherwise; the card already pads it. */
 figure.chart { margin: 0; }
 .chart figcaption { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 20px; }
-.chart figcaption h3 { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+.chart figcaption h3 { font-size: 17px; font-weight: 600; line-height: 1.45; color: var(--green); }
 .chart figcaption .showing { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 12.5px; }
 
 .chip {
@@ -29,7 +37,17 @@ figure.chart { margin: 0; }
 }
 
 .canvas { position: relative; height: 300px; }
+/* A whole number of pixels wide, always. Chart.js floors the canvas it draws but
+   compares against the container's real width, so inside a card with a 0.8px
+   border — any Windows laptop at 125% — every callback from its resize observer
+   looks like a change. It answers with update('resize'), which has no duration,
+   and that lands 10ms after the first draw and snaps the bars to full height:
+   the chart never animates in. Rounding the box down removes the disagreement.
+   Browsers without round() keep the line above it and the old behaviour. */
+.canvas { width: 100%; width: round(down, 100%, 1px); }
 .canvas-map { height: 430px; }
+/* The explorer's one chart gets the prototype's 440px; a tile page's grid of them does not. */
+.explorer-figure .canvas { height: 440px; }
 .explorer-figure-map .canvas { height: 540px; }
 /* The map is about as wide as it is tall, but its canvas took the whole card, and Chart.js pins the
    colour key to the canvas's corner, far from the map. A narrower, centred box keeps them together. */
@@ -167,7 +185,7 @@ figure.chart { margin: 0; }
 .insight strong { color: var(--green); font-weight: 700; }
 .insight-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: var(--faint); }
 
-.insight-high { background: var(--wash); border-color: transparent; color: var(--green-mid); }
+.insight-high { background: var(--mint); border-color: transparent; color: var(--green-mid); }
 .insight-high strong { color: var(--green); }
 .insight-high .insight-dot { background: var(--green-mid); }
 

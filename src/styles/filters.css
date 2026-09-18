@@ -3,17 +3,22 @@
 .filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 16px;
   align-items: end;
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 20px 24px;
+  padding: 22px 28px;
   margin-bottom: 16px;
-  box-shadow: var(--shadow);
+  /* Above what follows it, below the sticky header (10). Anything that arrives
+     with .an keeps a transform, which makes it a stacking context — and a later
+     one paints over an earlier one, so without this an open dropdown would
+     slide under the chart cards beneath it. */
+  position: relative;
+  z-index: 5;
 }
 
-.field { display: grid; gap: 6px; font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.field { display: grid; gap: 7px; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 .field-wide { min-width: min(620px, 100%); }
 
 /* An applied filter as a pill you can take off, which is the pattern the client
@@ -27,7 +32,7 @@
   padding: 6px 14px;
   border: 0;
   border-radius: 100px;
-  background: var(--wash);
+  background: var(--mint);
   color: var(--green-mid);
   font: 600 12px var(--body);
   cursor: pointer;
@@ -39,7 +44,7 @@
   display: inline-flex;
   align-items: center;
   padding: 6px 14px;
-  border: 1px dashed var(--line);
+  border: 1px dashed var(--line-strong);
   border-radius: 100px;
   background: none;
   color: var(--muted);
@@ -49,18 +54,23 @@
 }
 .ftag-clear:hover { border-style: solid; border-color: var(--rose); color: var(--rose); }
 .field select {
-  font: 500 14px var(--body);
+  font: 500 13px var(--body);
   text-transform: none;
   letter-spacing: 0;
   color: var(--ink);
-  padding: 10px 12px;
+  padding: 10px 36px 10px 14px;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: var(--card);
-  min-width: 200px;
-  transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease);
+  /* A control is cut into the card: the page's ground showing through, with the
+     prototype's own chevron in place of the system's. */
+  background: var(--ground) url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center;
+  -webkit-appearance: none;
+  appearance: none;
+  min-width: 150px;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
 }
-.field select:hover { border-color: var(--muted); }
+.field select:hover { border-color: var(--line-strong); }
 .field-wide select { width: 100%; }
 
 /* The list the page draws, in place of the one the browser draws — see views/dropdown.ts.
@@ -155,34 +165,37 @@
   color: var(--ink);
   font-size: 15px;
   font-weight: 500;
-  max-width: 85ch;
 }
 .base-note { margin: 0; font-size: 13px; color: var(--warn-ink); background: var(--warn-bg); padding: 8px 14px; border-radius: 100px; }
 
-/* Chart-type switch, styled as the approved prototype's pill group. */
+/* Chart-type switch, as the approved prototype draws it: a segmented control
+   set into the filter card and pushed to its far end, not a card of its own. */
 .type-switch {
   display: inline-flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 3px;
   margin-bottom: 18px;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 100px;
-  padding: 5px;
-  box-shadow: var(--shadow);
+  border-radius: 10px;
+  padding: 3px;
 }
+/* Set into a card it takes the page's ground and needs no edge of its own; on
+   its own, as on the methodology page, it is a card. */
+.filters > .type-switch { margin: 0 0 0 auto; background: var(--ground); border: 0; }
 .type-switch button {
-  font: 600 13px var(--body);
-  padding: 8px 17px;
+  font: 500 13px var(--body);
+  padding: 9px 16px;
   border: 0;
   background: transparent;
-  border-radius: 100px;
+  border-radius: 8px;
   cursor: pointer;
   color: var(--muted);
+  white-space: nowrap;
 }
-.type-switch button { transition: color 0.25s var(--ease), background 0.25s var(--ease); }
+.type-switch button { transition: color 0.25s var(--ease), background 0.25s var(--ease), box-shadow 0.25s var(--ease); }
 .type-switch button:hover { color: var(--ink); }
-.type-switch button.active { background: var(--green); color: #fff; }
+.type-switch button.active { background: var(--green); color: var(--card); box-shadow: 0 2px 8px rgba(26, 58, 42, 0.15); }
 
 
 /* Several choices: the trigger, the tick boxes and the count badge ---------- */
@@ -195,20 +208,20 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-width: 200px;
-  padding: 10px 12px;
+  min-width: 170px;
+  padding: 10px 14px;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: var(--card);
-  font: 500 14px var(--body);
+  background: var(--ground);
+  font: 500 13px var(--body);
   text-transform: none;
   letter-spacing: 0;
   color: var(--ink);
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease);
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
 }
-.picker-trigger:hover { border-color: var(--muted); }
+.picker-trigger:hover { border-color: var(--line-strong); }
 .field.is-open .picker-trigger { border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(47, 122, 90, 0.10); }
 
 /* The label is a span now rather than the text of a <label>, because the control
@@ -216,7 +229,7 @@
    accessible names. */
 .field-label {
   font-size: 11px;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
   font-weight: 600;

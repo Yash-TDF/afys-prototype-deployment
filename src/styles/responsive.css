@@ -30,8 +30,13 @@
   /* Five columns need more room than a phone's card has: scroll the table sideways instead of squashing it. */
   .coverage { overflow-x: auto; }
   .coverage th, .coverage td { white-space: nowrap; }
-  /* A 100px radius turns a group of pills that wraps onto two rows into a lozenge. */
-  .type-switch { border-radius: 18px; }
+  /* On a phone the chart types take the bar's full width and scroll sideways
+     rather than wrapping into a block. */
+  .filters > .type-switch { margin-left: 0; width: 100%; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .type-switch button { flex-shrink: 0; }
+  /* It scrolls by touch; a scrollbar under seven words is heavier than they are. */
+  .filters > .type-switch { scrollbar-width: none; }
+  .filters > .type-switch::-webkit-scrollbar { display: none; }
   /* Africa is about as tall as it is wide; a 540px box on a narrow screen left the lower third empty. */
   .explorer-figure-map .canvas { height: 420px; }
   /* A long "Asked only of …" note wraps to three lines on a phone; a pill radius makes that a blob. */

@@ -173,7 +173,7 @@
   font-weight: 600;
   width: fit-content;
 }
-.tstat-d.up { background: var(--wash); color: var(--green-mid); }
+.tstat-d.up { background: var(--mint); color: var(--green-mid); }
 .tstat-d.down { background: rgba(232, 83, 106, 0.10); color: var(--rose); }
 .tstat-d.flat { background: var(--tag); color: var(--muted); }
 

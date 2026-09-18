@@ -23,15 +23,22 @@ export function tileView(host: HTMLElement, slug: string): () => void {
 
   let filters: Filters = { ...DEFAULT_FILTERS };
   let figures: Figure[] = [];
+  // draw() rebuilds the page on every filter change. The arrival is for arriving:
+  // replayed each time, changing the wave would fade twelve charts out and in.
+  let arrived = false;
 
   const draw = (): void => {
+    const enter = (step: number): string => (arrived ? '' : ` an${step > 0 ? ` a${Math.min(step, 12)}` : ''}`);
     for (const figure of figures) figure.destroy();
     figures = [];
     host.replaceChildren();
     host.style.setProperty('--accent', found.accent);
 
-    host.append(header(found));
-    host.append(filterBar(filters, (next) => { filters = next; draw(); }));
+    const head = header(found);
+    head.className += enter(0);
+    const bar = filterBar(filters, (next) => { filters = next; draw(); });
+    bar.className += enter(1);
+    host.append(head, bar);
 
     const notSurveyed = missing(filters.wave);
     if (notSurveyed.length > 0) {
@@ -48,9 +55,9 @@ export function tileView(host: HTMLElement, slug: string): () => void {
     grid.className = 'chart-grid';
     host.append(grid);
 
-    for (const spec of found.charts) {
+    found.charts.forEach((spec, i) => {
       const cell = document.createElement('div');
-      cell.className = 'chart-cell';
+      cell.className = `chart-cell${enter(i + 2)}`;
       grid.append(cell);
       const model = buildViewModel(spec, found, filters);
       figures.push(renderFigure(cell, model, spec.type, found.accent));
@@ -60,7 +67,7 @@ export function tileView(host: HTMLElement, slug: string): () => void {
         slide.textContent = `Portal Content deck, slide ${spec.slide}`;
         cell.append(slide);
       }
-    }
+    });
 
     const questionList = document.createElement('section');
     questionList.className = 'question-list';
@@ -78,6 +85,7 @@ export function tileView(host: HTMLElement, slug: string): () => void {
     }
     questionList.append(list);
     host.append(questionList);
+    arrived = true;
   };
 
   draw();
