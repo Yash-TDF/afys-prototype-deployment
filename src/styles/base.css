@@ -1,0 +1,23 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: 16px/1.6 var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; }
+h1, h2, h3 { margin: 0; line-height: 1.2; }
+
+/* The one title a page has. Its weight and tracking are tokens beside its family,
+   because they belong to the face: a family with a single weight must not be
+   asked for another, or the browser smears a false bold over it. */
+.hero h1, .tile-header h1, .explorer-header h1, .method-header h1 {
+  font-family: var(--display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  color: var(--green);
+}
+

@@ -1,0 +1,234 @@
+/* Charts ------------------------------------------------------------------ */
+
+.chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 18px; }
+.chart-cell, .explorer-figure {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 28px;
+}
+
+/* A chart that has just been redrawn settles in rather than snapping: the second
+   half of the prototype's refresh, which dims the card, redraws it and lets it
+   back up. Ours replaces the card, so there is only the arrival to animate. */
+@keyframes figure-in {
+  from { opacity: 0.45; transform: translateY(2px); }
+  to { opacity: 1; transform: none; }
+}
+.explorer-figure { animation: figure-in 0.22s var(--ease); }
+
+/* A <figure> keeps the browser's 40px side margins unless told otherwise; the card already pads it. */
+figure.chart { margin: 0; }
+.chart figcaption { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 20px; }
+.chart figcaption h3 { font-size: 17px; font-weight: 600; line-height: 1.45; color: var(--green); }
+.chart figcaption .showing { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 12.5px; }
+
+.chip {
+  background: var(--warn-bg);
+  color: var(--warn-ink);
+  border-radius: 100px;
+  padding: 4px 11px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-style: normal;
+  transition: background 0.25s var(--ease), color 0.25s var(--ease);
+}
+
+.canvas { position: relative; height: 300px; }
+/* A whole number of pixels wide, always. Chart.js floors the canvas it draws but
+   compares against the container's real width, so inside a card with a 0.8px
+   border — any Windows laptop at 125% — every callback from its resize observer
+   looks like a change. It answers with update('resize'), which has no duration,
+   and that lands 10ms after the first draw and snaps the bars to full height:
+   the chart never animates in. Rounding the box down removes the disagreement.
+   Browsers without round() keep the line above it and the old behaviour. */
+.canvas { width: 100%; width: round(down, 100%, 1px); }
+.canvas-map { height: 430px; }
+/* The explorer's one chart gets the prototype's 440px; a tile page's grid of them does not. */
+.explorer-figure .canvas { height: 440px; }
+.explorer-figure-map .canvas { height: 540px; }
+/* The map is about as wide as it is tall, but its canvas took the whole card, and Chart.js pins the
+   colour key to the canvas's corner, far from the map. A narrower, centred box keeps them together. */
+.explorer-figure-map .canvas { max-width: 640px; margin-inline: auto; }
+
+.chart .note { margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.slide-ref { margin: 12px 0 0; color: var(--faint); font-size: 11.5px; }
+
+/* Tables ------------------------------------------------------------------ */
+
+.chart-table { margin-top: 20px; }
+.chart-table summary { cursor: pointer; font-size: 12.5px; color: var(--accent); font-weight: 600; }
+.chart-table table, .coverage table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+.chart-table caption { text-align: left; color: var(--muted); font-size: 12px; padding-bottom: 8px; }
+.chart-table th, .chart-table td, .coverage th, .coverage td {
+  border-bottom: 1px solid var(--line);
+  padding: 8px 10px;
+  text-align: left;
+}
+.chart-table th, .coverage th { font-weight: 600; }
+.chart-table td, .coverage td { text-align: right; font-variant-numeric: tabular-nums; }
+/* A proportional bar under each figure, as the approved prototype draws them: it
+   is what makes a column of numbers readable down the page. Low opacity so the
+   number stays the thing you read first. */
+.chart-table td.bar-cell { position: relative; padding-bottom: 20px; }
+.chart-table .mini-bar {
+  position: absolute;
+  bottom: 7px;
+  right: 10px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--green-mid);
+  opacity: 0.28;
+  transition: width 0.6s var(--ease);
+}
+/* The row lights up as one: the name cell is a th, so it needs the same transition as the
+   values beside it, or it changes first and the row arrives in two pieces. */
+.chart-table th, .chart-table td, .coverage th, .coverage td { transition: background 0.2s var(--ease); }
+.chart-table tr:hover td, .chart-table tr:hover th[scope="row"],
+.coverage tr:hover td, .coverage tr:hover th[scope="row"] { background: var(--wash); }
+/* A column's header sits over its values, on the same edge. The first column holds names, so it stays left. */
+.chart-table th[scope="col"]:not(:first-child), .coverage th[scope="col"]:not(:first-child) { text-align: right; }
+.coverage td.yes { color: var(--green-mid); font-weight: 700; }
+.coverage td.no { color: var(--faint); }
+.coverage { margin-top: 32px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
+.coverage h2 { font: 700 22px/1.6 var(--body); color: var(--green); }
+
+
+/* The sample-size badge ---------------------------------------------------- */
+
+.qbadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  position: relative;
+  padding: 2px 9px;
+  border-radius: 100px;
+  font: 700 10px var(--body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: help;
+}
+.qbadge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+
+/* Round zero's only tone: the base is generated, so it is stated and not graded.
+   The other three are here for the day real figures arrive. */
+.qbadge.q-neutral { background: var(--tag); color: var(--muted); }
+.qbadge.q-neutral::before { background: var(--faint); }
+.qbadge.q-strong { background: var(--wash); color: var(--green-mid); }
+.qbadge.q-strong::before { background: var(--green-mid); }
+.qbadge.q-moderate { background: rgba(212, 163, 56, 0.16); color: #8a6314; }
+.qbadge.q-moderate::before { background: var(--gold); }
+.qbadge.q-low { background: rgba(232, 83, 106, 0.12); color: var(--rose); }
+.qbadge.q-low::before { background: var(--rose); }
+
+/* The whole tooltip, with no JavaScript and no library: the text is an attribute
+   and this draws it. It also opens on keyboard focus, not only on hover — the
+   badge is a tab stop, and a mouse-only tooltip would put the one sentence
+   explaining the figure out of reach of the people most likely to need it. */
+.qbadge::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  z-index: 50;
+  width: max-content;
+  max-width: 260px;
+  padding: 8px 12px;
+  background: var(--green);
+  color: #fff;
+  border-radius: 8px;
+  font: 500 11px/1.45 var(--body);
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(2px);
+  transition: opacity 0.18s var(--ease), transform 0.18s var(--ease);
+  box-shadow: 0 12px 32px rgba(26, 58, 42, 0.22);
+}
+.qbadge:hover::after,
+.qbadge:focus-visible::after { opacity: 1; transform: translateY(0); }
+
+/* Insight chips ------------------------------------------------------------ */
+
+/* Named .insight, not .chip. The prototype calls these .chip, which here is the
+   "Illustrative" badge beside every title — the one element the three-places
+   rule depends on. Two meanings for one class is how that stops being reliable. */
+.insights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 0;
+  animation: insight-in 0.5s var(--eout);
+}
+
+@keyframes insight-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.insight {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  background: var(--ground);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.insight strong { color: var(--green); font-weight: 700; }
+.insight-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: var(--faint); }
+
+.insight-high { background: var(--mint); border-color: transparent; color: var(--green-mid); }
+.insight-high strong { color: var(--green); }
+.insight-high .insight-dot { background: var(--green-mid); }
+
+.insight-combined .insight-dot { background: var(--gold); }
+.insight-range .insight-dot { background: var(--muted); }
+.insight-shift .insight-dot { background: var(--green-mid); }
+.insight-shift.is-down .insight-dot { background: var(--rose); }
+
+/* A combination that cannot honestly be made is said out loud, in the muted
+   register of a note rather than the red of an error — nothing has gone wrong. */
+.insight-refused { background: none; border-style: dashed; color: var(--faint); }
+.insight-refused strong { color: var(--muted); font-weight: 600; }
+.insight-refused .insight-dot { background: transparent; box-shadow: inset 0 0 0 1px var(--faint); }
+
+@media (max-width: 600px) {
+  .insight { font-size: 11.5px; padding: 6px 12px; }
+}
+
+/* Sortable headers --------------------------------------------------------- */
+
+/* The header is a button so it can be reached by keyboard and announce itself.
+   The prototype puts onclick on a bare th, which a keyboard never reaches. */
+.chart-table th .sort-btn,
+.coverage th .sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+.chart-table th[scope="col"]:not(:first-child) .sort-btn { justify-content: flex-end; }
+.chart-table th .sort-btn:hover { color: var(--green-mid); }
+
+.sort-ind { font-size: 9px; opacity: 0.4; transition: opacity 0.2s var(--ease); }
+.chart-table th.sorted .sort-ind { opacity: 1; }
+.chart-table th.sorted { color: var(--green-mid); }
+
+/* The bar takes its series' colour, set per cell. One rule instead of the
+   prototype's three fixed classes: it had exactly three series, we can have six. */
+.chart-table .mini-bar { background: var(--bar-colour, var(--green-mid)); }

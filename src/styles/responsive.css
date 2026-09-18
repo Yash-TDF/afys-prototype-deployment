@@ -1,0 +1,95 @@
+/* Two columns need the width, so they are the thing opted into rather than the
+   default. Written the other way round - hiding the list below 1100 and the
+   dropdown above 1101 - a fractional width like 1100.5 matches neither rule and
+   leaves no way at all to change the question. */
+@media (min-width: 1101px) {
+  .elayout { grid-template-columns: 320px minmax(0, 1fr); }
+  .qside { display: flex; }
+  /* A descendant selector, not a child one. The picker sits inside the column's
+     inner stack rather than directly in .emain, so `.emain > .epicker` stopped
+     matching and both ways of changing the question were drawn at once. */
+  .emain .epicker { display: none; }
+}
+
+@media (max-width: 900px) {
+  main { padding: 24px 18px 48px; }
+  /* The nav row (Themes · Explore · Methodology · wave pill) is wider than a phone; let it wrap. */
+  .site-header { padding: 12px 18px; gap: 10px; }
+  .site-nav { flex-wrap: wrap; gap: 6px; }
+  .site-nav a { padding: 7px 12px; }
+  /* minmax(0, 1fr), not 1fr: a 1fr column never shrinks below its content, and a chart canvas keeps
+     the width of its last draw, so the column grew past the screen and stayed wide after rotating. */
+  .method-layout { grid-template-columns: minmax(0, 1fr); }
+  .chart-grid { grid-template-columns: minmax(0, 1fr); }
+  .chart-cell { min-width: 0; }
+  /* The canvas fills the card's height unless capped, which pushed the key below the card. Cap the
+     map at the height it is drawn at anyway (392px) and make the card tall enough for the key too. */
+  .method-map { height: 452px; }
+  .method-map canvas { max-height: 389px; }
+  .map-legend { gap: 4px 14px; }
+  /* Five columns need more room than a phone's card has: scroll the table sideways instead of squashing it. */
+  .coverage { overflow-x: auto; }
+  .coverage th, .coverage td { white-space: nowrap; }
+  /* On a phone the chart types take the bar's full width and scroll sideways
+     rather than wrapping into a block. */
+  .filters > .type-switch { margin-left: 0; width: 100%; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .type-switch button { flex-shrink: 0; }
+  /* It scrolls by touch; a scrollbar under seven words is heavier than they are. */
+  .filters > .type-switch { scrollbar-width: none; }
+  .filters > .type-switch::-webkit-scrollbar { display: none; }
+  /* Africa is about as tall as it is wide; a 540px box on a narrow screen left the lower third empty. */
+  .explorer-figure-map .canvas { height: 420px; }
+  /* A long "Asked only of …" note wraps to three lines on a phone; a pill radius makes that a blob. */
+  .base-note { border-radius: 12px; }
+  /* iOS Safari zooms the page in when a form field under 16px gets focus, and does not zoom back out.
+     The list's own search box is a form field too, and it is the one a thumb reaches for. */
+  .field select, .picker-search-input { font-size: 16px; }
+  .picker-option { font-size: 15px; padding-block: 10px; }
+  /* The four filters stack into a bar half a phone screen tall: fold them behind a button that says
+     what is applied, and open them on a tap. */
+  .filters:not(.is-open) { padding-block: 8px; }
+  .filters:not(.is-open) > .field, .filters:not(.is-open) > .filter-note { display: none; }
+  .filters-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+    padding: 6px 0;
+    border: 0;
+    background: none;
+    font: 600 14px var(--body);
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+  }
+  .filters-toggle-summary { flex: 1; min-width: 0; color: var(--muted); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .filters-toggle::after { content: "▾"; color: var(--muted); transition: transform 0.25s var(--eout); }
+  .filters.is-open .filters-toggle::after { transform: rotate(180deg); }
+  .hero h1 { font-size: 34px; }
+  .tile-header h1, .explorer-header h1, .method-header h1 { font-size: 30px; }
+}
+
+@media (max-width: 600px) {
+  /* On a phone the map key wraps to three rows, so the map card needs more room below the map. */
+  .method-map { height: 505px; }
+  .method-map canvas { max-height: 392px; }
+}
+
+/* A reader who has asked their system for less motion gets the same colours and
+   the same layout, without the movement. The approved prototype has a rule of its
+   own here and it is the fuller one, so this is now theirs: it also stops
+   animations repeating and turns off smooth scrolling, neither of which our
+   version covered. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+  /* Not optional, and the reason this block has to come last. .an is invisible
+     until its animation runs, so a reader who has turned animation off would be
+     left with a blank page where the cards are. */
+  .an { opacity: 1; }
+}

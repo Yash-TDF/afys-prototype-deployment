@@ -1,0 +1,308 @@
+/* Filters ---------------------------------------------------------------- */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: end;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px 28px;
+  margin-bottom: 16px;
+  /* Above what follows it, below the sticky header (10). Anything that arrives
+     with .an keeps a transform, which makes it a stacking context — and a later
+     one paints over an earlier one, so without this an open dropdown would
+     slide under the chart cards beneath it. */
+  position: relative;
+  z-index: 5;
+}
+
+.field { display: grid; gap: 7px; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.field-wide { min-width: min(620px, 100%); }
+
+/* An applied filter as a pill you can take off, which is the pattern the client
+   approved. The row takes the bar's full width so it sits under the controls,
+   and it stays visible when the phone bar is collapsed - that is the point of it. */
+.ftags { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 8px; }
+/* The row is marked hidden when nothing is applied, but `display: flex` above
+   outranks the browser's own rule for that attribute — so an empty row was still
+   a flex item, still took the bar's 16px gap, and left the card 16px deeper
+   under its controls than over them. */
+.ftags[hidden] { display: none; }
+.ftag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 100px;
+  background: var(--mint);
+  color: var(--green-mid);
+  font: 600 12px var(--body);
+  cursor: pointer;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+.ftag:hover { background: rgba(47, 122, 90, 0.14); }
+.ftag .fx { font-size: 14px; opacity: 0.5; margin-left: 2px; }
+.ftag-clear {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 100px;
+  background: none;
+  color: var(--muted);
+  font: 600 12px var(--body);
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+.ftag-clear:hover { border-style: solid; border-color: var(--rose); color: var(--rose); }
+.field select {
+  font: 500 13px var(--body);
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+  padding: 10px 36px 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  /* A control is cut into the card: the page's ground showing through, with the
+     prototype's own chevron in place of the system's. */
+  background: var(--ground) url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center;
+  -webkit-appearance: none;
+  appearance: none;
+  min-width: 150px;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+.field select:hover { border-color: var(--line-strong); }
+.field-wide select { width: 100%; }
+
+/* The list the page draws, in place of the one the browser draws — see views/dropdown.ts.
+   It is pinned under its control, so seventeen countries open downward instead of
+   upward over their own label, and it is styled like the rest of the page. */
+.field { position: relative; }
+.field.is-open { z-index: 60; }
+.field.is-open select { border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(47, 122, 90, 0.10); }
+
+.picker-pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 60;
+  min-width: max(240px, 100%);
+  max-width: calc(100vw - 40px);
+  padding: 6px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--lift);
+  /* The field's label is uppercase and tracked out; the list inside it is not. */
+  text-transform: none;
+  letter-spacing: 0;
+  animation: picker-in 0.2s var(--eout);
+}
+
+@keyframes picker-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+
+.picker-search { padding: 2px 2px 8px; margin-bottom: 6px; border-bottom: 1px solid var(--line); }
+.picker-search-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: 500 13.5px var(--body);
+  color: var(--ink);
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+.picker-search-input:focus { outline: none; border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(47, 122, 90, 0.10); }
+
+.picker-options { max-height: 260px; overflow-y: auto; }
+.picker-options::-webkit-scrollbar { width: 5px; }
+.picker-options::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 4px; }
+
+.picker-group-name {
+  margin: 10px 8px 4px;
+  font: 700 10.5px var(--body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.picker-group:first-child .picker-group-name { margin-top: 2px; }
+
+.picker-option {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 8px 10px 8px 26px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  font: 500 13.5px var(--body);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+.picker-option:hover { background: var(--wash); }
+.picker-option:focus-visible { outline: none; background: var(--wash); box-shadow: inset 0 0 0 1px var(--green-mid); }
+.picker-option[aria-selected="true"] { color: var(--green-mid); font-weight: 700; }
+.picker-option[aria-selected="true"]::before { content: '\2713'; position: absolute; left: 9px; }
+
+.picker-empty { margin: 0; padding: 14px; text-align: center; font: 500 12.5px var(--body); color: var(--faint); }
+
+/* The "Filters" button only exists for phones (see the narrow-screen rules); desktop shows every filter. */
+.filters-toggle { display: none; }
+
+.filter-note, .scope-note { margin: 0 0 16px; color: var(--muted); font-size: 12.5px; }
+.scope-note { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 11px 15px; }
+
+.question-text {
+  margin: 0;
+  /* Every card in this column starts its content 29px in: 28px of padding and a
+     1px border. This one's left border is 3px, so its padding gives two back. */
+  padding: 16px 28px 16px 26px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 12px;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 500;
+}
+.base-note { margin: 0; font-size: 13px; color: var(--warn-ink); background: var(--warn-bg); padding: 8px 14px; border-radius: 100px; }
+
+/* Chart-type switch, as the approved prototype draws it: a segmented control
+   set into the filter card and pushed to its far end, not a card of its own. */
+.type-switch {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-bottom: 18px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+}
+/* Set into a card it takes the page's ground and needs no edge of its own; on
+   its own, as on the methodology page, it is a card. */
+.filters > .type-switch { margin: 0 0 0 auto; background: var(--ground); border: 0; }
+.type-switch button {
+  font: 500 13px var(--body);
+  padding: 9px 16px;
+  border: 0;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.type-switch button { transition: color 0.25s var(--ease), background 0.25s var(--ease), box-shadow 0.25s var(--ease); }
+.type-switch button:hover { color: var(--ink); }
+.type-switch button.active { background: var(--green); color: var(--card); box-shadow: 0 2px 8px rgba(26, 58, 42, 0.15); }
+
+
+/* Several choices: the trigger, the tick boxes and the count badge ---------- */
+
+/* The Country control is a button, not a select, so it has to be given the
+   select's own look — a filter bar where one control is visibly a different
+   species reads as a bug rather than a feature. These values are the ones in
+   `.field select` above; if that changes, this changes with it. */
+.picker-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 150px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--ground);
+  font: 500 13px var(--body);
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+.picker-trigger:hover { border-color: var(--line-strong); }
+.field.is-open .picker-trigger { border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(47, 122, 90, 0.10); }
+
+/* The label is a span now rather than the text of a <label>, because the control
+   it names is a button and a label around a button gives the field two
+   accessible names. */
+.field-label {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* "Kenya +3" — the rest of the selection, without a line that grows without end. */
+.picker-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  /* Taller than the text beside it, so without this the button grew 4px when a
+     count appeared and stood proud of the selects either side. */
+  margin: -2px 0 -2px auto;
+  background: var(--green-mid);
+  color: #fff;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.picker-actions {
+  display: flex;
+  gap: 6px;
+  padding: 2px 2px 8px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+.picker-action {
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: none;
+  font: 600 11px var(--body);
+  color: var(--ink);
+  cursor: pointer;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease), background 0.2s var(--ease);
+}
+.picker-action:hover { border-color: var(--accent); color: var(--accent); background: var(--wash); }
+
+/* A multi option carries its own box, so it does not need the single-choice
+   tick that is drawn in the gutter by `.picker-option[aria-selected]`. */
+.picker-option-multi { display: flex; align-items: center; gap: 10px; padding-left: 10px; }
+.picker-option-multi[aria-selected="true"] { color: var(--ink); font-weight: 500; }
+.picker-option-multi[aria-selected="true"]::before { content: none; }
+
+.picker-check {
+  position: relative;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--faint);
+  border-radius: 4px;
+  transition: background 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+.picker-option-multi[aria-selected="true"] .picker-check { background: var(--green-mid); border-color: var(--green-mid); }
+.picker-option-multi[aria-selected="true"] .picker-check::after {
+  content: '';
+  position: absolute;
+  left: 4.5px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}

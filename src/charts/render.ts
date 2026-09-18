@@ -7,9 +7,11 @@
 // own right, so the markup is owed twice over.
 import type { ChartConfiguration, ChartType as ChartJsType } from 'chart.js';
 import type { ChartType } from '../content';
-import type { ViewModel } from '../model';
+import { type CategoryKind, type SeriesKind, type ViewModel, sharedBases } from '../model';
 import { GRID, NO_DATA, ramp, SCALE_3, SCALE_4, SERIES } from './palette';
 import { Chart, registerGeo, setupCharts, valueLabels } from './setup';
+import { badgeElement, sampleBadge } from '../ui/quality';
+import { insightRow } from '../ui/insights';
 
 type FeatureLike = { properties: { name: string; surveyName: string | null } };
 
@@ -24,7 +26,7 @@ function outline(): Promise<{ features: FeatureLike[] }> {
   return africa;
 }
 
-const palette = (model: ViewModel, kind: ChartType): string[] => {
+export const palette = (model: ViewModel, kind: ChartType): string[] => {
   if (model.series.length > 1) {
     return Array.from({ length: model.series.length }, (_, i) => SERIES[i % SERIES.length]!);
   }
@@ -44,7 +46,19 @@ const labelColumn = (chartWidth: number): number => (chartWidth < 400 ? Math.rou
 /** 205px holds the 28 characters the labels are cut to, about 7.3px a character. */
 const LABEL_CHAR_PX = 205 / 28;
 
-function baseConfig(model: ViewModel, kind: ChartType): ChartConfiguration {
+/**
+ * Stacking a comparison would be wrong, so it is not drawn that way.
+ *
+ * Each series in a comparison is its own distribution summing to 100; stacked on
+ * one axis they reach 200. This is the only place that knows both the model and
+ * the chart type, so the substitution belongs here rather than being asserted by
+ * a model that cannot see which chart was asked for.
+ */
+const drawnAs = (model: ViewModel, kind: ChartType): ChartType =>
+  (model.compare !== 'none' && kind === 'stacked' ? 'bar' : kind);
+
+function baseConfig(model: ViewModel, requested: ChartType): ChartConfiguration {
+  const kind = drawnAs(model, requested);
   const horizontal = kind === 'hbar' || kind === 'stacked';
   const multiSeries = model.series.length > 1;
   const colours = palette(model, kind);
@@ -71,7 +85,7 @@ function baseConfig(model: ViewModel, kind: ChartType): ChartConfiguration {
   const categoryAxis = {
     grid: { display: false },
     // Chart.js would otherwise allot the category axis a fraction of the canvas
-    // and clip anything longer. Thirty characters of Montserrat at 12px needs
+    // and clip anything longer. Thirty characters of the body face at 12px needs
     // about this much. On a phone-width chart that would leave no room for the
     // bars themselves, so on a chart under 400px wide the column takes 40% of it.
     ...(horizontal ? {
@@ -213,7 +227,55 @@ async function mapConfig(model: ViewModel, accent: string): Promise<ChartConfigu
   };
 }
 
-function table(model: ViewModel): HTMLDetailsElement {
+/** What the first column holds. */
+const CORNER: Record<CategoryKind, string> = {
+  countries: 'Country',
+  options: 'Response',
+  waves: 'Wave',
+};
+
+/**
+ * Which column the table is sorted by, and which way.
+ *
+ * Lives with the figure rather than in a module global. The prototype keeps its
+ * sort column in one, and has to remember to reset it in four separate places —
+ * opening a theme, rebuilding the question list, and each of previous and next.
+ * Miss one and a sort chosen for the last question is silently applied to the
+ * next question's rows.
+ */
+interface Sort { column: number; direction: 1 | -1 }
+
+/** -1 is the category column; 0 and up are series; the base column is last. */
+function sortRows(
+  order: number[],
+  column: number,
+  direction: 1 | -1,
+  model: ViewModel,
+  bases: number[] | null,
+): number[] {
+  const value = (row: number): string | number | undefined => {
+    if (column === -1) return model.categories[row];
+    if (column === model.series.length) return bases?.[row];
+    return model.series[column]?.values[row];
+  };
+
+  return [...order].sort((a, b) => {
+    const left = value(a);
+    const right = value(b);
+    // Absent sorts last whichever way the column points. A country nobody
+    // surveyed must never float to the top of an ascending sort, where it reads
+    // as the lowest figure rather than as no figure at all.
+    if (left === undefined && right === undefined) return 0;
+    if (left === undefined) return 1;
+    if (right === undefined) return -1;
+    if (typeof left === "string" && typeof right === "string") {
+      return direction * left.localeCompare(right);
+    }
+    return direction * ((left as number) - (right as number));
+  });
+}
+
+function table(model: ViewModel, colours: string[]): HTMLDetailsElement {
   const wrap = document.createElement('details');
   wrap.className = 'chart-table';
   const summary = document.createElement('summary');
@@ -222,40 +284,119 @@ function table(model: ViewModel): HTMLDetailsElement {
 
   const el = document.createElement('table');
   const caption = document.createElement('caption');
-  caption.textContent = `${model.title} — illustrative figures, base ${model.base} respondents`;
+  caption.textContent = `${model.title} — illustrative figures, `
+    + `base ${model.base.toLocaleString('en-GB')} respondents`;
   el.append(caption);
 
+  // Only where the categories are separate samples, and only where every series
+  // was measured on the same ones. See sharedBases.
+  const bases = sharedBases(model);
+
+  const headings: { label: string; column: number }[] = [
+    { label: CORNER[model.categoryKind], column: -1 },
+    ...model.series.map((s, i) => ({ label: s.label, column: i })),
+    ...(bases ? [{ label: 'Base (n)', column: model.series.length }] : []),
+  ];
+
+  let sort: Sort | null = null;
+  const body = document.createElement('tbody');
   const head = document.createElement('tr');
-  const corner = document.createElement('th');
-  corner.scope = 'col';
-  corner.textContent = model.series.length > 1 ? 'Wave' : 'Category';
-  head.append(corner);
-  for (const s of model.series) {
+
+  for (const heading of headings) {
     const th = document.createElement('th');
     th.scope = 'col';
-    th.textContent = s.label;
+    // A real button inside the header, not a click handler on the th itself.
+    // Theirs cannot be reached by keyboard and announces no state.
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'sort-btn';
+    button.append(heading.label);
+    const caret = document.createElement('span');
+    caret.className = 'sort-ind';
+    caret.setAttribute('aria-hidden', 'true');
+    button.append(caret);
+    button.addEventListener('click', () => {
+      sort = sort && sort.column === heading.column
+        ? { column: heading.column, direction: sort.direction === 1 ? -1 : 1 }
+        : { column: heading.column, direction: 1 };
+      draw();
+    });
+    th.append(button);
     head.append(th);
   }
-  el.append(head);
 
-  model.categories.forEach((category, i) => {
-    const row = document.createElement('tr');
-    const th = document.createElement('th');
-    th.scope = 'row';
-    th.textContent = category;
-    row.append(th);
-    for (const s of model.series) {
-      const td = document.createElement('td');
-      const value = s.values[i];
-      td.textContent = value === undefined ? '—' : `${value}%`;
-      row.append(td);
+  function draw(): void {
+    [...head.children].forEach((th, at) => {
+      const heading = headings[at]!;
+      const active = sort !== null && sort.column === heading.column;
+      const ascending = active && sort!.direction === 1;
+      th.classList.toggle('sorted', active);
+      // aria-sort is the only thing that tells a screen reader the table is
+      // ordered, and by which column.
+      th.setAttribute('aria-sort', active ? (ascending ? 'ascending' : 'descending') : 'none');
+      const caret = th.querySelector('.sort-ind');
+      if (caret) caret.textContent = active ? (ascending ? '\u25b2' : '\u25bc') : '\u25be';
+    });
+
+    const natural = model.categories.map((_, i) => i);
+    const order = sort === null
+      ? natural
+      : sortRows(natural, sort.column, sort.direction, model, bases);
+
+    body.replaceChildren();
+    for (const i of order) {
+      const row = document.createElement('tr');
+      const th = document.createElement('th');
+      th.scope = 'row';
+      th.textContent = model.categories[i]!;
+      row.append(th);
+      model.series.forEach((s, series) => {
+        const td = document.createElement('td');
+        const value = s.values[i];
+        td.textContent = value === undefined ? '—' : `${value}%`;
+        if (value !== undefined) {
+          // The approved prototype draws a proportional bar under each figure,
+          // which is what makes a column of numbers readable down the page. It is
+          // decorative: the number it measures is already in the cell, so a screen
+          // reader gains nothing from it and would only hear the same value twice.
+          td.classList.add('bar-cell');
+          const bar = document.createElement('div');
+          bar.className = 'mini-bar';
+          bar.style.width = `${Math.max(0, Math.min(100, value))}%`;
+          // The series' own colour, rather than their three hardcoded classes:
+          // they had exactly three series, we can have six.
+          bar.style.setProperty('--bar-colour', colours[series % colours.length] ?? '');
+          bar.setAttribute('aria-hidden', 'true');
+          td.append(bar);
+        }
+        row.append(td);
+      });
+      if (bases) {
+        const td = document.createElement('td');
+        const n = bases[i];
+        td.textContent = n === undefined ? '—' : n.toLocaleString('en-GB');
+        row.append(td);
+      }
+      body.append(row);
     }
-    el.append(row);
-  });
+  }
+
+  const header = document.createElement('thead');
+  header.append(head);
+  el.append(header, body);
+  draw();
 
   wrap.append(el);
   return wrap;
 }
+
+/** What the series are, said out loud. Without it a gender split is announced as waves. */
+const SPLIT: Record<SeriesKind, string> = {
+  single: '',
+  options: ', one per answer option',
+  waves: ', one per wave',
+  gender: ', compared by gender',
+};
 
 /** A one-sentence description of the chart, for anyone who cannot see it. */
 function summarise(model: ViewModel, kind: ChartType): string {
@@ -263,14 +404,23 @@ function summarise(model: ViewModel, kind: ChartType): string {
   const low = Math.min(...values);
   const high = Math.max(...values);
   return `${kind === 'map' ? 'Map' : 'Chart'}: ${model.title}. `
-    + `${model.series.length} series across ${model.categories.length} categories, `
+    + `${model.series.length} series${SPLIT[model.seriesKind]} `
+    + `across ${model.categories.length} categories, `
     + `ranging from ${low}% to ${high}%. Illustrative figures. `
     + 'The same values follow as a table.';
 }
 
-function notes(model: ViewModel): string[] {
+function notes(model: ViewModel, requested: ChartType): string[] {
   const out: string[] = [];
   if (model.likeForLike) out.push(model.likeForLike);
+  // A refused comparison is said, not swallowed.
+  if (model.compareNote) out.push(model.compareNote);
+  if (drawnAs(model, requested) !== requested) {
+    out.push(
+      'Each series is its own distribution, so they are drawn side by side rather '
+      + 'than stacked — stacked they would total more than 100%.',
+    );
+  }
   out.push(...model.caveats);
   if (model.optionsInvented) {
     out.push(
@@ -278,7 +428,7 @@ function notes(model: ViewModel): string[] {
       + 'them. The real list is one of the things we need from PSB.',
     );
   }
-  out.push(`Base: ${model.base} respondents (illustrative).`);
+  out.push(`Base: ${model.base.toLocaleString('en-GB')} respondents (illustrative).`);
   return out;
 }
 
@@ -302,7 +452,11 @@ export function renderFigure(
   const chip = document.createElement('span');
   chip.className = 'chip';
   chip.textContent = 'Illustrative';
-  head.append(title, chip);
+  // Every figure here is generated, so the badge never grades the base — see
+  // ui/quality.ts for why putting a margin of error on a hashed number would be
+  // the most confident sentence on the page attached to the least real figure.
+  const badge = badgeElement(sampleBadge(model.base, { illustrative: true }));
+  head.append(title, chip, badge);
   if (model.showing) {
     const showing = document.createElement('p');
     showing.className = 'showing';
@@ -311,12 +465,17 @@ export function renderFigure(
   }
   figure.append(head);
 
+  const readings = insightRow(model);
+  if (readings) figure.append(readings);
+
   let chart: Chart | undefined;
   let canvas: HTMLCanvasElement | undefined;
   let kindForChart: ChartType | undefined;
 
+  const colours = palette(model, kind);
+
   if (kind === 'table') {
-    const only = table(model);
+    const only = table(model, colours);
     only.open = true;
     only.querySelector('summary')?.remove();
     figure.append(only);
@@ -328,11 +487,11 @@ export function renderFigure(
     canvas.setAttribute('aria-label', summarise(model, kind));
     canvasWrap.append(canvas);
     figure.append(canvasWrap);
-    figure.append(table(model));
+    figure.append(table(model, colours));
     kindForChart = kind;
   }
 
-  for (const note of notes(model)) {
+  for (const note of notes(model, kind)) {
     const p = document.createElement('p');
     p.className = 'note';
     p.textContent = note;

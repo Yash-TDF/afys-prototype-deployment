@@ -17,7 +17,7 @@ export function methodologyView(host: HTMLElement): () => void {
   host.replaceChildren();
 
   const head = document.createElement('section');
-  head.className = 'method-header';
+  head.className = 'method-header an';
   const h1 = document.createElement('h1');
   h1.textContent = 'Who was asked';
   const lede = document.createElement('p');
@@ -29,7 +29,7 @@ export function methodologyView(host: HTMLElement): () => void {
   host.append(head);
 
   const toggle = document.createElement('div');
-  toggle.className = 'type-switch';
+  toggle.className = 'type-switch an a1';
   toggle.setAttribute('role', 'group');
   toggle.setAttribute('aria-label', 'Wave');
   host.append(toggle);
@@ -44,12 +44,12 @@ export function methodologyView(host: HTMLElement): () => void {
   detail.className = 'country-detail';
 
   const layout = document.createElement('div');
-  layout.className = 'method-layout';
+  layout.className = 'method-layout an a2';
   layout.append(mapHolder, detail);
   host.append(layout);
 
   const table = document.createElement('section');
-  table.className = 'coverage';
+  table.className = 'coverage an a3';
   host.append(table);
 
   const showCountry = (country: Country | null): void => {

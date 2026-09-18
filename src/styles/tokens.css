@@ -1,0 +1,60 @@
+/* Round-zero styling.
+
+   **Typeface: Montserrat throughout**, from AfricanYS_style.pdf in the asset pack
+   the client sent — and what we told them in writing we would use. The approved
+   prototype is set in Instrument Serif and Plus Jakarta Sans, which appear in
+   neither their guide nor their published material; they were the pitch's own
+   choice. Everything else about the prototype's type is kept: the sizes, the
+   leading, the weights of the body text.
+
+   The one thing a swap of family cannot carry over is the title's weight. The
+   serif has a single light weight and the page was built around it, so
+   Montserrat takes 700 there — the 800 an earlier round used made the titles the
+   loudest thing on the page, which the approved design never was.
+
+   **Palette: the deck's eight brand colours**, which the style guide and the
+   theme accents already agree on — #fff8e9, #fec648, #f1676a, #e82d4e, #0a734d,
+   #6dbf67, #1f2337, #60cbee.
+
+   **Everything else** — the warm ground, the card treatment, the pill controls —
+   follows the approved prototype, read off its deployed stylesheet, so the
+   structure is what gets reviewed rather than a redesign.
+
+   To try the prototype's faces: change --display, --display-weight and --body
+   below and the font link in index.html. Nothing else names a typeface — the
+   charts read --body from here. */
+
+:root {
+  --ground: #faf8f4;
+  --card: #fefdfb;
+  --ink: #1e293b;
+  --muted: #7c8794;
+  --faint: #a8b0ba;
+  --green: #1a3a2a;
+  --green-mid: #2f7a5a;
+  --gold: #d4a338;
+  --rose: #e8536a;
+  --line: rgba(0, 0, 0, 0.05);
+  --line-strong: rgba(0, 0, 0, 0.1);
+  --tag: #f0ece4;
+  --warn-bg: #fdf3da;
+  --warn-ink: #8a6314;
+  --accent: var(--green-mid);
+  --radius: 16px;
+  /* Cards sit flat on the ground, as the approved prototype draws them: a
+     hairline and no shadow at rest, so the lift on hover is the only depth. */
+  --shadow: none;
+  /* Motion, from the prototype the client approved: one curve for nearly everything,
+     and a softer landing for things that arrive. Durations scale with the weight of
+     what moves — 0.25s for a pill, 0.45s for a card. */
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --eout: cubic-bezier(0.16, 1, 0.3, 1);
+  --lift: 0 16px 40px rgba(26, 58, 42, 0.10);
+  --wash: rgba(47, 122, 90, 0.06);
+  --mint: #d8f3dc;
+  --display: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display-weight: 700;
+  --display-tracking: -0.02em;
+  --body: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+

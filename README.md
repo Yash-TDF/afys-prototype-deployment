@@ -26,7 +26,7 @@ Other scripts:
 | `pnpm build` | production build into `dist/` |
 | `pnpm size` | build, then print what actually loads and when |
 | `pnpm content` | regenerate `src/data/content.json` and `public/africa.geo.json` from the portal's seeds |
-| `pnpm audit:options` | list the questions whose answer options we do not have |
+| `pnpm audit:options` | list what is still open with PSB; add `--write` to regenerate `NEEDED_FROM_PSB.md` |
 | `pnpm typecheck` | `tsc --noEmit` |
 
 `pnpm content` reads `../afys-portal/db/seeds/*.sql`, so the two directories have
@@ -40,10 +40,13 @@ questions and their exact wording, the thirty-nine chart specifications with the
 titles, chart types, "showing" lines and caveats, the slide each came from, the
 twenty-eight countries, and which waves each country appears in.
 
-**Invented:** every percentage, every base, and — for thirty of the forty-one
-questions — the response options themselves. A chart drawn with invented options
-says so underneath. `NEEDED_FROM_PSB.md` is that list, and it is the specific ask
-to send rather than "please send the codebook".
+**Invented:** every percentage and every base. The answer options are real for
+forty of the forty-one questions — recovered from the deck's own chart data, or
+written from the 2026 questionnaire — and the one that is not says so under its
+chart. `NEEDED_FROM_PSB.md` is what is still open: that question, and the base
+for one of the three "among those…" questions. It is the specific ask to send
+rather than "please send the codebook", and it is written by
+`pnpm audit:options --write` from what the charts actually draw, never by hand.
 
 The figures are deterministic: the same question, wave, country and option give
 the same number on every machine and every reload, so a screenshot taken today
@@ -59,11 +62,28 @@ the open risk in ADR 0018; it renders Natural Earth geometry at 110m fine.
 
 | | gzipped |
 |---|---|
-| Landing page — HTML, CSS, app shell, the deck's structure | **10.6 KB** |
+| Landing page — HTML, CSS, app shell, the deck's structure | **18.5 KB** |
+| The view model and the generators, first time any figure is shown | +5.1 KB |
+| The question search, first time it is opened | +1.6 KB |
+| The data drawer, first time it is opened | +1.6 KB |
 | Chart.js core, first time any chart is drawn | +30.2 KB |
 | `chartjs-chart-geo` + `d3-geo`, only when a map is drawn | +64.0 KB |
 | Africa outline, 51 countries at 110m | +11.9 KB |
-| Worst case: a cold cache landing straight on a map | 124.3 KB |
+| Worst case: a cold cache landing straight on a map | 148.1 KB |
+
+Everything below the first line is deferred for the same reason: the card names
+and question counts are the page's content, and they should not wait on the
+generators, the deck's recovered answer options, or a search nobody has asked for
+yet. The theme cards' figures arrive after the grid is already readable, and
+`.tstats` reserves their height so nothing moves when they land.
+
+The styles are the exception, and worth naming: they build as one asset, so the
+drawer and the search cost their CSS on every page even though their code loads
+on neither. That is what took the landing page from 14.8 KB to 17.4, and matching
+the prototype's card, rail and filter-bar treatment took it to 18.5.
+
+Not in these figures: the webfont, one family from Google Fonts. It is
+`display=swap`, so text is readable before it arrives.
 
 The geo controller is over half of the worst case, which is why it is behind a
 dynamic import and why the landing view — the one page everyone loads — ships no
@@ -80,26 +100,87 @@ table is a contracted chart type anyway.
 
 ## Looks like the approved prototype on purpose
 
-The palette, both typefaces and the card treatment are taken from
-afys.vercel.app — read off its deployed stylesheet, not guessed:
+The palette and the card treatment are taken from afys.vercel.app — read off its
+deployed stylesheet, not guessed:
 
 | | |
 |---|---|
 | Ground | `#faf8f4` |
-| Heading green | `#1a3a2a` · Instrument Serif |
-| Body | `#1e293b` · Plus Jakarta Sans |
+| Heading green | `#1a3a2a` |
+| Body | `#1e293b` |
 | Gold | `#d4a338` |
-| Cards | white, 16px radius, hairline `#ece8e0` |
-| Pills | 100px radius — nav, filters, chart-type switch |
+| Cards | warm white `#fefdfb`, 16px radius, hairline `rgba(0,0,0,.05)`, no shadow at rest |
+| Type | the prototype's sizes, leading and weights — set in Montserrat, see below |
+| Page | 1360px, 40px gutters, a 68px glass header |
+| Pills | 100px radius — nav, filter tags, badges |
+| Chart-type switch | a segmented control set into the filter card |
 | Charts | the approved green / gold / rose triad |
 
-That is deliberate. Round zero asks the client to approve **structure**; if it
-also looked like a redesign, they would spend the review on the surface. The
-deck's own tile colours are still used, but for theme identity — tags, tile
-borders, the choropleth ramp — which is what they were chosen for.
+**It was measured, not eyeballed.** With the prototype served beside ours, the
+computed style of 45 matched elements on the landing page and the explorer was
+read from both — type, padding, radius, border, shadow, animation and transition
+— and every differing property listed. Of 350 properties compared, 321 agree.
+(The comparison is not in this repository: it needs the prototype's source,
+which is client material and is never committed.)
+Twenty-six of the 29 that do not are the typeface: the family on 22 elements, and
+the weight and tracking of the two page titles. The other three are deliberate:
 
-We still want the prototype source from Nimit, for the parts a screenshot cannot
-give: hover and transition behaviour, and the exact spacing scale.
+- secondary text is `#7c8794`, not their `#94a3b8`. Theirs is about 2.4:1 on
+  the cream ground and ours about 3.5:1 — still short of AA for small text,
+  which is for the production build to fix, not a reason to go lighter now
+- the highlighted insight chip's ink is `#2f7a5a`, the same green the charts
+  draw with, rather than their `#2d6a4f` two shades away
+- the current question's shadow is the same value in a different notation,
+  because ours is mixed from the theme's colour instead of set from JavaScript
+
+**The typeface is Montserrat throughout, which is the one place this departs
+from the prototype on purpose.** The prototype is set in Instrument Serif and
+Plus Jakarta Sans, which appear in neither the client's style guide nor any of
+their published material — they were the pitch's own choice.
+`AfricanYS_style.pdf` in the asset pack specifies Montserrat, and we told the
+client in writing that is what we would use. Everything else about the
+prototype's type is kept: the sizes, the leading, the body weights. The page
+titles take 700, because the serif's single light weight has no equivalent and
+the 800 an earlier round used made them the loudest thing on the page.
+
+The family, the title's weight and its tracking are three custom properties in
+`src/styles/tokens.css`, plus the font link in `index.html`; the charts read the
+body face from the stylesheet, so nothing else names one. Montserrat runs wider
+than Plus Jakarta Sans, and two things were re-fitted for it: the Country
+control's placeholder is "All countries" so five filters share a row, and the
+download buttons are pinned to the chart header's corner so a long title wraps
+beside them.
+
+**Motion is the prototype's too.** Content arrives on the 0.65s fade-up with its
+twelve delay steps, on every view and once per visit to it — not again on every
+filter change. Bars fill over 700ms on a cubic ease-out, each 18ms after the
+last, which is the prototype's ECharts timing restated for Chart.js. A redrawn
+chart settles in over 0.22s. All of it stops for a reader who has asked for less
+motion, including the canvas, which a stylesheet cannot reach.
+
+**The four summary cards open the data drawer**, as the prototype's do, each at
+the section behind its figure: the countries, the study, the waves, the themes.
+They are buttons, so a keyboard opens them too, and Escape puts focus back on
+the card. The drawer is still fetched on the first click rather than with the
+page. The prototype's third card, "Right Direction 55%", opens the explorer; we
+have no such card — see item 14 below — and ours is Themes.
+
+One thing worth knowing if the bars ever stop animating: Chart.js floors the
+canvas it draws but compares against its container's real width, so in a card
+with a 0.8px border — any Windows laptop at 125% scaling — its resize observer
+reports a change that is not one, and the zero-duration resize update that
+follows lands 10ms after the first draw and snaps every bar to full height.
+`.canvas` is rounded down to a whole pixel in `src/styles/chart.css` for that
+reason alone.
+
+Round zero asks the client to approve **structure**; if it also looked like a
+redesign, they would spend the review on the surface. The deck's own tile colours
+are still used, but for theme identity — tags, tile borders, the choropleth ramp —
+which is what they were chosen for.
+
+We have the prototype source, and the parts a screenshot could not give — the
+hover and transition behaviour, the motion curves, the spacing — are ported from
+it rather than guessed at.
 
 ## What is deliberately different from the prototype the client has seen
 
@@ -112,11 +193,36 @@ give: hover and transition behaviour, and the exact spacing scale.
    cannot be selected into an empty chart
 7. Cross-wave charts carry the like-for-like restriction as a footnote
 8. Filtered-base questions say who was actually asked
-9. The "Right Direction 55%" headline card is gone. 55% is the *wrong*-direction
-   figure on the report's printed page 18; the right-direction figure is 37%.
-   Rather than swap one invented headline for another, the summary row now carries
-   only facts we can source — 28 countries, 4 waves, 12 themes, 14,000+
-   respondents. **There is no generated number anywhere on the landing page**
+9. Countries are chosen several at a time, with a search, Select all and Clear.
+   In the approved prototype Select all and Clear are byte-identical functions
+   and both empty the selection, so Select all does not work there
+10. A question can be compared by gender or across waves. Where that cannot be
+    done honestly the chart says why instead of drawing it: a map shows one
+    figure per country, a share chart is one whole, and a chart already plotting
+    every wave has nothing to compare against
+11. Combined figures are never the mean of the percentages on screen. The
+    prototype's "Average X% across 16 countries" weights a country of 300
+    interviews the same as one of 1,100; ours sums the numerators and the
+    denominators, and refuses out loud where the categories are answers to one
+    question rather than separate samples
+12. The sample-size badge states the base and says no margin of error is shown.
+    Theirs grades every base Strong, Moderate or Low and prints a confidence
+    interval — over, here, a number we generated
+13. The data table sorts, from real buttons with `aria-sort`; theirs puts a click
+    handler on a bare header cell that a keyboard cannot reach
+14. The "Right Direction 55%" headline card is gone, and stays gone at any
+    figure. 55% is the *wrong*-direction number on the report's printed page 18;
+    the right-direction figure is 37%. The summary row carries only facts we can
+    source — 28 countries, 4 waves, 12 themes, 14,000+ respondents — and its one
+    sparkline is the real count of countries per wave.
+
+    The theme cards *do* carry a generated headline, a trend delta and a
+    sparkline, because that is the shape the client approved and round zero is
+    asking them to approve a shape. Each is marked in three places: the banner
+    above the page, a chip on the card, and the card's own label, which reads the
+    figure out and ends "illustrative figure, not a survey result". They are
+    computed by the same `buildViewModel` the explorer uses, so a card and the
+    chart it leads to cannot disagree.
 
 ## Layout
 
@@ -124,12 +230,15 @@ give: hover and transition behaviour, and the exact spacing scale.
 tools/build-content.mjs   seeds → src/data/content.json
 tools/make-africa.mjs     world-atlas → public/africa.geo.json (Africa only, 110m)
 tools/report-size.mjs     what loads, when, gzipped
-tools/audit-options.ts    which questions we cannot draw honestly yet
+tools/audit-options.ts    what is still open with PSB → NEEDED_FROM_PSB.md
 src/content.ts            the deck, typed
 src/illustrative.ts       the generated figures — deleted when the API is wired up
 src/model.ts              chart spec + filters → view model (shaped like the API response)
+src/aggregate.ts          the only place percentages are combined — never averaged
 src/charts/               Chart.js setup, the value-label plugin, the renderer
-src/views/                themes · tile · explorer · methodology · filters
+src/ui/                   sparkline · insights · quality · download · toast · drawer · spotlight
+src/styles/               the stylesheet by section; styles.css is the import list
+src/views/                themes · theme-card · tile · explorer · methodology · filters · dropdown
 ```
 
 `src/model.ts` is the seam. When this becomes real, `buildViewModel` is replaced by

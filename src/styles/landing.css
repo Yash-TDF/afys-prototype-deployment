@@ -1,0 +1,224 @@
+/* Landing ---------------------------------------------------------------- */
+
+/* The overview is one block closed by a rule, as the prototype draws it: the
+   title, the four facts, then a hairline before the themes begin. */
+.hero { margin-bottom: 48px; padding-bottom: 40px; border-bottom: 1px solid var(--line); }
+.hero h1 { font-size: 40px; line-height: 1.1; }
+.hero > p { color: var(--muted); margin: 8px 0 32px; max-width: 62ch; font-size: 15px; line-height: 1.5; }
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+}
+/* Between phone and desktop there is room for three 210px cards but not four, which left one card
+   alone on a second row. Show two and two there instead. */
+@media (min-width: 600px) and (max-width: 960px) {
+  .stat-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.stat {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  text-decoration: none;
+  display: block;
+  transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease), border-color 0.4s var(--ease);
+}
+.stat:hover { transform: translateY(-3px); box-shadow: 0 16px 48px rgba(0, 0, 0, 0.06); border-color: transparent; }
+.stat .label {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+.stat .value { display: block; font-size: 36px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; color: var(--green); }
+.stat .sub { display: block; color: var(--muted); font-size: 13px; line-height: 1.4; margin-top: 12px; }
+.stat .chip { margin-top: 10px; display: inline-block; }
+
+/* A section title is the sans at 22px, not the display serif: the serif is for
+   the one title a page has. */
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 24px;
+  font: 700 22px/1.6 var(--body);
+  color: var(--green);
+}
+.section-heading .count { font-size: 13px; color: var(--faint); font-weight: 500; }
+
+.tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+
+.tile {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 32px 28px 28px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  min-height: 160px;
+  overflow: hidden;
+  transition: transform 0.45s var(--ease), border-color 0.45s var(--ease), box-shadow 0.45s var(--ease);
+}
+/* The accent wipes in along the top edge on hover. It was a transparent 3px
+   border that changed colour, which cannot wipe and made the card's top edge
+   thicker than its other three. */
+.tile::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s var(--ease);
+}
+.tile:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.07); border-color: transparent; }
+.tile:hover::before { transform: scaleX(1); }
+.tile .tt { display: flex; align-items: center; justify-content: space-between; margin-bottom: auto; }
+.tile .theme-tag {
+  /* The deck's accents include a yellow and a pale blue that are unreadable as
+     text on cream. Tint the ground with the accent and darken the ink instead of
+     using the raw colour. */
+  background: var(--tag);
+  color: var(--green);
+  border-radius: 100px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.tile h3 { font-size: 18px; font-weight: 700; color: var(--green); line-height: 1.25; margin-top: 20px; }
+.tile .meta { margin: 12px 0 0; color: var(--muted); font-size: 13px; font-weight: 500; }
+/* Quiet until the card is hovered, then it takes the theme's colour and leans
+   the way it points. */
+.tile .arrow {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.025);
+  color: var(--faint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.35s var(--ease), color 0.35s var(--ease), transform 0.35s var(--ease);
+}
+.tile:hover .arrow { background: var(--accent); color: #fff; transform: translate(2px, -2px); }
+
+
+/* Stat-card and theme-card furniture, from the approved prototype ---------- */
+
+/* The top border wipes in on hover and an arrow appears in the corner, because
+   the card goes somewhere: it opens the data drawer at the section behind its
+   figure. It is a <button>, so it has to be told to look like the card it is. */
+.stat {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.stat-arrow {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--faint);
+  opacity: 0;
+  transform: translate(-4px, 4px);
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease), color 0.3s var(--ease), background 0.3s var(--ease);
+}
+.stat:hover .stat-arrow,
+.stat:focus-visible .stat-arrow { opacity: 1; transform: none; color: var(--green-mid); background: var(--wash); }
+/* The one card with a sparkline has it where the arrow lands. */
+.stat .sparkline { transition: opacity 0.3s var(--ease); }
+.stat:hover .sparkline, .stat:focus-visible .sparkline { opacity: 0.35; }
+.stat::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--green-mid), var(--gold));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s var(--ease);
+}
+.stat:hover::before { transform: scaleX(1); }
+
+.stat-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.stat-left { display: block; min-width: 0; }
+
+.sparkline { width: 80px; height: 40px; flex-shrink: 0; margin-top: 4px; }
+.sparkline polyline { fill: none; stroke: var(--green-mid); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+/* #sparkGrad is defined in index.html, outside the routed element — a def inside
+   a view is destroyed on the first navigation. */
+.sparkline .spark-area { fill: url(#sparkGrad); opacity: 0.15; }
+
+/* The figure row at the foot of a theme card. */
+.tile .tstats {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  /* Reserved, because the figures arrive on a separate chunk a moment after the
+     grid draws. Without a height here every card would jump when they land. The
+     value is the tallest content: a 26px figure, a 4px gap and a 24px pill, over
+     18px of padding and the rule. */
+  min-height: 73px;
+}
+.tstat-l { display: grid; gap: 4px; min-width: 0; }
+.tstat-v { font-size: 26px; font-weight: 800; color: var(--green); line-height: 1; letter-spacing: -0.02em; }
+.tstat-none { color: var(--muted); font-size: 13px; }
+.tstat-d {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  width: fit-content;
+}
+.tstat-d.up { background: var(--mint); color: var(--green-mid); }
+.tstat-d.down { background: rgba(232, 83, 106, 0.10); color: var(--rose); }
+.tstat-d.flat { background: var(--tag); color: var(--muted); }
+
+/* One rule each, instead of the prototype's six-name accent enum: our themes
+   carry their colour as hex in content.json, set on the tile as --accent. */
+.tspark { width: 78px; height: 36px; flex-shrink: 0; }
+.tspark polyline { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tspark polygon { fill: var(--accent); opacity: 0.12; }
+.tspark circle { fill: var(--accent); }
+
+/* Two of the deck's accents — the yellow and the pale blue — are unreadable on
+   cream, which headers.css already handles for the tag and the arrow. A 2px
+   stroke has the same problem. Same treatment, same @supports guard: Safari
+   before 16.2 has no color-mix and keeps the plain colour above. */
+@supports (color: color-mix(in srgb, red 50%, white)) {
+  .tspark polyline { stroke: color-mix(in srgb, var(--accent) 72%, var(--green)); }
+  .tspark circle { fill: color-mix(in srgb, var(--accent) 72%, var(--green)); }
+}
+
+.tile .chip { align-self: flex-start; margin-top: 14px; }

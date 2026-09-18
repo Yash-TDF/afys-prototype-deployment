@@ -1,0 +1,189 @@
+/* Misc -------------------------------------------------------------------- */
+
+.question-list { margin-top: 34px; }
+.question-list h2 { font: 700 22px/1.6 var(--body); color: var(--green); margin-bottom: 12px; }
+.question-list ul { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 0; }
+.question-list a {
+  display: inline-block;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  padding: 7px 15px;
+  font-size: 12.5px;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--muted);
+}
+.question-list a { transition: color 0.25s var(--ease), border-color 0.25s var(--ease), background 0.25s var(--ease); }
+.question-list a:hover { color: var(--accent); border-color: var(--accent); background: var(--wash); }
+
+.exports { display: flex; gap: 6px; margin-top: 16px; }
+.exports button {
+  font: 600 11px var(--body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--muted);
+}
+/* In the explorer the downloads sit in the chart's own header, on the title's
+   row and pushed to its far end, which is where the prototype puts them. */
+figcaption > .exports { margin: 0 0 0 auto; }
+/* Pinned to the corner rather than left in the row. In the row, a long title
+   pushed the buttons onto a line of their own for some questions and not others;
+   pinned, the title wraps beside them instead, which is what the prototype's
+   header does with its 550px cap. The padding is the buttons' width and a gap. */
+@media (min-width: 701px) {
+  .explorer-figure figcaption { position: relative; padding-right: 214px; min-height: 30px; }
+  .explorer-figure figcaption > .exports { position: absolute; top: 0; right: 0; margin: 0; }
+}
+.exports button { transition: color 0.25s var(--ease), border-color 0.25s var(--ease), background 0.25s var(--ease); }
+.exports button:hover { color: var(--green); border-color: var(--accent); background: var(--wash); }
+
+.empty { color: var(--muted); }
+
+/* The explorer, as the client approved it: the question list down the left,
+   sticky, with the controls and the chart beside it. Below 1100px there is not
+   room for two columns, so the list gives way to the question dropdown. */
+.elayout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-items: start; }
+/* The rail stays put and only the list inside it scrolls, so "Questions" and
+   the search box are always there and the rail's top edge stays level with the
+   column beside it. When the whole rail scrolled, both slid away. */
+.qside { display: none; position: sticky; top: 92px; max-height: calc(100vh - 116px); max-height: calc(100dvh - 116px); flex-direction: column; }
+/* 8px between the cards and the scrollbar, which used to sit 2px off the
+   current question's edge. */
+.qlist { min-height: 0; overflow-y: auto; padding-right: 8px; }
+/* Both kinds of label start where the questions' own text starts: the button's
+   16px of padding and its 1px border. */
+.qside h2 { font: 600 11px/1.6 var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); margin: 0 0 12px; padding-left: 17px; }
+.qside-theme { margin-bottom: 18px; }
+.qside-theme h3 { font: 700 11px var(--body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); margin: 0 0 6px; padding-left: 17px; }
+.qside ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.qside button {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: none;
+  color: var(--muted);
+  font: 400 13.5px/1.45 var(--body);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.25s var(--ease), color 0.25s var(--ease), border-color 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+/* Hovering lifts the row onto a card of its own, rather than tinting it. */
+.qside button:hover { background: var(--card); border-color: var(--line); color: var(--ink); }
+.qside button[aria-current="true"] { background: var(--wash); color: var(--green-mid); font-weight: 700; }
+.qlist::-webkit-scrollbar { width: 3px; }
+.qlist::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 4px; }
+/* The right column, spaced the way the approved prototype spaces it: one gap
+   between every child rather than a margin on each. Several of ours carried no
+   margin at all, so the question wording, the base note and the filter bar sat
+   flush against one another. A gap here also means a new element cannot arrive
+   with no space around it. */
+.emain { min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+.estack { display: flex; flex-direction: column; gap: 20px; }
+
+/* The margins these carry for other views would double the gap here. */
+.estack > .filters { margin-bottom: 0; }
+.estack > .filter-note { margin-bottom: 0; }
+
+
+/* Question search, empty state and prev/next ------------------------------ */
+
+/* Inset by what the list gives up on its right — the 8px gutter and the 3px
+   scrollbar — so the box and the cards under it share an edge. */
+.qsearch { position: relative; margin: 0 11px 16px 0; }
+.qsearch input {
+  width: 100%;
+  padding: 11px 14px 11px 38px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font: 400 13px var(--body);
+  color: var(--ink);
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+.qsearch input:focus { outline: none; border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(47, 122, 90, 0.10); }
+.qsearch input::placeholder { color: var(--faint); }
+.qsearch svg {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: var(--faint);
+  pointer-events: none;
+}
+
+.qempty { padding: 14px; font-size: 12px; color: var(--faint); text-align: center; font-style: italic; }
+
+/* The current question, in the theme's own colour. The prototype sets four
+   custom properties from JS to get the tinted border and shadow; our accent is
+   already a property, so color-mix derives both from it. */
+.qside button[aria-current="true"] {
+  background: var(--accent);
+  border-color: transparent;
+  color: var(--card);
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(26, 58, 42, 0.18);
+}
+@supports (color: color-mix(in srgb, red 50%, white)) {
+  .qside button[aria-current="true"] {
+    background: color-mix(in srgb, var(--accent) 82%, var(--green));
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+}
+
+.qnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 28px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  font-size: 13px;
+}
+.qnav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  font: 600 12px var(--body);
+  color: var(--ink);
+  cursor: pointer;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease), background 0.2s var(--ease);
+}
+.qnav-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--wash); }
+.qnav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.qnav-btn svg { width: 12px; height: 12px; }
+.qnav-pos { color: var(--muted); font-weight: 500; }
+.qnav-pos strong { color: var(--green); font-weight: 700; }
+
+/* The hint sits outside the live region: announcing "left right to navigate"
+   every time the question changes is noise, and it never changes. */
+.khint { display: inline-flex; align-items: center; gap: 6px; margin-left: 10px; color: var(--faint); font-size: 11px; }
+.kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  background: var(--ground);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.2;
+}
+
+@media (max-width: 900px) {
+  .khint { display: none; }
+}

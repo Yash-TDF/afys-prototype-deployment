@@ -1,0 +1,56 @@
+/* Accessibility, taken from the approved prototype, which is better at this than
+   we were. Three rules here we did not have at all: a skip link, a
+   screen-reader-only class, and a focus ring on everything that takes focus
+   rather than on the one control we had happened to style.
+
+   :focus-visible, not :focus, is what makes the ring bearable — the browser
+   shows it for a Tab press and withholds it for a mouse click, so keyboard users
+   get the affordance without every click leaving a box behind. */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Off-screen until focused, which is the first thing a keyboard reaches on load. */
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 500;
+  padding: 10px 18px;
+  border: 0;
+  background: var(--green-mid);
+  color: #fff;
+  border-radius: 10px;
+  font: 600 13px var(--body);
+  cursor: pointer;
+  transform: translateY(-200%);
+  transition: transform 0.2s var(--ease);
+}
+.skip-link:focus { transform: translateY(0); outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* One ring, everywhere. --accent is the green by default and the theme's colour
+   inside a theme, so the ring belongs to the page it is drawn on. */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+[tabindex="0"]:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+/* Only where the ring above replaces it. :focus-visible still applies, so this
+   removes the doubled outline on click without taking the keyboard ring away.
+   The question list's own inset treatment in filters.css outranks this on
+   specificity and keeps its box-shadow. */
+button:focus:not(:focus-visible) { outline: none; }

@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
     <title>AfYS Data Portal — prototype</title>
-    <!-- The two faces the approved prototype uses. Lifted from the deployed
-         stylesheet so round zero reads as the same product, not a redesign. -->
+    <!-- Montserrat, the face in the client's own style guide. One family, five
+         weights; see src/styles/tokens.css for why not the prototype's two. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -16,6 +16,22 @@
     <link rel="stylesheet" href="/src/styles.css" />
   </head>
   <body>
+    <!-- A button, not the usual <a href="#main">: this page is hash-routed, so an
+         anchor would set location.hash, fire hashchange and navigate away from
+         whatever the reader was on. main already carries tabindex="-1" so it can
+         take focus without becoming a tab stop. -->
+    <button type="button" class="skip-link">Skip to content</button>
+    <!-- Gradient for the stat-card sparklines. It lives here, outside #view,
+         because the router replaces that element wholesale — a def inside a view
+         is destroyed on the first navigation and every sparkline loses its fill. -->
+    <svg width="0" height="0" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2f7a5a" stop-opacity="0.3" />
+          <stop offset="100%" stop-color="#2f7a5a" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+    </svg>
     <div class="illustrative-banner" role="note">
       <strong>Illustrative prototype.</strong> Every figure on this site is
       generated for layout purposes. None of it is a survey result.
@@ -28,10 +44,15 @@
         <a href="#/">Themes</a>
         <a href="#/explore">Explore</a>
         <a href="#/methodology">Methodology</a>
+        <button type="button" class="nav-search" aria-label="Search questions, or press the slash key">
+          Search<span class="kbd" aria-hidden="true">/</span>
+        </button>
+        <button type="button" class="nav-about">About the data</button>
         <span class="wave-pill"><span class="dot"></span>Wave <strong>2026</strong></span>
       </nav>
     </header>
     <main id="view" tabindex="-1"></main>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
     <footer class="site-footer">
       <img class="footer-logo" src="brand/iff.svg" alt="Ichikowitz Family Foundation" />
       <p>Ichikowitz Family Foundation · fielded by PSB Insights</p>
