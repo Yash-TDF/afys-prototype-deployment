@@ -10,6 +10,7 @@ import type { ChartType } from '../content';
 import { type CategoryKind, type SeriesKind, type ViewModel, sharedBases } from '../model';
 import { GRID, NO_DATA, ramp, SCALE_3, SCALE_4, SERIES } from './palette';
 import { Chart, registerGeo, setupCharts, valueLabels } from './setup';
+import { badgeElement, sampleBadge } from '../ui/quality';
 
 type FeatureLike = { properties: { name: string; surveyName: string | null } };
 
@@ -366,7 +367,11 @@ export function renderFigure(
   const chip = document.createElement('span');
   chip.className = 'chip';
   chip.textContent = 'Illustrative';
-  head.append(title, chip);
+  // Every figure here is generated, so the badge never grades the base — see
+  // ui/quality.ts for why putting a margin of error on a hashed number would be
+  // the most confident sentence on the page attached to the least real figure.
+  const badge = badgeElement(sampleBadge(model.base, { illustrative: true }));
+  head.append(title, chip, badge);
   if (model.showing) {
     const showing = document.createElement('p');
     showing.className = 'showing';

@@ -77,3 +77,59 @@ figure.chart { margin: 0; }
 .coverage { margin-top: 32px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
 .coverage h2 { font-family: var(--display); font-weight: 700; color: var(--green); font-size: 26px; }
 
+
+/* The sample-size badge ---------------------------------------------------- */
+
+.qbadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  position: relative;
+  padding: 2px 9px;
+  border-radius: 100px;
+  font: 700 10px var(--body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: help;
+}
+.qbadge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+
+/* Round zero's only tone: the base is generated, so it is stated and not graded.
+   The other three are here for the day real figures arrive. */
+.qbadge.q-neutral { background: var(--tag); color: var(--muted); }
+.qbadge.q-neutral::before { background: var(--faint); }
+.qbadge.q-strong { background: var(--wash); color: var(--green-mid); }
+.qbadge.q-strong::before { background: var(--green-mid); }
+.qbadge.q-moderate { background: rgba(212, 163, 56, 0.16); color: #8a6314; }
+.qbadge.q-moderate::before { background: var(--gold); }
+.qbadge.q-low { background: rgba(232, 83, 106, 0.12); color: var(--rose); }
+.qbadge.q-low::before { background: var(--rose); }
+
+/* The whole tooltip, with no JavaScript and no library: the text is an attribute
+   and this draws it. It also opens on keyboard focus, not only on hover — the
+   badge is a tab stop, and a mouse-only tooltip would put the one sentence
+   explaining the figure out of reach of the people most likely to need it. */
+.qbadge::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  z-index: 50;
+  width: max-content;
+  max-width: 260px;
+  padding: 8px 12px;
+  background: var(--green);
+  color: #fff;
+  border-radius: 8px;
+  font: 500 11px/1.45 var(--body);
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(2px);
+  transition: opacity 0.18s var(--ease), transform 0.18s var(--ease);
+  box-shadow: 0 12px 32px rgba(26, 58, 42, 0.22);
+}
+.qbadge:hover::after,
+.qbadge:focus-visible::after { opacity: 1; transform: translateY(0); }
