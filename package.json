@@ -13,10 +13,12 @@
     "audit:options": "esbuild tools/audit-options.ts --bundle --platform=node --format=esm --loader:.json=json --outfile=node_modules/.cache/audit.mjs --log-level=error && node node_modules/.cache/audit.mjs"
   },
   "dependencies": {
+    "@vercel/functions": "^3.9.8",
     "chart.js": "^4.4.7",
     "chartjs-chart-geo": "^4.3.4"
   },
   "devDependencies": {
+    "@types/node": "^26.6.2",
     "@types/topojson-client": "^3.1.5",
     "esbuild": "0.25.12",
     "topojson-client": "^3.1.0",

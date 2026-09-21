@@ -49,6 +49,10 @@
         </button>
         <button type="button" class="nav-about">About the data</button>
         <span class="wave-pill"><span class="dot"></span>Wave <strong>2026</strong></span>
+        <!-- A real navigation, not a hash route: it has to reach the middleware,
+             which is what holds the session. Under `pnpm dev` there is no
+             middleware and no session, so this simply reloads the page. -->
+        <a class="sign-out" href="/__access?logout=1">Sign out</a>
       </nav>
     </header>
     <main id="view" tabindex="-1"></main>
