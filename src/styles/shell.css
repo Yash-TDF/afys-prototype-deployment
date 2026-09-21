@@ -64,6 +64,11 @@
 .site-nav button .kbd { padding: 1px 5px; font-size: 10px; }
 .site-nav a.active { color: var(--green); background: var(--card); border-color: var(--line); box-shadow: var(--shadow); }
 
+/* Quieter than the three section links, because it is not navigation — nobody
+   comes here to sign out. Same shape, so it still reads as part of the row. */
+.site-nav a.sign-out { font-size: 13px; color: var(--faint); }
+.site-nav a.sign-out:hover { color: var(--ink); }
+
 .wave-pill {
   display: inline-flex;
   align-items: center;
