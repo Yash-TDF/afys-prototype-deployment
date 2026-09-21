@@ -1,11 +1,13 @@
 // Chart colours.
 //
-// These are the approved prototype's, not the deck's tile-divider colours. The
-// charts the client clicked through are drawn in a green / gold / rose triad, and
-// round zero is asking them to approve structure — so the charts should look like
-// the ones they have already accepted. The deck's accents are still used, but for
-// theme identity (tags, tile borders, the choropleth ramp), which is what they
-// were picked for.
+// These are the approved prototype's, not the deck's tile-divider colours, and
+// round zero is asking the client to approve structure — so the charts should look
+// like the ones they have already accepted.
+//
+// Which of theirs applies depends on what the chart is showing. A comparison or a
+// scale takes the green / gold / rose triad below, its `CMP_PALETTE`. A single
+// measurement takes the theme's own accent, which is why the deck's accents reach
+// the charts as well as theme identity (tags, tile borders, the choropleth ramp).
 export const BRAND = {
   green: '#2f7a5a',
   gold: '#d4a338',
@@ -104,3 +106,41 @@ function parse(hex: string): number[] {
 }
 
 export const NO_DATA = '#f2f4f6';
+
+/**
+ * Relative luminance and contrast, WCAG 2.1.
+ *
+ * Here because a label drawn inside a bar cannot ask the stylesheet whether it is
+ * readable — a canvas has no cascade — and because the bars are the theme's colour
+ * now rather than a fixed green, so "white on a bar" stopped being a decision
+ * anyone could make once and write down.
+ */
+const channel = (v: number): number => {
+  const s = v / 255;
+  return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+};
+
+export function luminance(hex: string): number {
+  const [r, g, b] = parse(hex).map(channel) as [number, number, number];
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+export function contrast(a: string, b: string): number {
+  const x = luminance(a);
+  const y = luminance(b);
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+}
+
+/**
+ * White or ink for a label sitting on `background`, whichever is further from it.
+ *
+ * Not a lightness threshold: the dark option is the page's ink rather than black,
+ * so the tipping point is not where a black-or-white test would put it — the
+ * deck's red is dark enough to want black and still takes white against our ink.
+ * Anything that is not a plain six-digit hex — a gradient, an rgba() — keeps the
+ * white it has always had.
+ */
+export function labelInk(background: unknown): string {
+  if (typeof background !== 'string' || !/^#[0-9a-f]{6}$/i.test(background)) return '#ffffff';
+  return contrast('#ffffff', background) >= contrast(INK, background) ? '#ffffff' : INK;
+}
