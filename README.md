@@ -114,7 +114,7 @@ deployed stylesheet, not guessed:
 | Page | 1360px, 40px gutters, a 68px glass header |
 | Pills | 100px radius — nav, filter tags, badges |
 | Chart-type switch | a segmented control set into the filter card |
-| Charts | the approved green / gold / rose triad |
+| Charts | the approved triad for answer scales and comparisons; a theme's own accent for a single measurement, as the prototype's bars do |
 
 **It was measured, not eyeballed.** With the prototype served beside ours, the
 computed style of 45 matched elements on the landing page and the explorer was
@@ -128,8 +128,9 @@ the weight and tracking of the two page titles. The other three are deliberate:
 - secondary text is `#7c8794`, not their `#94a3b8`. Theirs is about 2.4:1 on
   the cream ground and ours about 3.5:1 — still short of AA for small text,
   which is for the production build to fix, not a reason to go lighter now
-- the highlighted insight chip's ink is `#2f7a5a`, the same green the charts
-  draw with, rather than their `#2d6a4f` two shades away
+- the highlighted insight chip's ink is `#2f7a5a` rather than their `#2d6a4f`
+  two shades away. It used to be described as the colour the charts draw in;
+  since the charts take the theme's accent, it is simply our green
 - the current question's shadow is the same value in a different notation,
   because ours is mixed from the theme's colour instead of set from JavaScript
 
@@ -175,8 +176,11 @@ reason alone.
 
 Round zero asks the client to approve **structure**; if it also looked like a
 redesign, they would spend the review on the surface. The deck's own tile colours
-are still used, but for theme identity — tags, tile borders, the choropleth ramp —
-which is what they were chosen for.
+carry theme identity — tags, tile borders, the choropleth ramp, and the fill of a
+chart that shows one measurement, which is what the approved prototype does with
+its own accents. What they do not touch is an answer scale: green through to rose
+means agreement through to disagreement, and a scale tinted by theme would make
+the same answer mean a different thing on two pages.
 
 We have the prototype source, and the parts a screenshot could not give — the
 hover and transition behaviour, the motion curves, the spacing — are ported from

@@ -26,7 +26,7 @@ function outline(): Promise<{ features: FeatureLike[] }> {
   return africa;
 }
 
-export const palette = (model: ViewModel, kind: ChartType): string[] => {
+export const palette = (model: ViewModel, kind: ChartType, accent: string): string[] => {
   if (model.series.length > 1) {
     return Array.from({ length: model.series.length }, (_, i) => SERIES[i % SERIES.length]!);
   }
@@ -35,13 +35,17 @@ export const palette = (model: ViewModel, kind: ChartType): string[] => {
   // a long list of options — eight events cycling four colours reads as four
   // pairs, which is a grouping the data does not have. Only a short answer scale,
   // where the colours carry direction, earns several.
+  //
+  // The one colour is the theme's own, which is the colour the choropleth ramp on
+  // the same page already ends on. Twelve themes drawing in one green said the
+  // charts belonged to the site rather than to the theme they sit in.
   if (model.categoryKind === 'countries' || count > 5) {
     // Except on a pie. A bar can spend sixteen bars on one colour because the
     // axis says which bar is which; a pie has no axis, so one colour there means
     // the chart says nothing at all — eight arcs in one green, and a legend of
     // eight identical dots.
     if (kind === 'pie') return pieStops(count);
-    return Array.from({ length: count }, () => SERIES[0]!);
+    return Array.from({ length: count }, () => accent);
   }
   const scale = count <= 3 ? SCALE_3 : SCALE_4;
   // A five-point answer list is usually a four-point scale plus the answer that is
@@ -82,11 +86,11 @@ const LABEL_CHAR_PX = 205 / 28;
 const drawnAs = (model: ViewModel, kind: ChartType): ChartType =>
   (model.compare !== 'none' && kind === 'stacked' ? 'bar' : kind);
 
-function baseConfig(model: ViewModel, requested: ChartType): ChartConfiguration {
+function baseConfig(model: ViewModel, requested: ChartType, accent: string): ChartConfiguration {
   const kind = drawnAs(model, requested);
   const horizontal = kind === 'hbar' || kind === 'stacked';
   const multiSeries = model.series.length > 1;
-  const colours = palette(model, kind);
+  const colours = palette(model, kind, accent);
   const many = model.categories.length > 8;
 
   const datasets = model.series.map((s, i) => ({
@@ -500,7 +504,7 @@ export function renderFigure(
   // The kind that is drawn, not the kind that was asked for: the colours in the
   // table have to be the ones on the canvas beside it, and `drawnAs` is the only
   // place that knows the difference.
-  const colours = palette(model, drawnAs(model, kind));
+  const colours = palette(model, drawnAs(model, kind), accent);
 
   if (kind === 'table') {
     const only = table(model, colours);
@@ -539,7 +543,7 @@ export function renderFigure(
         chart = new Chart(canvas!, config);
       });
     } else {
-      chart = new Chart(canvas, baseConfig(model, kindForChart));
+      chart = new Chart(canvas, baseConfig(model, kindForChart, accent));
     }
   }
 

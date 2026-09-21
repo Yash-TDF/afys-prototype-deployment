@@ -15,7 +15,7 @@ import {
   LineController, LineElement, LinearScale, PieController, PointElement, Tooltip,
   type Plugin,
 } from 'chart.js';
-import { GRID, INK, MUTED } from './palette';
+import { GRID, INK, labelInk, MUTED } from './palette';
 
 /**
  * Value labels on bars.
@@ -58,7 +58,14 @@ export const valueLabels: Plugin<'bar'> = {
         const base = (element as unknown as { base?: number }).base ?? 0;
         ctx.textAlign = horizontal ? (stacked ? 'center' : 'left') : 'center';
         ctx.textBaseline = horizontal ? 'middle' : 'bottom';
-        ctx.fillStyle = stacked ? '#ffffff' : INK;
+        // Outside the bar the label sits on the card, where the ink is right. Inside
+        // a segment it has to answer to whatever that segment is painted, which is
+        // the theme's colour now and can be a pale gold. Per element, not per chart:
+        // a stacked answer scale puts four colours in one row and only one of them
+        // wants white.
+        const fill = (element as unknown as { options?: { backgroundColor?: unknown } }).options?.backgroundColor
+          ?? (Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[j] : dataset.backgroundColor);
+        ctx.fillStyle = stacked ? labelInk(fill) : INK;
         const cx = horizontal ? (stacked ? (x + base) / 2 : x + 6) : x;
         ctx.fillText(`${value}%`, cx, horizontal ? y : y - 4);
       });
