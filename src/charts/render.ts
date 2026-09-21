@@ -8,7 +8,7 @@
 import type { ChartConfiguration, ChartType as ChartJsType } from 'chart.js';
 import type { ChartType } from '../content';
 import { type CategoryKind, type SeriesKind, type ViewModel, sharedBases } from '../model';
-import { GRID, NO_DATA, OFF_SCALE, pieStops, ramp, SCALE_3, SCALE_4, SERIES } from './palette';
+import { GRID, NO_DATA, OFF_SCALE, OFF_SCALE_LABEL, pieStops, ramp, SCALE_3, SCALE_4, SCALE_5, SERIES } from './palette';
 import { Chart, registerGeo, setupCharts, valueLabels } from './setup';
 import { badgeElement, sampleBadge } from '../ui/quality';
 import { insightRow } from '../ui/insights';
@@ -44,14 +44,24 @@ export const palette = (model: ViewModel, kind: ChartType): string[] => {
     return Array.from({ length: count }, () => SERIES[0]!);
   }
   const scale = count <= 3 ? SCALE_3 : SCALE_4;
-  // A five-point answer list is a four-point scale plus the answer that is not on
-  // it. On a bar the fifth can take the first colour again, because the axis says
-  // which bar is which. On a pie it cannot: the fifth slice touches the first, so
-  // "Don't know" ends up the same green as "Very concerned" and the two read as
-  // one wedge. Off the scale, off the scale's colours — the grey SCALE_3 already
-  // gives that same answer.
+  // A five-point answer list is usually a four-point scale plus the answer that is
+  // not on it. On a bar the fifth can take the first colour again, because the axis
+  // says which bar is which. On a pie it cannot: the fifth slice touches the first,
+  // so "Don't know" ends up the same green as "Very concerned" and the two read as
+  // one wedge. Off the scale, off the scale's colours.
+  //
+  // Which slice that is comes from the label, not the position. T08_Q4 ends in
+  // "Not at all" — no coverage at all, a real answer — and greying it by position
+  // would have the chart report those people as having given none.
   if (kind === 'pie' && count > scale.length) {
-    return Array.from({ length: count }, (_, i) => (i < scale.length ? scale[i]! : OFF_SCALE));
+    const offScale = model.categories.map((label) => OFF_SCALE_LABEL.test(label));
+    const onScale = offScale.filter((off) => !off).length;
+    // A list with a real answer in every position needs a colour in every
+    // position. One that spends its last on "Don't know" keeps the four-point
+    // scale it already had, so those five charts do not change.
+    const steps = onScale > SCALE_4.length ? SCALE_5 : SCALE_4;
+    let taken = 0;
+    return model.categories.map((_, i) => (offScale[i] ? OFF_SCALE : steps[taken++] ?? OFF_SCALE));
   }
   return Array.from({ length: count }, (_, i) => scale[i % scale.length]!);
 };

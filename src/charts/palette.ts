@@ -25,6 +25,30 @@ export const SCALE_4 = [BRAND.green, BRAND.leaf, BRAND.gold, BRAND.rose];
 export const SCALE_3 = [BRAND.green, BRAND.rose, OFF_SCALE];
 
 /**
+ * The same scale for a five-point list whose fifth answer is a real one, with a
+ * step mixed between gold and rose so the ramp still runs green to rose rather
+ * than stopping short of it.
+ */
+export const SCALE_5 = [BRAND.green, BRAND.leaf, BRAND.gold, mix(BRAND.gold, BRAND.rose, 0.5), BRAND.rose];
+
+/**
+ * Which answers sit off the scale, read from the label rather than the position.
+ *
+ * Position is very nearly right: five of the six five-option lists end in "Don't
+ * know" or "Not applicable". The sixth is T08_Q4, Mobile Data Coverage, whose
+ * last option is "Not at all" — the answer given by people with no coverage at
+ * all, and a real point on the scale. Grey means "did not answer" everywhere else
+ * in the portal, so coluring that slice grey would have the chart report those
+ * people as having given no answer.
+ *
+ * Deliberately narrow. It matches the non-answers the 2026 questionnaire actually
+ * uses and nothing else — in particular it must not match "Not at all concerned"
+ * or "Not at all likely", which are the fourth option of three other lists and
+ * are answers like any other.
+ */
+export const OFF_SCALE_LABEL = /don.?t know|not applicable|refused|do not read/i;
+
+/**
  * Slice colours for a pie with more options than the six above.
  *
  * A pie has no axis, so colour is the only thing identifying an arc — and its
