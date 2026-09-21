@@ -199,8 +199,12 @@ const signInPage = (options: { error?: string; next?: string; signedOut?: boolea
     ${options.signedOut ? '<p class="msg ok" role="status">You have been signed out.</p>' : ''}
     <form method="post" action="${ACCESS_PATH}">
       <input type="hidden" name="next" value="${escapeHtml(options.next ?? '/')}">
-      <label for="email">Email</label>
-      <input id="email" name="email" type="email" autocomplete="username" required autofocus>
+      <!-- "Username", not "Email", and type="text" rather than type="email". There
+           is one shared credential: a field asking for an email invites a reader to
+           type their own address and be refused for it. The username travels with
+           the link, in the same message as the password. -->
+      <label for="username">Username</label>
+      <input id="username" name="username" type="text" autocomplete="username" required autofocus>
       <label for="password">Password</label>
       <input id="password" name="password" type="password" autocomplete="current-password" required>
       <button type="submit">Continue</button>
@@ -235,10 +239,27 @@ const notConfigured = (): Response => plain('auth_not_configured', 503);
 const wantsPage = (request: Request): boolean =>
   (request.headers.get('accept') ?? '').includes('text/html');
 
-// Keep a redirect target on this site. A value starting `//` is protocol-relative
-// and would send the reader somewhere else entirely.
-const safeNext = (value: unknown): string =>
-  typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') ? value : '/';
+// Keep a redirect target on this site.
+//
+// Checking that it starts with "/" and not "//" is not enough, and the gap is the
+// dangerous kind. A browser treats a backslash as a slash in an authority, and
+// strips tabs and newlines before parsing, so `/\evil.example.com`,
+// `/<tab>/evil.example.com` and `/<newline>/evil.example.com` each begin with a
+// single slash and each navigate to evil.example.com. A link carrying one would
+// show our real sign-in page and then hand the reader to a lookalike asking them
+// to sign in again — collecting the one password this gate exists to protect.
+//
+// So resolve it against this site's own origin and keep it only if it stayed here.
+// The URL parser applies the same rules the browser is about to.
+const safeNext = (value: unknown, origin: string): string => {
+  if (typeof value !== 'string') return '/';
+  try {
+    const target = new URL(value, origin);
+    return target.origin === origin ? `${target.pathname}${target.search}${target.hash}` : '/';
+  } catch {
+    return '/';
+  }
+};
 
 // ------------------------------------------------------------------ the gate
 
@@ -262,13 +283,13 @@ export default async function middleware(request: Request): Promise<Response> {
       } catch {
         return html(signInPage({ error: 'That form could not be read. Please try again.' }), 400);
       }
-      const offeredUser = String(form.get('email') ?? '');
+      const offeredUser = String(form.get('username') ?? '');
       const offeredPassword = String(form.get('password') ?? '');
-      const destination = safeNext(form.get('next'));
+      const destination = safeNext(form.get('next'), url.origin);
 
       if (!(await credentialMatches(offeredUser, offeredPassword, user, password))) {
         return html(
-          signInPage({ error: 'That email and password did not match.', next: destination }),
+          signInPage({ error: 'That username and password did not match.', next: destination }),
           401,
         );
       }
@@ -288,7 +309,7 @@ export default async function middleware(request: Request): Promise<Response> {
         'Set-Cookie': setCookie('', secure, 0),
       });
     }
-    return html(signInPage({ next: safeNext(url.searchParams.get('next')) }), 200);
+    return html(signInPage({ next: safeNext(url.searchParams.get('next'), url.origin) }), 200);
   }
 
   const token = readCookie(request.headers.get('cookie'), COOKIE);
@@ -321,5 +342,5 @@ export default async function middleware(request: Request): Promise<Response> {
   }
 
   if (!wantsPage(request)) return plain('Authentication required.', 401);
-  return html(signInPage({ next: `${url.pathname}${url.search}` }), 401);
+  return html(signInPage({ next: safeNext(`${url.pathname}${url.search}`, url.origin) }), 401);
 }
