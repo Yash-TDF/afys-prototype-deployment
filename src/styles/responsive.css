@@ -92,4 +92,9 @@
      until its animation runs, so a reader who has turned animation off would be
      left with a blank page where the cards are. */
   .an { opacity: 1; }
+  /* Collapsing the duration makes the lift instant rather than absent, and a 4px
+     jump is still movement. The colours and the shadow stay - they are what tells
+     a reader the card answered. Until THE-312 this held only because the entrance
+     animation was pinning the transform by mistake. */
+  .tile:hover, .stat:hover { transform: none; }
 }

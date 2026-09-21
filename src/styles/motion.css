@@ -6,9 +6,17 @@
    why responsive.css has to hand it back when a reader has asked for less
    motion. Without that rule the content would never appear at all. */
 
+/* `translate`, not `transform`. The animation holds its final value with
+   `forwards`, and an animation outranks an ordinary declaration - so while this
+   moved `transform`, it owned that property for the element's whole life and
+   `.tile:hover { transform: translateY(-4px) }` could never take effect. The
+   shadow still grew, so the hover looked like it worked. `translate` is its own
+   property and composes with `transform` instead of competing for it. A browser
+   without it - anything before Safari 14.1 - simply fades the card in without
+   the rise, and its hover still works. */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; translate: 0 24px; }
+  to { opacity: 1; translate: 0 0; }
 }
 
 .an { opacity: 0; animation: fadeUp 0.65s var(--eout) forwards; }
