@@ -11,9 +11,10 @@
   padding: 22px 28px;
   margin-bottom: 16px;
   /* Above what follows it, below the sticky header (10). Anything that arrives
-     with .an keeps a transform, which makes it a stacking context — and a later
-     one paints over an earlier one, so without this an open dropdown would
-     slide under the chart cards beneath it. */
+     with .an holds a translate afterwards, which makes it a stacking context —
+     and a later one paints over an earlier one, so without this an open dropdown
+     would slide under the chart cards beneath it. (It was a transform until
+     THE-312; either one creates the stacking context, so this still applies.) */
   position: relative;
   z-index: 5;
 }
