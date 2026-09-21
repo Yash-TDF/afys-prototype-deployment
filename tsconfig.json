@@ -12,5 +12,5 @@
     "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["src", "tools"]
+  "include": ["src", "tools", "middleware.ts"]
 }
