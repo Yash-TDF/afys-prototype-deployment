@@ -32,30 +32,43 @@ const NOTHING: ThemeCardFigures = {
 export function themeCardFigures(theme: Theme): ThemeCardFigures {
   // Tracked first: it is the only shape that carries a trend, which is what the
   // card's delta and sparkline are for.
-  const tracked = theme.charts.find((c) => c.comparison === 'tracked');
-  if (tracked) {
-    const model = buildViewModel(tracked, theme, DEFAULT_FILTERS);
+  //
+  // But "tracked" in the deck means the question was asked in more than one wave,
+  // not that this chart's categories are the waves. T09_Q1 is tracked and
+  // multi-select, so its categories are the answer options — Instagram, Radio,
+  // TikTok. Reading those as a time series gave theme 9 a headline of 23.5%, the
+  // share choosing the tenth most-used news source; a delta of -29.1, that source
+  // subtracted from Instagram; and "since NaN", because Number('Instagram') is
+  // not a year. The card said all three on the landing page.
+  //
+  // So take the first tracked chart whose categories really are years, rather
+  // than the first tracked chart. Theme 9 then reads its trend off "Encountering
+  // fake news", which is genuinely 2020 to 2026.
+  for (const chart of theme.charts.filter((c) => c.comparison === 'tracked')) {
+    const model = buildViewModel(chart, theme, DEFAULT_FILTERS);
     const series = model.series[0];
     const years = model.categories.map(Number);
     const values = series?.values ?? [];
-    if (series && values.length >= 2) {
-      const last = values.length - 1;
-      return {
-        headline: values[last]!,
-        of: series.label,
-        // Named years, not "since the baseline". A question not asked in 2020
-        // starts at 2022, and calling that the baseline would be wrong on the
-        // one card most likely to be read without opening anything.
-        delta: {
-          points: Math.round((values[last]! - values[0]!) * 10) / 10,
-          from: years[0]!,
-          to: years[last]!,
-        },
-        spark: values,
-        activeIndex: last,
-        note: null,
-      };
-    }
+    if (!series || values.length < 2) continue;
+    // Every category has to parse, not just the first: a half-numeric axis would
+    // put a real year on the card and still be reading options as time.
+    if (!years.every((y) => Number.isFinite(y))) continue;
+    const last = values.length - 1;
+    return {
+      headline: values[last]!,
+      of: series.label,
+      // Named years, not "since the baseline". A question not asked in 2020
+      // starts at 2022, and calling that the baseline would be wrong on the
+      // one card most likely to be read without opening anything.
+      delta: {
+        points: Math.round((values[last]! - values[0]!) * 10) / 10,
+        from: years[0]!,
+        to: years[last]!,
+      },
+      spark: values,
+      activeIndex: last,
+      note: null,
+    };
   }
 
   // Otherwise a single wave across countries. Countries are separate samples, so
