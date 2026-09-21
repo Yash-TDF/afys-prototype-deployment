@@ -17,9 +17,46 @@ export const BRAND = {
 
 export const SERIES = [BRAND.green, BRAND.gold, BRAND.rose, BRAND.navy, BRAND.leaf, BRAND.blue];
 
+/** The answer that is not on the scale — "Don't know", "Not applicable". */
+export const OFF_SCALE = '#b9c0c8';
+
 /** Agreement scales read strong-to-weak: agreement in green, disagreement in rose. */
 export const SCALE_4 = [BRAND.green, BRAND.leaf, BRAND.gold, BRAND.rose];
-export const SCALE_3 = [BRAND.green, BRAND.rose, '#b9c0c8'];
+export const SCALE_3 = [BRAND.green, BRAND.rose, OFF_SCALE];
+
+/**
+ * Slice colours for a pie with more options than the six above.
+ *
+ * A pie has no axis, so colour is the only thing identifying an arc — and its
+ * last slice touches its first, which a row of bars never has to worry about.
+ * The six come first and in their usual order, so a six-slice pie is the chart
+ * the client has already approved. Past six the stops are mixed from pairs of
+ * those same six rather than invented, in an order chosen by measuring every
+ * neighbouring pair at every slice count that can occur, wrap included, rather
+ * than by eye: the closest neighbours are further apart than green and navy,
+ * which the charts already place side by side.
+ *
+ * Ten is the most a pie can show — a multi-select question is drawn as a Top 10
+ * (see model.ts) and no single-select answer list is longer than nine. There are
+ * sixteen stops here so that the ring is not the thing that breaks if that
+ * changes.
+ */
+const PIE_STOPS = [
+  ...SERIES,
+  mix(BRAND.navy, BRAND.rose, 0.5),
+  mix(BRAND.navy, BRAND.gold, 0.5),
+  mix(BRAND.blue, BRAND.rose, 0.5),
+  mix(BRAND.rose, BRAND.gold, 0.5),
+  mix(BRAND.blue, BRAND.gold, 0.5),
+  mix(BRAND.rose, BRAND.green, 0.65),
+  mix(BRAND.leaf, BRAND.gold, 0.5),
+  mix(BRAND.blue, BRAND.leaf, 0.35),
+  mix(BRAND.leaf, BRAND.rose, 0.65),
+  mix(BRAND.blue, BRAND.navy, 0.35),
+];
+
+export const pieStops = (count: number): string[] =>
+  Array.from({ length: count }, (_, i) => PIE_STOPS[i % PIE_STOPS.length]!);
 
 export const GRID = '#e6e8ec';
 export const INK = '#1f2337';

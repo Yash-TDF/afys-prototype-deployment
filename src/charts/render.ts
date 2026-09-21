@@ -8,7 +8,7 @@
 import type { ChartConfiguration, ChartType as ChartJsType } from 'chart.js';
 import type { ChartType } from '../content';
 import { type CategoryKind, type SeriesKind, type ViewModel, sharedBases } from '../model';
-import { GRID, NO_DATA, ramp, SCALE_3, SCALE_4, SERIES } from './palette';
+import { GRID, NO_DATA, OFF_SCALE, pieStops, ramp, SCALE_3, SCALE_4, SERIES } from './palette';
 import { Chart, registerGeo, setupCharts, valueLabels } from './setup';
 import { badgeElement, sampleBadge } from '../ui/quality';
 import { insightRow } from '../ui/insights';
@@ -36,9 +36,24 @@ export const palette = (model: ViewModel, kind: ChartType): string[] => {
   // pairs, which is a grouping the data does not have. Only a short answer scale,
   // where the colours carry direction, earns several.
   if (model.categoryKind === 'countries' || count > 5) {
+    // Except on a pie. A bar can spend sixteen bars on one colour because the
+    // axis says which bar is which; a pie has no axis, so one colour there means
+    // the chart says nothing at all — eight arcs in one green, and a legend of
+    // eight identical dots.
+    if (kind === 'pie') return pieStops(count);
     return Array.from({ length: count }, () => SERIES[0]!);
   }
-  return Array.from({ length: count }, (_, i) => (count <= 3 ? SCALE_3 : SCALE_4)[i % (count <= 3 ? SCALE_3 : SCALE_4).length]!);
+  const scale = count <= 3 ? SCALE_3 : SCALE_4;
+  // A five-point answer list is a four-point scale plus the answer that is not on
+  // it. On a bar the fifth can take the first colour again, because the axis says
+  // which bar is which. On a pie it cannot: the fifth slice touches the first, so
+  // "Don't know" ends up the same green as "Very concerned" and the two read as
+  // one wedge. Off the scale, off the scale's colours — the grey SCALE_3 already
+  // gives that same answer.
+  if (kind === 'pie' && count > scale.length) {
+    return Array.from({ length: count }, (_, i) => (i < scale.length ? scale[i]! : OFF_SCALE));
+  }
+  return Array.from({ length: count }, (_, i) => scale[i % scale.length]!);
 };
 
 /** Width of a horizontal chart's label column: 205px, or 40% of a phone-width chart (under 400px). */
@@ -472,7 +487,10 @@ export function renderFigure(
   let canvas: HTMLCanvasElement | undefined;
   let kindForChart: ChartType | undefined;
 
-  const colours = palette(model, kind);
+  // The kind that is drawn, not the kind that was asked for: the colours in the
+  // table have to be the ones on the canvas beside it, and `drawnAs` is the only
+  // place that knows the difference.
+  const colours = palette(model, drawnAs(model, kind));
 
   if (kind === 'table') {
     const only = table(model, colours);
