@@ -144,3 +144,51 @@ export function labelInk(background: unknown): string {
   if (typeof background !== 'string' || !/^#[0-9a-f]{6}$/i.test(background)) return '#ffffff';
   return contrast('#ffffff', background) >= contrast(INK, background) ? '#ffffff' : INK;
 }
+
+/** What an answer means, as bands.yaml records it for the band that carries it. */
+export type ColourRole = 'positive' | 'negative' | 'neutral' | 'dontknow' | 'categorical';
+
+/**
+ * Colours for a list of answers whose meaning is known.
+ *
+ * Green for agreement, support and the like; rose for their opposite; gold for a
+ * midpoint; the off-scale grey for "Don't know". A second answer with the same
+ * meaning takes the lighter step of its colour, so "Strongly support" and
+ * "Somewhat support" can be told apart while still reading as one side. The
+ * client asked for exactly this rule (28 Sep): colour was being assigned by
+ * position, so on a six-option pie "Neither" came out red and "Strongly oppose"
+ * green.
+ *
+ * Categorical answers — events, sources, organisations — have no side, and take
+ * the one colour handed in. Returns null when any label has no role: the caller
+ * keeps its old colours for that chart rather than this guessing at meaning.
+ */
+export function roleColours(
+  labels: string[],
+  roles: Record<string, ColourRole> | null,
+  categorical: string,
+): string[] | null {
+  if (!roles || labels.some((label) => !roles[label])) return null;
+  const steps: Record<Exclude<ColourRole, 'categorical'>, string[]> = {
+    positive: [BRAND.green, BRAND.leaf],
+    negative: [BRAND.rose, mix(BRAND.gold, BRAND.rose, 0.5)],
+    neutral: [BRAND.gold],
+    dontknow: [OFF_SCALE],
+  };
+  // A scale reads strong-to-weak on the agreeing side and weak-to-strong on the
+  // disagreeing side — "Strongly support, Somewhat support, …, Somewhat oppose,
+  // Strongly oppose" — so the full rose belongs to the LAST negative, not the
+  // first. Positives take their ramp from the front; negatives from the back.
+  const total: Record<string, number> = {};
+  for (const label of labels) total[roles[label]!] = (total[roles[label]!] ?? 0) + 1;
+  const taken: Record<string, number> = {};
+  return labels.map((label) => {
+    const role = roles[label]!;
+    if (role === 'categorical') return categorical;
+    const n = taken[role] ?? 0;
+    taken[role] = n + 1;
+    const ramp = steps[role];
+    const step = role === 'negative' ? (total[role]! - 1 - n) : n;
+    return ramp[Math.min(step, ramp.length - 1)]!;
+  });
+}

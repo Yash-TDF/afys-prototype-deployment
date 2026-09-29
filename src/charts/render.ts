@@ -8,7 +8,7 @@
 import type { ChartConfiguration, ChartType as ChartJsType } from 'chart.js';
 import type { ChartType } from '../content';
 import { type CategoryKind, type SeriesKind, type ViewModel, sharedBases } from '../model';
-import { GRID, NO_DATA, OFF_SCALE, OFF_SCALE_LABEL, pieStops, ramp, SCALE_3, SCALE_4, SCALE_5, SERIES } from './palette';
+import { GRID, NO_DATA, OFF_SCALE, OFF_SCALE_LABEL, pieStops, ramp, roleColours, SCALE_3, SCALE_4, SCALE_5, SERIES } from './palette';
 import { Chart, registerGeo, setupCharts, valueLabels } from './setup';
 import { badgeElement, sampleBadge } from '../ui/quality';
 import { insightRow } from '../ui/insights';
@@ -27,10 +27,22 @@ function outline(): Promise<{ features: FeatureLike[] }> {
 }
 
 export const palette = (model: ViewModel, kind: ChartType, accent: string): string[] => {
+  // By meaning first, wherever the meaning is recorded. Several series that are
+  // answer options (a tracked question, one line per answer) are coloured by
+  // what each answer means; so is a single distribution across answers. Only
+  // when nothing recorded a meaning does the positional logic below apply.
   if (model.series.length > 1) {
+    const byRole = model.seriesKind === 'options'
+      ? roleColours(model.series.map((s) => s.label), model.roles, accent)
+      : null;
+    if (byRole) return byRole;
     return Array.from({ length: model.series.length }, (_, i) => SERIES[i % SERIES.length]!);
   }
   const count = model.categories.length;
+  if (model.categoryKind === 'options') {
+    const byRole = roleColours(model.categories, model.roles, accent);
+    if (byRole) return byRole;
+  }
   // Countries ranked against each other are one measurement, so one colour. So is
   // a long list of options — eight events cycling four colours reads as four
   // pairs, which is a grouping the data does not have. Only a short answer scale,
@@ -72,8 +84,41 @@ export const palette = (model: ViewModel, kind: ChartType, accent: string): stri
 
 /** Width of a horizontal chart's label column: 205px, or 40% of a phone-width chart (under 400px). */
 const labelColumn = (chartWidth: number): number => (chartWidth < 400 ? Math.round(chartWidth * 0.4) : 205);
-/** 205px holds the 28 characters the labels are cut to, about 7.3px a character. */
+/** 205px holds 28 characters of the body face at 12px, about 7.3px a character. */
 const LABEL_CHAR_PX = 205 / 28;
+/** A vertical chart's category label never wraps tighter than this many characters a line. */
+const VERTICAL_MIN_CHARS = 8;
+/** Room the value axis takes from a vertical chart's width before the categories share the rest. */
+const VALUE_AXIS_PX = 60;
+/** Height a horizontal chart gives each category, per line of label, plus the axis. */
+const ROW_PX = 22;
+const AXIS_PX = 70;
+
+/**
+ * A category label as lines that fit the room, instead of cut with an ellipsis.
+ *
+ * The labels are the client's own answer options — "Increased access to
+ * essential services and resources" — and cutting one to 28 characters lost the
+ * half that identifies it, which the client pointed out. Chart.js draws an array
+ * as one line per element, so the words are packed into lines no longer than
+ * `limit`; a single word longer than the limit stays whole. A label that fits
+ * on one line is returned as a string, as before.
+ */
+export function wrapLabel(label: string, limit: number): string | string[] {
+  const words = label.replace(/\s+/g, ' ').trim().split(' ');
+  const lines: string[] = [];
+  let line = '';
+  for (const word of words) {
+    if (line && (line + ' ' + word).length > limit) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = line ? `${line} ${word}` : word;
+    }
+  }
+  if (line) lines.push(line);
+  return lines.length > 1 ? lines : lines[0] ?? '';
+}
 
 /**
  * Stacking a comparison would be wrong, so it is not drawn that way.
@@ -83,8 +128,19 @@ const LABEL_CHAR_PX = 205 / 28;
  * the chart type, so the substitution belongs here rather than being asserted by
  * a model that cannot see which chart was asked for.
  */
-const drawnAs = (model: ViewModel, kind: ChartType): ChartType =>
-  (model.compare !== 'none' && kind === 'stacked' ? 'bar' : kind);
+const drawnAs = (model: ViewModel, kind: ChartType): ChartType => {
+  if (model.compare !== 'none' && kind === 'stacked') return 'bar';
+  // The deck's chart type, checked against the shape of the data it will draw.
+  // A pie asked for several series draws one ring per series, each ring one flat
+  // colour, of trends that do not sum to 100: the client saw it and asked what
+  // it was. Bars, grouped by category, show the same three trends legibly.
+  if (kind === 'pie' && model.series.length > 1) return 'bar';
+  // A line joins its categories, so it claims they are points along something.
+  // Answer options are not: "Instagram" to "TikTok" is not a distance. Only
+  // waves are, so a line over anything else draws as horizontal bars.
+  if (kind === 'line' && model.categoryKind !== 'waves') return 'hbar';
+  return kind;
+};
 
 function baseConfig(model: ViewModel, requested: ChartType, accent: string): ChartConfiguration {
   const kind = drawnAs(model, requested);
@@ -131,7 +187,10 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
     } : {}),
     ticks: {
       autoSkip: false,
-      maxRotation: many ? 60 : 0,
+      // A wrapped label can still hold one word wider than its slot
+      // ("environmental" in a 66px slot). Chart.js rotates only when a label
+      // does not fit, so short labels stay upright as they were.
+      maxRotation: many ? 60 : 45,
       // Upright, 12px names are still a hair taller than their 14px slots at 360px.
       ...(!horizontal && many ? {
         font: (ctx: { chart: { width: number } }) => (ctx.chart.width < 400 ? { size: 11 } : undefined),
@@ -144,8 +203,13 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
       // underneath carries the full wording either way.
       callback(this: { getLabelForValue(v: number): string; chart: { width: number } }, value: number) {
         const label = this.getLabelForValue(value);
-        const limit = horizontal ? Math.max(12, Math.floor(labelColumn(this.chart.width) / LABEL_CHAR_PX)) : 34;
-        return label.length > limit ? `${label.slice(0, limit - 1)}…` : label;
+        // Horizontal: the label column. Vertical: the slot each category gets,
+        // the chart's width less the value axis shared between the categories,
+        // so seven policies in a 525px chart wrap to what 66px can hold.
+        const limit = horizontal
+          ? Math.max(12, Math.floor(labelColumn(this.chart.width) / LABEL_CHAR_PX))
+          : Math.max(VERTICAL_MIN_CHARS, Math.floor(((this.chart.width - VALUE_AXIS_PX) / model.categories.length) / LABEL_CHAR_PX));
+        return wrapLabel(label, limit);
       },
     },
   };
@@ -444,7 +508,7 @@ function notes(model: ViewModel, requested: ChartType): string[] {
   if (model.likeForLike) out.push(model.likeForLike);
   // A refused comparison is said, not swallowed.
   if (model.compareNote) out.push(model.compareNote);
-  if (drawnAs(model, requested) !== requested) {
+  if (requested === 'stacked' && drawnAs(model, requested) === 'bar') {
     out.push(
       'Each series is its own distribution, so they are drawn side by side rather '
       + 'than stacked — stacked they would total more than 100%.',
@@ -514,6 +578,19 @@ export function renderFigure(
   } else {
     const canvasWrap = document.createElement('div');
     canvasWrap.className = kind === 'map' ? 'canvas canvas-map' : 'canvas';
+    // A horizontal chart's height follows its labels: eight two-line answers do
+    // not fit the 300px a four-bar chart gets, and were being clipped rather
+    // than wrapped. The wrap uses the desktop label column; on a phone the
+    // column is narrower and the labels wrap further, which the extra rows absorb.
+    const drawn = drawnAs(model, kind);
+    if (drawn === 'hbar' || drawn === 'stacked') {
+      const limit = Math.max(12, Math.floor(205 / LABEL_CHAR_PX));
+      const lines = model.categories.reduce((n, c) => {
+        const wrapped = wrapLabel(c, limit);
+        return n + (Array.isArray(wrapped) ? wrapped.length : 1);
+      }, 0);
+      canvasWrap.style.height = `${Math.max(300, lines * ROW_PX + AXIS_PX)}px`;
+    }
     canvas = document.createElement('canvas');
     canvas.setAttribute('role', 'img');
     canvas.setAttribute('aria-label', summarise(model, kind));

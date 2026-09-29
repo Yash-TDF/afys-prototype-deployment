@@ -1,5 +1,5 @@
 {
- "source": "Portal Content deck chart data, plus the answer lists written by hand from the 2026 questionnaire. Unconfirmed against the .sav value labels.",
+ "source": "Portal Content deck chart data, plus the answer lists written by hand from the 2026 questionnaire. Unconfirmed against the .sav value labels. Each option's colour_role is the one bands.yaml gives the band that carries it; an option matching no band has none.",
  "options": {
   "T01_Q1": [
    "Right direction",
@@ -37,8 +37,10 @@
    "Limiting the influence of foreign powers"
   ],
   "T02_Q1": [
-   "Concerned",
-   "Not concerned",
+   "Very concerned",
+   "Somewhat concerned",
+   "Not very concerned",
+   "Not concerned at all",
    "Don't know"
   ],
   "T02_Q2": [
@@ -51,17 +53,17 @@
    "China",
    "United Kingdom",
    "Russia",
-   "Germany**",
    "France",
    "India",
+   "Germany**",
    "Brazil**"
   ],
   "T03_Q1": [
    "The African Union",
-   "United Nations**",
    "World Trade Organisation",
-   "International Monetary Fund**",
    "The European Union",
+   "United Nations**",
+   "International Monetary Fund**",
    "G20**"
   ],
   "T03_Q2": [
@@ -134,6 +136,11 @@
    "Education opportunities",
    "Social connection"
   ],
+  "T06_Q3": [
+   "temporarily",
+   "perman",
+   "Don't know"
+  ],
   "T07_Q1": [
    "Strongly Disgree",
    "Somewhat Disagree",
@@ -179,24 +186,24 @@
    "Neither support or oppose",
    "Somewhat oppose",
    "Strongly oppose",
-   "Don't know / DO NOT READ"
+   "Don't know"
   ],
   "T09_Q1": [
-   "Facebook",
    "Television",
-   "TikTok",
-   "WhatsApp",
    "Friends and family",
    "Radio",
-   "Instagram",
    "Online news sources",
-   "X / Twitter",
-   "Telegram",
    "Newspaper/Magazines",
    "Religious leaders",
-   "AI",
-   "I'm not interested in news  / DO NOT READ",
-   "Don't know"
+   "I'm not interested in news",
+   "Facebook",
+   "X / Twitter",
+   "Don't know",
+   "TikTok",
+   "WhatsApp",
+   "Instagram",
+   "Telegram",
+   "AI"
   ],
   "T09_Q2": [
    "At least once every day",
@@ -208,11 +215,18 @@
   ],
   "T09_Q3": [
    "Interest groups and organisations deliberately share fake news to push their agenda",
-   "I worry that misinformation or 'fake news' shared online could lead to real-world violence or conflict in  my community",
+   "I worry that misinformation or 'fake news' shared online could lead to real-world violence or conflict in my community",
    "Fake news is a serious problem in my community today",
    "I worry that artifical intelligence (AI) has made is easier to create and spread fake news",
    "Fake news has led to greater divide within my society",
    "Fake news impacts my ability to stay informed about issues that matter to me"
+  ],
+  "T10_Q1": [
+   "Very good or good",
+   "Fair",
+   "Poor",
+   "Very poor",
+   "Don't know"
   ],
   "T10_Q2": [
    "Get better",
@@ -227,13 +241,13 @@
    "Don't know"
   ],
   "T10_Q4": [
-   "Maintaining political \nstability",
-   "Tackling government\ncorruption",
-   "Addressing climate change\nand environmental degradation",
-   "Limiting illegal immigration\ninto the country",
+   "Maintaining political stability",
+   "Tackling government corruption",
+   "Addressing climate change and environmental degradation",
+   "Limiting illegal immigration into the country",
    "Reducing poverty",
-   "Job creation and fighting\nunemployment",
-   "Tackling rising\ncosts"
+   "Job creation and fighting unemployment",
+   "Tackling rising costs"
   ],
   "T11_Q1": [
    "Not at all concerned",
@@ -261,7 +275,7 @@
    "Somewhat concerned",
    "Not very concerned",
    "Not at all concerned",
-   "Don't know/ DO NOT READ"
+   "Don't know"
   ],
   "T12_Q2": [
    "Strongly agree",
@@ -277,5 +291,175 @@
    "Strongly agree",
    "Disagree/ don't know"
   ]
+ },
+ "roles": {
+  "T01_Q1": {
+   "Right direction": "positive",
+   "Wrong direction": "negative",
+   "Don't know": "dontknow"
+  },
+  "T01_Q2": {
+   "Optimistic": "positive",
+   "Excited": "positive",
+   "Uncertain": "neutral",
+   "Concerned": "negative",
+   "Pessimistic": "negative",
+   "Don't know": "dontknow"
+  },
+  "T01_Q3": {
+   "International involvement in Africa": "categorical",
+   "Democratic changes": "categorical",
+   "Environmental challenges": "categorical",
+   "Increased access to essential services and resources": "categorical",
+   "The technological/digital revolution": "categorical",
+   "Deaths from infectious disease": "categorical",
+   "Political instability": "categorical",
+   "The rising cost of living": "categorical"
+  },
+  "T02_Q1": {
+   "Very concerned": "negative",
+   "Somewhat concerned": "negative",
+   "Not very concerned": "positive",
+   "Don't know": "dontknow"
+  },
+  "T02_Q2": {
+   "More divided": "negative",
+   "More cooperative": "positive",
+   "Don't know": "dontknow"
+  },
+  "T04_Q1": {
+   "Democracy is always preferable": "categorical",
+   "Non-democratic government can be preferable": "categorical",
+   "Don't know": "dontknow"
+  },
+  "T04_Q2": {
+   "Dem always pref": "positive",
+   "Non-dem can be": "negative",
+   "Don't Know": "dontknow"
+  },
+  "T05_Q2": {
+   "Yes": "positive",
+   "No": "negative",
+   "Prefer not to say": "dontknow"
+  },
+  "T05_Q3": {
+   "Very concerned": "negative",
+   "Somewhat concerned": "negative",
+   "Not very concerned": "positive",
+   "Not at all concerned": "positive",
+   "Don't know": "dontknow"
+  },
+  "T05_Q4": {
+   "Satisfied": "positive",
+   "Dissatisfied": "negative",
+   "Don't know": "dontknow"
+  },
+  "T05_Q5": {
+   "Very confident": "positive",
+   "Somewhat confident": "positive"
+  },
+  "T06_Q1": {
+   "Very likely": "negative",
+   "Somewhat likely": "negative",
+   "Not so likely": "positive",
+   "Not at all likely": "positive",
+   "Don't Know": "dontknow"
+  },
+  "T06_Q3": {
+   "Don't know": "dontknow"
+  },
+  "T07_Q1": {
+   "Somewhat Disagree": "negative"
+  },
+  "T07_Q2": {
+   "Agree": "positive",
+   "Disagree": "negative",
+   "Don't know": "dontknow"
+  },
+  "T07_Q3": {
+   "Strongly agree": "positive",
+   "Somewhat agree": "positive"
+  },
+  "T08_Q1": {
+   "Yes": "positive",
+   "No": "negative",
+   "Don't know": "dontknow"
+  },
+  "T08_Q2": {
+   "Satisfied": "positive",
+   "Dissatisfied": "negative",
+   "Don't know": "dontknow"
+  },
+  "T08_Q3": {
+   "A bargain": "positive",
+   "A fair price": "positive",
+   "High, but affordable": "negative",
+   "High, hard to afford": "negative",
+   "Not applicable": "dontknow"
+  },
+  "T08_Q4": {
+   "All of the time": "positive",
+   "20-30 days": "neutral",
+   "10-19 days": "neutral",
+   "Under 10 days": "negative",
+   "Not at all": "negative"
+  },
+  "T08_Q5": {
+   "Strongly support": "positive",
+   "Somewhat support": "positive",
+   "Neither support or oppose": "neutral",
+   "Somewhat oppose": "negative",
+   "Strongly oppose": "negative",
+   "Don't know": "dontknow"
+  },
+  "T09_Q2": {
+   "At least once every day": "negative",
+   "2-3 times a week": "negative",
+   "Once a week or less": "neutral",
+   "Once a month or less": "neutral",
+   "Never": "positive",
+   "Don't know": "dontknow"
+  },
+  "T10_Q1": {
+   "Very good or good": "positive",
+   "Fair": "neutral",
+   "Poor": "negative",
+   "Very poor": "negative",
+   "Don't know": "dontknow"
+  },
+  "T10_Q2": {
+   "Get better": "positive",
+   "Stay the same": "neutral",
+   "Get worse": "negative",
+   "Don't know": "dontknow"
+  },
+  "T10_Q3": {
+   "Better than my parents": "positive",
+   "About the same": "neutral",
+   "Worse than my parents": "negative",
+   "Don't know": "dontknow"
+  },
+  "T11_Q1": {
+   "Not at all concerned": "positive",
+   "Not very concerned": "positive",
+   "Somewhat concerned": "negative",
+   "Very concerned": "negative",
+   "Don't know": "dontknow"
+  },
+  "T11_Q2": {
+   "Leading and driving action among a smaller group of countrie": "categorical",
+   "Pushing discussion and debate on the international stage eve": "categorical",
+   "Don't know": "dontknow"
+  },
+  "T12_Q1": {
+   "Very concerned": "negative",
+   "Somewhat concerned": "negative",
+   "Not very concerned": "positive",
+   "Not at all concerned": "positive",
+   "Don't know": "dontknow"
+  },
+  "T12_Q4": {
+   "Strongly agree": "positive"
+  }
  }
 }

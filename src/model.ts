@@ -9,6 +9,7 @@ import {
   type ChartSpec, type Question, type Theme, inWave, latestWave, likeForLike, question, waves,
 } from './content';
 import { base, distribution, headline, multi, optionsFor, trend } from './illustrative';
+import type { ColourRole } from './charts/palette';
 import { type Part, partsOf } from './aggregate';
 
 export interface Series {
@@ -67,6 +68,12 @@ export interface ViewModel {
   compare: CompareBy;
   /** Why a requested comparison was not drawn. Shown on the figure, never swallowed. */
   compareNote: string | null;
+  /**
+   * What each answer option means, keyed by its label, when bands.yaml records
+   * it; null otherwise. The drawing code colours by this rather than by
+   * position, so "Neither" is never red and "Strongly oppose" never green.
+   */
+  roles: Record<string, ColourRole> | null;
 }
 
 export interface Filters {
@@ -216,6 +223,7 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
     showing: spec.showing,
     caveats,
     optionsInvented: options.illustrative,
+    roles: options.roles,
     base: base(seed),
     question: q,
     // A single cut: one series, and no comparison. merge() overrides these when
