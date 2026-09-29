@@ -46,32 +46,33 @@ export function themesView(host: HTMLElement): void {
   // no illustrative marking. The other three cards have no series behind them and
   // get no line rather than an invented one.
   const perWave = waves.map((w) => inWave(w.year).length);
-  // Each card opens the data drawer at the section that backs it up, as the
-  // approved prototype's do. `section` is a drawer section id, not a heading.
+  // Each card goes to the part of the Methodology page that backs it up, as the
+  // approved prototype's cards opened a drawer. `section` is a section id on that
+  // page, not a heading; the Themes card points down this page instead.
   const facts: {
-    label: string; value: string; sub: string; section: string; opens: string;
+    label: string; value: string; sub: string; section: string | null; opens: string;
     spark?: number[]; sparkLabel?: string;
   }[] = [
     {
       label: 'Countries',
       value: String(countries.length),
       sub: `Sub-Saharan Africa · ${inWave(latestWave).length} surveyed in ${latestWave}`,
-      section: 'countries-surveyed',
-      opens: 'View the countries surveyed',
+      section: 'coverage',
+      opens: 'View the countries surveyed, wave by wave',
       spark: perWave,
       sparkLabel: `Countries surveyed per wave: ${waves.map((w, i) => `${w.year}, ${perWave[i]}`).join('; ')}`,
     },
     {
       label: 'Respondents', value: '14,000+', sub: 'Aged 18 to 24, in each wave',
-      section: 'study-overview', opens: 'About the study',
+      section: 'overview', opens: 'About the study',
     },
     {
       label: 'Survey waves', value: String(waves.length), sub: waves.map((w) => w.year).join(' · '),
-      section: 'waves', opens: 'View the waves',
+      section: 'coverage', opens: 'View the waves',
     },
     {
       label: 'Themes', value: String(themes.length), sub: 'From the Portal Content deck',
-      section: 'themes', opens: 'View the themes',
+      section: null, opens: 'Explore by theme',
     },
   ];
 
@@ -82,12 +83,14 @@ export function themesView(host: HTMLElement): void {
     card.type = 'button';
     card.className = `stat an a${i + 1}`;
     card.setAttribute('aria-label', `${fact.label}: ${fact.value}. ${fact.opens}`);
-    card.setAttribute('aria-haspopup', 'dialog');
     card.title = fact.opens;
-    // Loaded on the click, like the nav's own button: the landing page still
-    // does not carry the drawer.
     card.addEventListener('click', () => {
-      void import('../ui/drawer').then((drawer) => drawer.scrollTo(fact.section));
+      if (fact.section) {
+        window.location.hash = `#/methodology?s=${fact.section}`;
+        return;
+      }
+      const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      host.querySelector('.tile-grid')?.scrollIntoView({ block: 'start', behavior: still ? 'auto' : 'smooth' });
     });
 
     const go = document.createElement('span');
