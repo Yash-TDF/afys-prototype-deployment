@@ -14,8 +14,21 @@
    grid — header row, body row — so both rows take the taller card's height
    across the whole row. The figure itself contributes its two children directly.
    THE-350. */
-.chart-cell { display: grid; grid-row: span 2; grid-template-rows: subgrid; row-gap: 0; }
+.chart-cell {
+  display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+  /* One column that can shrink. A grid's column is sized to its content by
+     default and its items refuse to shrink below theirs, so a canvas that
+     Chart.js measured before the row settled (1222px on a 629px card) widened
+     the column and ran off the card. minmax(0, 1fr) and min-width: 0 make the
+     card's width the limit, as it was before the cell became a grid. */
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 0;
+  min-width: 0;
+}
 .chart-cell > figure.chart { display: contents; }
+.chart-cell .chart-head, .chart-cell .chart-body { min-width: 0; }
 @supports not (grid-template-rows: subgrid) {
   /* Without subgrid, at least make the badge wrap the same way on every card. */
   .chart figcaption h3 { flex-basis: 100%; }
