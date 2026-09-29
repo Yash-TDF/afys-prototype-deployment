@@ -670,6 +670,14 @@ export function renderFigure(
       });
     } else {
       chart = new Chart(canvas, baseConfig(model, kindForChart, accent));
+      // On a first visit the charts are built before Montserrat has arrived, so
+      // every label is measured in the fallback face and then drawn in a wider
+      // one: a column sized to the measurement cut the first letters off. Lay the
+      // chart out again once the face is in; a destroyed chart has no canvas.
+      const face = `${Chart.defaults.font.size}px ${Chart.defaults.font.family}`;
+      if (!document.fonts.check(face)) {
+        void document.fonts.ready.then(() => { if (chart?.canvas) chart.update('none'); });
+      }
     }
   }
 
