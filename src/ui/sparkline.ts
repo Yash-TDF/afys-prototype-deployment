@@ -27,21 +27,29 @@ export interface SparkOptions {
   area?: boolean;
   /** When given the line is exposed to assistive technology; otherwise it is hidden. */
   label?: string;
+  /**
+   * Fixed bounds for the vertical axis, in place of the series' own min and max.
+   * Lines meant to be compared with each other need the same scale: on their
+   * own ranges every one fills its box, and a 15-point rise looks like a 5-point
+   * fall.
+   */
+  domain?: [number, number];
 }
 
 export function sparkline(values: number[], opts: SparkOptions): SVGSVGElement | null {
   if (values.length < 2) return null;
 
   const { width: w, height: h, pad = 4, activeIndex = -1, area = true } = opts;
-  const max = Math.max(...values);
-  const min = Math.min(...values);
+  const [min, max] = opts.domain ?? [Math.min(...values), Math.max(...values)];
+  // A value outside a fixed domain would draw outside the box; hold it at the edge.
+  const clamp = (v: number): number => (opts.domain ? Math.min(max, Math.max(min, v)) : v);
   // A flat series has no range to scale against; 1 keeps it on the centre line
   // instead of dividing by zero.
   const range = max - min || 1;
 
   const points = values.map((v, i) => {
     const x = pad + (i / (values.length - 1)) * (w - pad * 2);
-    const y = h - pad - ((v - min) / range) * (h - pad * 2);
+    const y = h - pad - ((clamp(v) - min) / range) * (h - pad * 2);
     return [round(x), round(y)] as const;
   });
   const line = points.map(([x, y]) => `${x},${y}`).join(' ');

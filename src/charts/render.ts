@@ -11,6 +11,7 @@ import { type CategoryKind, type SeriesKind, type ViewModel, sharedBases } from 
 import { GRID, NO_DATA, OFF_SCALE, OFF_SCALE_LABEL, pieStops, ramp, roleColours, SCALE_3, SCALE_4, SCALE_5, SERIES } from './palette';
 import { Chart, registerGeo, setupCharts, valueLabels } from './setup';
 import { badgeElement, sampleBadge } from '../ui/quality';
+import { fmtPct } from '../ui/format';
 import { insightRow } from '../ui/insights';
 
 type FeatureLike = { properties: { name: string; surveyName: string | null } };
@@ -409,7 +410,7 @@ async function mapConfig(model: ViewModel, accent: string): Promise<ChartConfigu
                 value: number | null;
               };
               const name = raw.feature.properties.surveyName ?? raw.feature.properties.name;
-              return raw.value === null ? `${name} — not surveyed` : `${name}: ${raw.value}%`;
+              return raw.value === null ? `${name} — not surveyed` : `${name}: ${fmtPct(raw.value)}`;
             },
           },
         },
@@ -554,7 +555,7 @@ function table(model: ViewModel, colours: string[]): HTMLDetailsElement {
       model.series.forEach((s, series) => {
         const td = document.createElement('td');
         const value = s.values[i];
-        td.textContent = value === undefined ? '—' : `${value}%`;
+        td.textContent = value === undefined ? '—' : fmtPct(value);
         if (value !== undefined) {
           // The approved prototype draws a proportional bar under each figure,
           // which is what makes a column of numbers readable down the page. It is
@@ -607,7 +608,7 @@ function summarise(model: ViewModel, kind: ChartType): string {
   return `${kind === 'map' ? 'Map' : 'Chart'}: ${model.title}. `
     + `${model.series.length} series${SPLIT[model.seriesKind]} `
     + `across ${model.categories.length} categories, `
-    + `ranging from ${low}% to ${high}%. Illustrative figures. `
+    + `ranging from ${fmtPct(low)} to ${fmtPct(high)}. Illustrative figures. `
     + 'The same values follow as a table.';
 }
 
