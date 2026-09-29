@@ -48,7 +48,7 @@ export function methodologyView(host: HTMLElement, params?: URLSearchParams): { 
   head.append(h1, lede);
   host.append(head);
 
-  host.append(section('overview', 'Study overview', overview(), 'an a1'));
+  host.append(section('overview', 'Study overview', overview(), 'text-table an a1'));
 
   const toggle = document.createElement('div');
   toggle.className = 'type-switch an a1';
@@ -70,11 +70,11 @@ export function methodologyView(host: HTMLElement, params?: URLSearchParams): { 
   layout.append(mapHolder, detail);
   host.append(layout);
 
-  const coverage = section('coverage', 'Coverage and interviews by wave', coverageTable(), 'coverage an a3');
-  host.append(coverage);
-  host.append(section('regions', 'Regions', regions(), 'an a3'));
-  host.append(section('fieldwork', 'Languages and locations', fieldworkTable(), 'fieldwork an a3'));
-  host.append(section('figures', 'The figures', figuresNote(), 'an a3'));
+  // Each section lands a beat after the one before, as the landing's cards do.
+  host.append(section('coverage', 'Coverage and interviews by wave', coverageTable(), 'an a3'));
+  host.append(section('regions', 'Regions', regions(), 'an a4'));
+  host.append(section('fieldwork', 'Languages and locations', fieldworkTable(), 'text-table an a5'));
+  host.append(section('figures', 'The figures', figuresNote(), 'an a6'));
 
   const showCountry = (country: Country | null): void => {
     detail.replaceChildren();
@@ -234,6 +234,9 @@ export function methodologyView(host: HTMLElement, params?: URLSearchParams): { 
     requestAnimationFrame(() => {
       target.scrollIntoView({ block: 'start', behavior: still ? 'auto' : 'smooth' });
       target.classList.add('is-target');
+      // The wash is a transition, not an animation (see methodology.css): it fades
+      // back once the class goes.
+      window.setTimeout(() => target.classList.remove('is-target'), 1800);
     });
   };
   landOn(params);
@@ -243,7 +246,9 @@ export function methodologyView(host: HTMLElement, params?: URLSearchParams): { 
 
 function section(id: string, heading: string, content: HTMLElement, className: string): HTMLElement {
   const wrap = document.createElement('section');
-  wrap.className = `method-sec ${className}`;
+  // `coverage` is the card-and-table style chart.css already gives the coverage
+  // table; every section here wears it so the page is one set of like tables.
+  wrap.className = `method-sec coverage ${className}`;
   // Matched by id, not by reading the heading back, so renaming a heading cannot
   // silently send a stat card nowhere.
   wrap.id = `m-${id}`;
@@ -255,8 +260,8 @@ function section(id: string, heading: string, content: HTMLElement, className: s
 
 function overview(): HTMLElement {
   const total = Object.values(fieldwork.waves).reduce((sum, w) => sum + w.interviews, 0);
-  const list = document.createElement('dl');
-  list.className = 'method-kv';
+  const table = document.createElement('table');
+  const tbody = document.createElement('tbody');
   const rows: [string, string][] = [
     ['Respondents', 'Aged 18 to 24'],
     ['Countries', `${countries.length} across ${waves.length} waves`],
@@ -265,13 +270,18 @@ function overview(): HTMLElement {
     ['Fielded by', 'PSB Insights'],
   ];
   for (const [term, value] of rows) {
-    const dt = document.createElement('dt');
-    dt.textContent = term;
-    const dd = document.createElement('dd');
-    dd.textContent = value;
-    list.append(dt, dd);
+    const tr = document.createElement('tr');
+    const th = document.createElement('th');
+    th.scope = 'row';
+    th.textContent = term;
+    const td = document.createElement('td');
+    td.className = 'value';
+    td.textContent = value;
+    tr.append(th, td);
+    tbody.append(tr);
   }
-  return list;
+  table.append(tbody);
+  return table;
 }
 
 /**

@@ -34,22 +34,27 @@
 .country-detail dd { margin: 0; color: var(--ink); }
 .country-detail dd.awaited { color: var(--faint); font-style: italic; }
 
-/* The sections that were the "About the data" drawer, now on this page. Each has
-   an id the landing's stat cards can land on. */
-.method-sec { margin-top: 36px; }
-.method-sec h2 { font-family: var(--display); font-weight: var(--display-weight); letter-spacing: var(--display-tracking); color: var(--green); font-size: 22px; margin: 0 0 12px; }
+/* The sections that were the "About the data" drawer, now on this page. Every one
+   is the same card the coverage table has always been (chart.css gives .coverage
+   the card and the table), so the page reads as one set of tables; each carries an
+   id the landing's stat cards can land on. */
 .method-sec .note { margin: 12px 0 0; font-size: 12.5px; line-height: 1.6; color: var(--muted); max-width: 72ch; }
 .method-sec p { font-size: 13.5px; line-height: 1.6; color: var(--ink); max-width: 72ch; }
-/* Where a stat card sent you: washed for a moment, as the drawer's target was. */
-@keyframes method-target {
-  from { background: var(--mint); box-shadow: 0 0 0 10px var(--mint); }
-  to { background: transparent; box-shadow: 0 0 0 10px transparent; }
-}
-.method-sec.is-target { animation: method-target 1.6s var(--ease) 0.3s backwards; border-radius: 6px; }
+/* Where a stat card sent you: washed for a moment, as the drawer's target was. A
+   transition rather than an animation, because the section's entrance is itself an
+   animation (.an) that brings it from opacity 0, and a second animation on the same
+   element would replace it and leave the section invisible. */
+.method-sec { transition: background 1.2s var(--ease), box-shadow 1.2s var(--ease), transform 0.35s var(--ease); }
+.method-sec.is-target { background: var(--mint); box-shadow: 0 0 0 10px var(--mint); }
+.method-sec.is-target h2 { color: var(--green-mid); }
 
-.method-kv { display: grid; grid-template-columns: auto 1fr; gap: 8px 20px; margin: 0; font-size: 13.5px; max-width: 520px; }
-.method-kv dt { color: var(--muted); font-weight: 500; }
-.method-kv dd { margin: 0; color: var(--green); font-weight: 600; }
+/* Text tables (the overview, languages and locations) read left, unlike figures. */
+.method-sec.text-table td, .method-sec.text-table th[scope="col"] { text-align: left; }
+.method-sec.text-table td { vertical-align: top; font-variant-numeric: normal; }
+.method-sec.text-table th[scope="row"] { color: var(--muted); font-weight: 500; white-space: nowrap; }
+.method-sec.text-table td.value { color: var(--green); font-weight: 600; }
+.method-sec td.awaited { color: var(--faint); font-style: italic; }
+.method-sec td.waves { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 /* The coverage table's totals: interviews achieved against what PSB published. */
 .coverage tr.total th, .coverage tr.total td { border-top: 2px solid var(--line); font-weight: 700; color: var(--green); }
@@ -57,17 +62,18 @@
 .coverage td.count { color: var(--ink); }
 .coverage td.count.flag { color: var(--rose); }
 
-.region-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
-.region { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; }
+/* The region boxes lift on hover like the landing tiles they resemble. */
+.region-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-top: 12px; }
+.region {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease), border-color 0.35s var(--ease);
+}
+.region:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(0, 0, 0, 0.07); border-color: transparent; }
 .region h3 { font-size: 14px; font-weight: 700; color: var(--green); margin: 0 0 8px; }
 .region ul { list-style: none; margin: 0; padding: 0; font-size: 13px; }
-.region li { padding: 4px 0; border-bottom: 1px solid var(--line); }
+.region li { padding: 5px 0; border-bottom: 1px solid var(--line); transition: background 0.2s var(--ease); }
 .region li:last-child { border-bottom: 0; }
-
-.fieldwork table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
-.fieldwork th, .fieldwork td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
-.fieldwork th[scope="col"] { font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: var(--ground); }
-.fieldwork th[scope="row"] { font-weight: 600; color: var(--green); white-space: nowrap; }
-.fieldwork td.awaited { color: var(--faint); font-style: italic; }
-.fieldwork td.waves { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
 
