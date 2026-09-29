@@ -67,7 +67,10 @@ export function tileView(host: HTMLElement, slug: string): () => void {
         const slide = document.createElement('p');
         slide.className = 'slide-ref';
         slide.textContent = `Portal Content deck, slide ${spec.slide}`;
-        cell.append(slide);
+        // Into the card's body, not onto the cell: the cell is a two-row subgrid
+        // (header, body) so that side-by-side charts start at the same height,
+        // and a third child would take a row of its own. THE-350.
+        (cell.querySelector('.chart-body') ?? cell).append(slide);
       }
     });
 

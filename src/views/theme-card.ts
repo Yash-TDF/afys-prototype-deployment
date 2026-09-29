@@ -17,6 +17,8 @@ export interface ThemeCardFigures {
   headline: number | null;
   /** What the percentage is of, in the deck's words where it gives them. */
   of: string | null;
+  /** The same, as a sentence for the card; null falls back to `of`. */
+  caption: string | null;
   /** Null unless the theme is tracked across at least two waves. */
   delta: { points: number; from: number; to: number } | null;
   spark: number[];
@@ -26,8 +28,50 @@ export interface ThemeCardFigures {
 }
 
 const NOTHING: ThemeCardFigures = {
-  headline: null, of: null, delta: null, spark: [], activeIndex: -1, note: null,
+  headline: null, of: null, caption: null, delta: null, spark: [], activeIndex: -1, note: null,
 };
+
+/**
+ * What each card's number measures, as a sentence, keyed by theme slug.
+ *
+ * The client asked for this (28 Sep): a bare "58%" said nothing. Tile 1 is in
+ * their own words, "African Continent is going in the right direction"; the
+ * other eleven follow it and are confirmed at sign-off.
+ *
+ * Each sentence describes one answer, named in `of`: the first series of the
+ * theme's first tracked chart, as the answer lists stand today. A caption is
+ * only true while the card reads that answer, and the answer lists move (the
+ * deck's, and then the survey files': THE-347 found the first band differs on
+ * six tiles once real data loads). So the sentence is used only when the card
+ * really reads that answer; otherwise the answer's own label is shown, and in
+ * development the mismatch is reported, so a caption can go stale but never
+ * wrong.
+ */
+const CAPTIONS: Record<string, { of: string; caption: string }> = {
+  'afro-optimism': { of: 'Right direction', caption: 'African Continent is going in the right direction' },
+  'foreign-relations': { of: 'Very concerned', caption: 'Very concerned about influence from foreign powers' },
+  'the-multilateral-order': { of: 'United States', caption: 'Say the United States has influence in Africa' },
+  'democracy-and-governance': { of: 'Democracy is always preferable', caption: 'Say democracy is always preferable' },
+  'safety-security-and-extremism': { of: 'Very concerned', caption: 'Very concerned about asylum and immigration' },
+  'identity-and-emigration': { of: 'Very likely', caption: 'Very likely to emigrate' },
+  'identity-and-social-justice': { of: 'Strongly disagree', caption: 'Strongly disagree that everyone is equal before the law' },
+  'connected-africa': { of: 'Yes', caption: 'Have internet access' },
+  'news-trust-and-the-fake-news-crisis': { of: 'At least once every day', caption: 'Encounter fake news at least once every day' },
+  'government-satisfaction': { of: 'Very good or good', caption: 'Expect a very good or good quality of life' },
+  'climate-change': { of: 'Not at all concerned', caption: 'Not at all concerned about climate change' },
+  'environmental-realities': { of: 'Strongly agree', caption: 'Strongly agree they are satisfied with recycling' },
+};
+
+/** The caption for a theme, if the card reads the answer it was written for. */
+function captionFor(theme: Theme, of: string | null): string | null {
+  const expected = CAPTIONS[theme.slug];
+  if (!expected || of === null) return null;
+  if (expected.of === of) return expected.caption;
+  if (import.meta.env.DEV) {
+    console.warn(`Theme "${theme.name}": caption written for "${expected.of}" but the card reads "${of}"; showing the label instead.`);
+  }
+  return null;
+}
 
 export function themeCardFigures(theme: Theme): ThemeCardFigures {
   // Tracked first: it is the only shape that carries a trend, which is what the
@@ -57,6 +101,7 @@ export function themeCardFigures(theme: Theme): ThemeCardFigures {
     return {
       headline: values[last]!,
       of: series.label,
+      caption: captionFor(theme, series.label),
       // Named years, not "since the baseline". A question not asked in 2020
       // starts at 2022, and calling that the baseline would be wrong on the
       // one card most likely to be read without opening anything.
@@ -84,6 +129,7 @@ export function themeCardFigures(theme: Theme): ThemeCardFigures {
         ...NOTHING,
         headline: combined.pct,
         of: model.series[0]?.label ?? null,
+        caption: captionFor(theme, model.series[0]?.label ?? null),
         note: `Across ${combined.parts} countries in ${latestWave}`,
       };
     }

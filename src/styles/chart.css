@@ -7,6 +7,33 @@
   border-radius: var(--radius);
   padding: 28px;
 }
+/* Two cards in a row start their charts at the same height. Each card's header
+   runs 25 to 114px depending on whether the badge wraps and whether there is a
+   "Showing…" line, and the chart sat wherever the header ended, so side-by-side
+   charts began up to 142px apart. The cell is a two-row subgrid of the page's
+   grid — header row, body row — so both rows take the taller card's height
+   across the whole row. The figure itself contributes its two children directly.
+   THE-350. */
+.chart-cell {
+  display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+  /* One column that can shrink. A grid's column is sized to its content by
+     default and its items refuse to shrink below theirs, so a canvas that
+     Chart.js measured before the row settled (1222px on a 629px card) widened
+     the column and ran off the card. minmax(0, 1fr) and min-width: 0 make the
+     card's width the limit, as it was before the cell became a grid. */
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 0;
+  min-width: 0;
+}
+.chart-cell > figure.chart { display: contents; }
+.chart-cell .chart-head, .chart-cell .chart-body { min-width: 0; }
+@supports not (grid-template-rows: subgrid) {
+  /* Without subgrid, at least make the badge wrap the same way on every card.
+     Theme-page cells only: the explorer's card is not in a row of two. */
+  .chart-cell .chart figcaption h3 { flex-basis: 100%; }
+}
 
 /* A chart that has just been redrawn settles in rather than snapping: the second
    half of the prototype's refresh, which dims the card, redraws it and lets it
