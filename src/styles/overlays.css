@@ -1,5 +1,5 @@
-/* Things that sit above the page rather than in it. The methodology drawer and
-   the question palette join this file later; for now it is the toast. */
+/* Things that sit above the page rather than in it: the toast and the question
+   palette. */
 
 .toast {
   position: fixed;
@@ -19,105 +19,6 @@
 }
 
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-/* Methodology drawer ------------------------------------------------------- */
-
-.dr-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 250;
-  background: rgba(26, 58, 42, 0.3);
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s var(--ease);
-}
-.drawer-root.show .dr-bg { opacity: 1; pointer-events: auto; }
-
-.dr {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 251;
-  width: min(460px, 100vw);
-  display: flex;
-  flex-direction: column;
-  background: var(--card);
-  box-shadow: -32px 0 80px rgba(26, 58, 42, 0.18);
-  transform: translateX(100%);
-  transition: transform 0.38s var(--eout);
-}
-.drawer-root.show .dr { transform: translateX(0); }
-
-.dr-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 26px 30px 18px;
-  border-bottom: 1px solid var(--line);
-}
-.dr-sub { margin: 0 0 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
-.dr-head h3 { font-family: var(--display); font-size: 26px; font-weight: var(--display-weight); letter-spacing: var(--display-tracking); line-height: 1.15; color: var(--green); }
-.dr-close {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 34px;
-  height: 34px;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  background: var(--card);
-  color: var(--muted);
-  font-size: 13px;
-  cursor: pointer;
-  transition: color 0.2s var(--ease), border-color 0.2s var(--ease), background 0.2s var(--ease);
-}
-.dr-close:hover { border-color: var(--accent); color: var(--accent); background: var(--wash); }
-
-.dr-body { flex: 1; overflow-y: auto; padding: 22px 30px 40px; }
-.dr-body::-webkit-scrollbar { width: 4px; }
-.dr-body::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 4px; }
-
-.dr-sec { margin-bottom: 26px; }
-.dr-sec:last-child { margin-bottom: 0; }
-.dr-sec h4 { margin: 0 0 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-.dr-sec p { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--ink); }
-.dr-sec p + p { margin-top: 10px; }
-
-.dr-kv { display: grid; grid-template-columns: auto 1fr; gap: 8px 20px; margin: 0; font-size: 13.5px; }
-.dr-kv dt { color: var(--muted); font-weight: 500; }
-.dr-kv dd { margin: 0; color: var(--green); font-weight: 600; }
-
-.dr-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.dr-table th { padding: 9px 12px; text-align: left; background: var(--ground); color: var(--muted); font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; border-bottom: 1px solid var(--line); }
-.dr-table td { padding: 9px 12px; border-bottom: 1px solid var(--line); color: var(--ink); }
-.dr-table td:first-child { font-weight: 600; color: var(--green); }
-.dr-table td:last-child { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
-/* The header sits over the numbers it labels, not on the far side of the column. THE-350. */
-.dr-table th:last-child { text-align: right; }
-
-.dr-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.dr-chip { padding: 5px 11px; background: var(--wash); color: var(--green-mid); border-radius: 100px; font-size: 12px; font-weight: 600; }
-
-.dr-link { color: var(--accent); font-weight: 600; font-size: 13px; text-decoration: none; border-bottom: 1px solid var(--wash); transition: border-color 0.2s var(--ease); }
-.dr-link:hover { border-bottom-color: var(--accent); }
-/* Where a stat card sent you: the section is washed for a moment and its heading
-   stays green until the drawer closes. */
-/* The shadow is the same colour spread 10px, so the wash has a margin around
-   the text without the section changing size. */
-@keyframes dr-target {
-  from { background: var(--mint); box-shadow: 0 0 0 10px var(--mint); }
-  to { background: transparent; box-shadow: 0 0 0 10px transparent; }
-}
-.dr-sec.is-target { animation: dr-target 1.6s var(--ease) 0.3s backwards; border-radius: 6px; }
-.dr-sec.is-target h4 { color: var(--green-mid); }
-.dr-themes { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.dr-themes li { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-.dr-themes span { font-size: 12px; color: var(--muted); white-space: nowrap; }
-.dr-table + p { margin-top: 12px; }
 
 /* Question search ---------------------------------------------------------- */
 

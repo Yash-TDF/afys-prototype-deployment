@@ -1,0 +1,356 @@
+{
+ "source": {
+  "interviews": "Unweighted rows of Ichikowitz Family Foundation (IFF) - Africa Youth Survey Merged Final Data 04.30.26 dashboard 1.sav, by wave (job) and country (QCOUNTRY value label)",
+  "languagesAndLocations": "Languages and Locations.xlsx, supplied by PSB on 28 September 2026, cell text as supplied with whitespace collapsed",
+  "regions": "PSB's four 2026 regional groups, from their reply of 23 September 2026",
+  "published": "PSB's published interview totals per wave; none published for 2026",
+  "builtBy": "tools/build-fieldwork.py"
+ },
+ "waves": {
+  "2020": {
+   "interviews": 4200,
+   "published": 4200,
+   "query": null
+  },
+  "2022": {
+   "interviews": 4507,
+   "published": 4507,
+   "query": "PSB's published 2022 tables may be based on the 4,206 interviews of their “Overall 2021” group rather than all 4,507; being checked with PSB."
+  },
+  "2024": {
+   "interviews": 5575,
+   "published": 5604,
+   "query": "29 short of the published 5,604; being checked with PSB."
+  },
+  "2026": {
+   "interviews": 4901,
+   "published": null,
+   "query": null
+  }
+ },
+ "regions": [
+  {
+   "name": "Coastal West Africa",
+   "countries": [
+    "Ghana",
+    "Liberia",
+    "Nigeria",
+    "Togo"
+   ]
+  },
+  {
+   "name": "Sahel and Central Africa",
+   "countries": [
+    "Burkina Faso",
+    "Chad",
+    "Congo Brazzaville",
+    "DRC"
+   ]
+  },
+  {
+   "name": "East Africa and Horn",
+   "countries": [
+    "Ethiopia",
+    "Kenya",
+    "Rwanda",
+    "Somalia"
+   ]
+  },
+  {
+   "name": "Southern Africa",
+   "countries": [
+    "Mozambique",
+    "South Africa",
+    "Zambia",
+    "Zimbabwe"
+   ]
+  }
+ ],
+ "countries": {
+  "Angola": {
+   "interviews": {
+    "2022": 301
+   },
+   "languages": null,
+   "locations": "Luanda, Benguela and Huila",
+   "region": null,
+   "query": null
+  },
+  "Botswana": {
+   "interviews": {
+    "2024": 304
+   },
+   "languages": "English and Setswana",
+   "locations": "Gaborone, Francistown and Molepolole",
+   "region": null,
+   "query": null
+  },
+  "Burkina Faso": {
+   "interviews": {
+    "2026": 310
+   },
+   "languages": "French",
+   "locations": "Ouagadougou, Bobo Dioulasso, Koudougou",
+   "region": "Sahel and Central Africa",
+   "query": null
+  },
+  "Cameroon": {
+   "interviews": {
+    "2024": 300
+   },
+   "languages": "French",
+   "locations": "Douala, Yaoundé, Kibi",
+   "region": null,
+   "query": null
+  },
+  "Chad": {
+   "interviews": {
+    "2024": 271,
+    "2026": 301
+   },
+   "languages": "French",
+   "locations": "N'jamena, Sahr and Abeche",
+   "region": "Sahel and Central Africa",
+   "query": null
+  },
+  "Congo Brazzaville": {
+   "interviews": {
+    "2020": 300,
+    "2022": 301,
+    "2024": 301,
+    "2026": 324
+   },
+   "languages": "French",
+   "locations": "Brazzaville, Pointe Noire and Niari (Dolisie)",
+   "region": "Sahel and Central Africa",
+   "query": null
+  },
+  "Côte d'Ivoire": {
+   "interviews": {
+    "2024": 303
+   },
+   "languages": "French",
+   "locations": "Abidjan, Yamoussoukro, Bouaké",
+   "region": null,
+   "query": null
+  },
+  "DRC": {
+   "interviews": {
+    "2022": 300,
+    "2026": 300
+   },
+   "languages": "French",
+   "locations": "Kinshasa, Lubumbashi and Mbujimayi",
+   "region": "Sahel and Central Africa",
+   "query": null
+  },
+  "Ethiopia": {
+   "interviews": {
+    "2020": 300,
+    "2022": 300,
+    "2024": 303,
+    "2026": 305
+   },
+   "languages": "Amharic and English",
+   "locations": "Addis Ababa, Nazareth and Hawassa",
+   "region": "East Africa and Horn",
+   "query": null
+  },
+  "Gabon": {
+   "interviews": {
+    "2020": 300,
+    "2022": 300,
+    "2024": 302
+   },
+   "languages": "French, Fang",
+   "locations": "Libreville, Ntoum, Port Gentil",
+   "region": null,
+   "query": null
+  },
+  "Ghana": {
+   "interviews": {
+    "2020": 300,
+    "2022": 302,
+    "2024": 318,
+    "2026": 300
+   },
+   "languages": "English, Twi and Dagbani",
+   "locations": "Accra, Kumasi and Tamale",
+   "region": "Coastal West Africa",
+   "query": null
+  },
+  "Kenya": {
+   "interviews": {
+    "2020": 300,
+    "2022": 300,
+    "2024": 304,
+    "2026": 306
+   },
+   "languages": "Swahili and English",
+   "locations": "Nairobi, Mombassa and Kisumu",
+   "region": "East Africa and Horn",
+   "query": null
+  },
+  "Liberia": {
+   "interviews": {
+    "2026": 301
+   },
+   "languages": "English",
+   "locations": "Monrovia, Gbarnga and Buchanan",
+   "region": "Coastal West Africa",
+   "query": null
+  },
+  "Malawi": {
+   "interviews": {
+    "2020": 300,
+    "2022": 301,
+    "2024": 306
+   },
+   "languages": "English and Chichewa",
+   "locations": "Lilongwe, Blantyre, Zomba",
+   "region": null,
+   "query": null
+  },
+  "Mali": {
+   "interviews": {
+    "2020": 300
+   },
+   "languages": null,
+   "locations": null,
+   "region": null,
+   "query": null
+  },
+  "Mozambique": {
+   "interviews": {
+    "2022": 301,
+    "2026": 300
+   },
+   "languages": "Portuguese",
+   "locations": "Maputo City, Nampula and Beira",
+   "region": "Southern Africa",
+   "query": null
+  },
+  "Namibia": {
+   "interviews": {
+    "2024": 300
+   },
+   "languages": "English and Afrikaans",
+   "locations": "Windhoek, Walvis Bay and Swakopmund",
+   "region": null,
+   "query": null
+  },
+  "Nigeria": {
+   "interviews": {
+    "2020": 300,
+    "2022": 300,
+    "2024": 305,
+    "2026": 300
+   },
+   "languages": "English, Hausa and Pidgin English",
+   "locations": "Lagos, Abuja and Port Harcourt",
+   "region": "Coastal West Africa",
+   "query": null
+  },
+  "Rwanda": {
+   "interviews": {
+    "2020": 300,
+    "2022": 300,
+    "2024": 308,
+    "2026": 304
+   },
+   "languages": "French, KiyarRwanda and English",
+   "locations": "Kigali, Huye and Musanze",
+   "region": "East Africa and Horn",
+   "query": null
+  },
+  "Senegal": {
+   "interviews": {
+    "2020": 300
+   },
+   "languages": null,
+   "locations": null,
+   "region": null,
+   "query": null
+  },
+  "Somalia": {
+   "interviews": {
+    "2026": 329
+   },
+   "languages": "Somali",
+   "locations": "Mogadishu, Baidoa and Kismayo",
+   "region": "East Africa and Horn",
+   "query": null
+  },
+  "South Africa": {
+   "interviews": {
+    "2020": 300,
+    "2022": 300,
+    "2024": 1046,
+    "2026": 302
+   },
+   "languages": "English",
+   "locations": "Johannesburg, Durban and Cape Town",
+   "region": "Southern Africa",
+   "query": null
+  },
+  "Sudan": {
+   "interviews": {
+    "2022": 300
+   },
+   "languages": null,
+   "locations": "Khartoum, Omdurman and Khatoum North",
+   "region": null,
+   "query": null
+  },
+  "Tanzania": {
+   "interviews": {
+    "2024": 300
+   },
+   "languages": "Dar es Salaam, Dodoma and Mwanza",
+   "locations": "English and Swahili",
+   "region": null,
+   "query": "The languages and locations appear to have swapped columns in the supplied list; being checked with PSB."
+  },
+  "Togo": {
+   "interviews": {
+    "2020": 300,
+    "2026": 310
+   },
+   "languages": "French",
+   "locations": "Lome, Sokode and Kara",
+   "region": "Coastal West Africa",
+   "query": null
+  },
+  "Uganda": {
+   "interviews": {
+    "2022": 300
+   },
+   "languages": null,
+   "locations": "Kampala, Jinja and Mbarara",
+   "region": null,
+   "query": null
+  },
+  "Zambia": {
+   "interviews": {
+    "2020": 300,
+    "2022": 301,
+    "2024": 304,
+    "2026": 309
+   },
+   "languages": "English and Nyanja",
+   "locations": "Lusaka, Kitwe and Ndola",
+   "region": "Southern Africa",
+   "query": null
+  },
+  "Zimbabwe": {
+   "interviews": {
+    "2020": 300,
+    "2026": 300
+   },
+   "languages": "English and Shona",
+   "locations": "Harare, Bulawayo and Gweru",
+   "region": "Southern Africa",
+   "query": null
+  }
+ }
+}

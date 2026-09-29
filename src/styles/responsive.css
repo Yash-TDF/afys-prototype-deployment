@@ -30,6 +30,16 @@
   /* Five columns need more room than a phone's card has: scroll the table sideways instead of squashing it. */
   .coverage { overflow-x: auto; }
   .coverage th, .coverage td { white-space: nowrap; }
+  /* The text tables (languages and locations, the overview) read better wrapped
+     than scrolled: their cells are sentences, not figures. */
+  .method-sec.text-table th, .method-sec.text-table td { white-space: normal; }
+  /* The row headers set nowrap with a more specific selector in methodology.css,
+     which the rule above does not beat; named here so they wrap too. */
+  .method-sec.text-table th[scope="row"] { white-space: normal; }
+  /* Wrapping alone was not enough: four columns' longest words plus 12px of
+     padding a side came to 395px inside a 339px card. Let a long word break and
+     halve the side padding, so the table takes the card's width and no more. */
+  .method-sec.text-table th, .method-sec.text-table td { overflow-wrap: anywhere; padding-left: 6px; padding-right: 6px; }
   /* On a phone the chart types take the bar's full width and scroll sideways
      rather than wrapping into a block. */
   .filters > .type-switch { margin-left: 0; width: 100%; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }

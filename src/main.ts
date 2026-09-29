@@ -37,30 +37,23 @@ let currentKey: string | null = null;
 document.querySelector<HTMLButtonElement>('.skip-link')
   ?.addEventListener('click', () => host.focus());
 
-// --- the two overlays ------------------------------------------------------
+// --- the search overlay ----------------------------------------------------
 //
-// Both are imported the first time they are wanted. They are reachable from
-// every view, which would ordinarily argue for loading them with the shell — but
-// the shell is what the landing page waits for, and a reader who never presses /
-// should never pay for the search.
+// Imported the first time it is wanted. It is reachable from every view, which
+// would ordinarily argue for loading it with the shell — but the shell is what
+// the landing page waits for, and a reader who never presses / should never pay
+// for the search. (The "About the data" drawer that sat beside it is gone: what
+// it said now lives on the Methodology page, which the nav already reaches.)
 
 let spotlight: typeof import('./ui/spotlight') | null = null;
-let drawer: typeof import('./ui/drawer') | null = null;
 
 async function openSearch(): Promise<void> {
   spotlight ??= await import('./ui/spotlight');
   spotlight.open();
 }
 
-async function openAbout(): Promise<void> {
-  drawer ??= await import('./ui/drawer');
-  drawer.open();
-}
-
 document.querySelector<HTMLButtonElement>('.nav-search')
   ?.addEventListener('click', () => void openSearch());
-document.querySelector<HTMLButtonElement>('.nav-about')
-  ?.addEventListener('click', () => void openAbout());
 
 // `/` from anywhere, except where a slash is a character someone is typing. The
 // same guard the explorer's arrow keys use: a tag check alone misses
@@ -112,7 +105,7 @@ function route(): void {
   } else if (parts[0] === 'explore') {
     load(import('./views/explorer').then((m) => m.explorerView(host, params)));
   } else if (parts[0] === 'methodology') {
-    load(import('./views/methodology').then((m) => m.methodologyView(host)));
+    load(import('./views/methodology').then((m) => m.methodologyView(host, params)));
   } else {
     themesView(host);
   }

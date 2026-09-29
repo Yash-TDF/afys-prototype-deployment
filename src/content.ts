@@ -2,6 +2,7 @@
 // seed files, so the tiles, questions and chart specifications here are the
 // client's — not a designer's guess at them.
 import raw from './data/content.json';
+import fieldworkRaw from './data/fieldwork.json';
 
 export type ChartType = 'bar' | 'hbar' | 'line' | 'stacked' | 'pie' | 'map' | 'table';
 export type Comparison = 'none' | 'tracked' | 'country';
@@ -54,3 +55,36 @@ export const inWave = (year: number): Country[] =>
  */
 export const likeForLike = (years: number[]): Country[] =>
   countries.filter((c) => years.every((y) => c.waves.includes(y)));
+
+/**
+ * Who was asked, counted and as supplied. Built by tools/build-fieldwork.py
+ * from three sources it names in `source`: the delivered four-wave survey file
+ * (interviews per country and wave, unweighted rows), PSB's languages-and-locations
+ * list of 28 September (cell text as supplied, gaps left as null), and PSB's four
+ * regional groups of 23 September. The generator refuses to write unless the
+ * file's country-waves equal the seeded membership above, so a count here can
+ * never disagree with `countries[].waves`. These are counts of interviews, not
+ * survey results, and the only figures on the site that are not illustrative.
+ */
+export interface CountryFieldwork {
+  /** Interviews achieved, keyed by wave year as a string. */
+  interviews: Record<string, number>;
+  languages: string | null;
+  locations: string | null;
+  region: string | null;
+  /** What is open with PSB about this country's supplied detail; the page shows it as being checked. */
+  query: string | null;
+}
+export interface WaveFieldwork {
+  interviews: number;
+  published: number | null;
+  /** What is open with PSB about this wave's count; the page flags the figure and says why. */
+  query: string | null;
+}
+export interface Fieldwork {
+  source: Record<string, string>;
+  waves: Record<string, WaveFieldwork>;
+  regions: { name: string; countries: string[] }[];
+  countries: Record<string, CountryFieldwork>;
+}
+export const fieldwork = fieldworkRaw as Fieldwork;
