@@ -41,13 +41,15 @@ export function sparkline(values: number[], opts: SparkOptions): SVGSVGElement |
 
   const { width: w, height: h, pad = 4, activeIndex = -1, area = true } = opts;
   const [min, max] = opts.domain ?? [Math.min(...values), Math.max(...values)];
+  // A value outside a fixed domain would draw outside the box; hold it at the edge.
+  const clamp = (v: number): number => (opts.domain ? Math.min(max, Math.max(min, v)) : v);
   // A flat series has no range to scale against; 1 keeps it on the centre line
   // instead of dividing by zero.
   const range = max - min || 1;
 
   const points = values.map((v, i) => {
     const x = pad + (i / (values.length - 1)) * (w - pad * 2);
-    const y = h - pad - ((v - min) / range) * (h - pad * 2);
+    const y = h - pad - ((clamp(v) - min) / range) * (h - pad * 2);
     return [round(x), round(y)] as const;
   });
   const line = points.map(([x, y]) => `${x},${y}`).join(' ');

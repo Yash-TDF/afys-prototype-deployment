@@ -17,11 +17,18 @@
  */
 export const roundHalfAway = (n: number): number => Math.sign(n) * Math.round(Math.abs(n));
 
-/** "58%": a percentage, whole. */
-export const fmtPct = (n: number): string => `${roundHalfAway(n)}%`;
+/**
+ * The table's dash for a figure that is not there. No caller passes one today;
+ * a missing value printed as "NaN%" or "Infinity%" would be read as a number.
+ */
+const MISSING = '—';
 
-/** "+11pts" or "-4pts": a change in percentage points, signed and whole. */
+/** "58%": a percentage, whole. */
+export const fmtPct = (n: number): string => (Number.isFinite(n) ? `${roundHalfAway(n)}%` : MISSING);
+
+/** "+11pts", "-4pts" or "+1pt": a change in percentage points, signed and whole. */
 export function fmtPts(n: number): string {
+  if (!Number.isFinite(n)) return MISSING;
   const whole = roundHalfAway(n);
-  return `${whole > 0 ? '+' : ''}${whole}pts`;
+  return `${whole > 0 ? '+' : ''}${whole}pt${Math.abs(whole) === 1 ? '' : 's'}`;
 }

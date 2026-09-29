@@ -223,7 +223,10 @@ function fill(
   const badge = document.createElement('span');
   if (figures.delta) {
     const { points, from } = figures.delta;
-    badge.className = `tstat-d ${points > 0 ? 'up' : points < 0 ? 'down' : 'flat'}`;
+    // Direction from the number printed, not the raw one: a 0.4-point fall
+    // prints as 0, and a red "down" pill reading "0pts" contradicts itself.
+    const shown = roundHalfAway(points);
+    badge.className = `tstat-d ${shown > 0 ? 'up' : shown < 0 ? 'down' : 'flat'}`;
     badge.textContent = `${fmtPts(points)} since ${from}`;
   } else {
     badge.className = 'tstat-d flat';
@@ -248,9 +251,12 @@ function fill(
   chip.textContent = 'Illustrative';
   tile.append(chip);
 
+  const shownPoints = figures.delta ? roundHalfAway(figures.delta.points) : 0;
   const reading = figures.delta
-    ? `${fmtPct(figures.headline)} in ${figures.delta.to}, ${figures.delta.points >= 0 ? 'up' : 'down'} `
-      + `${roundHalfAway(Math.abs(figures.delta.points))} points since ${figures.delta.from}`
+    ? `${fmtPct(figures.headline)} in ${figures.delta.to}, `
+      + (shownPoints === 0
+        ? `unchanged since ${figures.delta.from}`
+        : `${shownPoints > 0 ? 'up' : 'down'} ${Math.abs(shownPoints)} point${Math.abs(shownPoints) === 1 ? '' : 's'} since ${figures.delta.from}`)
     : `${fmtPct(figures.headline)}${figures.note ? `, ${figures.note.toLowerCase()}` : ''}`;
   tile.setAttribute(
     'aria-label',
