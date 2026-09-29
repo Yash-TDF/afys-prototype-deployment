@@ -81,10 +81,10 @@ const LABEL_GUTTER_PX = 18;
  * are years spent 160px of its card on empty space and its bars sat against the
  * right edge. THE-350.
  */
+const labelCap = (chartWidth: number): number => (chartWidth < 400 ? Math.round(chartWidth * 0.4) : 205);
 const labelColumn = (chartWidth: number, longestLabel: number): number => {
   const needed = Math.ceil(longestLabel * LABEL_CHAR_PX) + LABEL_GUTTER_PX;
-  const cap = chartWidth < 400 ? Math.round(chartWidth * 0.4) : 205;
-  return Math.min(cap, needed);
+  return Math.min(labelCap(chartWidth), needed);
 };
 
 /**
@@ -158,7 +158,10 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
       callback(this: { getLabelForValue(v: number): string; chart: { width: number } }, value: number) {
         const label = this.getLabelForValue(value);
         const limit = horizontal
-          ? Math.max(12, Math.floor((labelColumn(this.chart.width, longestLabel) - LABEL_GUTTER_PX) / LABEL_CHAR_PX))
+          // From the cap alone, as before this column was sized to its labels: a
+          // column narrower than the cap already holds its longest label whole, and
+          // taking the gutter off the cap cut three characters that used to fit.
+          ? Math.max(12, Math.floor(labelCap(this.chart.width) / LABEL_CHAR_PX))
           : 34;
         return label.length > limit ? `${label.slice(0, limit - 1)}…` : label;
       },

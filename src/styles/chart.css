@@ -30,8 +30,9 @@
 .chart-cell > figure.chart { display: contents; }
 .chart-cell .chart-head, .chart-cell .chart-body { min-width: 0; }
 @supports not (grid-template-rows: subgrid) {
-  /* Without subgrid, at least make the badge wrap the same way on every card. */
-  .chart figcaption h3 { flex-basis: 100%; }
+  /* Without subgrid, at least make the badge wrap the same way on every card.
+     Theme-page cells only: the explorer's card is not in a row of two. */
+  .chart-cell .chart figcaption h3 { flex-basis: 100%; }
 }
 
 /* A chart that has just been redrawn settles in rather than snapping: the second
