@@ -166,11 +166,11 @@ export function wrapLabel(label: string, limit: number, maxLines = Infinity): st
  */
 const drawnAs = (model: ViewModel, kind: ChartType): ChartType => {
   if (model.compare !== 'none' && kind === 'stacked') return 'bar';
-  // The deck's chart type, checked against the shape of the data it will draw.
-  // A pie asked for several series draws one ring per series, each ring one flat
-  // colour, of trends that do not sum to 100: the client saw it and asked what
-  // it was. Bars, grouped by category, show the same three trends legibly.
-  if (kind === 'pie' && model.series.length > 1) return 'bar';
+  // A pie asked for several series (a tracked question: one series per answer,
+  // the waves as categories) stays a pie, of the latest wave: the deck's slides
+  // 23 and 29 say "Show the 2026 data as a pie chart". Drawing every wave into
+  // one pie gave the multi-ring chart the client asked about; see the pie case
+  // in baseConfig.
   // A line joins its categories, so it claims they are points along something.
   // Answer options are not: "Instagram" to "TikTok" is not a distance. Only
   // waves are, so a line over anything else draws as horizontal bars.
@@ -309,14 +309,34 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
         },
         plugins: [valueLabels],
       } as ChartConfiguration;
-    case 'pie':
+    case 'pie': {
+      // A tracked question reaches here with one series per answer and the
+      // waves as categories. A pie shows one distribution, so it takes the
+      // latest wave's figure from each series and one slice per answer, coloured
+      // as that answer's series is; the earlier waves stay in the table and
+      // notes() says which wave is shown. One ring per wave, each a flat colour,
+      // was the chart the client could not read.
+      const latest = model.categories.length - 1;
+      const oneWave = multiSeries
+        ? {
+          labels: model.series.map((s) => s.label),
+          datasets: [{
+            label: String(model.categories[latest] ?? ''),
+            data: model.series.map((s) => s.values[latest] ?? 0),
+            backgroundColor: colours,
+            borderColor: colours,
+            borderWidth: 0,
+          }],
+        }
+        : { labels: model.categories, datasets };
       return {
         type: 'pie',
-        data: { labels: model.categories, datasets },
+        data: oneWave,
         // A pie fills its canvas to the top edge, where the reading chips end;
         // the padding is the gap a bar chart's axis area gives for free.
-        options: { ...shared, cutout: '52%', layout: { padding: { top: 16 } } },
+        options: { ...shared, plugins: { legend: { display: true, position: 'bottom' as const } }, cutout: '52%', layout: { padding: { top: 16 } } },
       } as ChartConfiguration;
+    }
     default:
       return {
         type: 'bar',
@@ -577,6 +597,10 @@ function notes(model: ViewModel, requested: ChartType): string[] {
       'Each series is its own distribution, so they are drawn side by side rather '
       + 'than stacked — stacked they would total more than 100%.',
     );
+  }
+  if (requested === 'pie' && model.series.length > 1) {
+    const latest = model.categories[model.categories.length - 1];
+    out.push(`Showing ${latest}; the earlier waves are in the table.`);
   }
   out.push(...model.caveats);
   if (model.optionsInvented) {
