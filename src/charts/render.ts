@@ -70,10 +70,22 @@ export const palette = (model: ViewModel, kind: ChartType, accent: string): stri
   return Array.from({ length: count }, (_, i) => scale[i % scale.length]!);
 };
 
-/** Width of a horizontal chart's label column: 205px, or 40% of a phone-width chart (under 400px). */
-const labelColumn = (chartWidth: number): number => (chartWidth < 400 ? Math.round(chartWidth * 0.4) : 205);
 /** 205px holds the 28 characters the labels are cut to, about 7.3px a character. */
 const LABEL_CHAR_PX = 205 / 28;
+/** Room beside the longest label for the axis's own padding. */
+const LABEL_GUTTER_PX = 18;
+/**
+ * Width of a horizontal chart's label column: what its longest label needs, up to
+ * 205px, or 40% of a phone-width chart (under 400px). A fixed 205px was right for
+ * "International involvement in Africa" and wrong for "2020": a chart whose labels
+ * are years spent 160px of its card on empty space and its bars sat against the
+ * right edge. THE-350.
+ */
+const labelColumn = (chartWidth: number, longestLabel: number): number => {
+  const needed = Math.ceil(longestLabel * LABEL_CHAR_PX) + LABEL_GUTTER_PX;
+  const cap = chartWidth < 400 ? Math.round(chartWidth * 0.4) : 205;
+  return Math.min(cap, needed);
+};
 
 /**
  * Stacking a comparison would be wrong, so it is not drawn that way.
@@ -111,6 +123,7 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
     grid: { color: GRID },
     ticks: { callback: (v: string | number) => `${v}%` },
   };
+  const longestLabel = Math.max(0, ...model.categories.map((c) => c.length));
   const categoryAxis = {
     grid: { display: false },
     // Chart.js would otherwise allot the category axis a fraction of the canvas
@@ -119,7 +132,7 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
     // bars themselves, so on a chart under 400px wide the column takes 40% of it.
     ...(horizontal ? {
       afterFit: (scale: { width: number; chart: { width: number } }) => {
-        scale.width = labelColumn(scale.chart.width);
+        scale.width = labelColumn(scale.chart.width, longestLabel);
       },
     } : {}),
     // Sixteen country names turned to the 60° cap still overlap on a phone-width
@@ -144,7 +157,9 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
       // underneath carries the full wording either way.
       callback(this: { getLabelForValue(v: number): string; chart: { width: number } }, value: number) {
         const label = this.getLabelForValue(value);
-        const limit = horizontal ? Math.max(12, Math.floor(labelColumn(this.chart.width) / LABEL_CHAR_PX)) : 34;
+        const limit = horizontal
+          ? Math.max(12, Math.floor((labelColumn(this.chart.width, longestLabel) - LABEL_GUTTER_PX) / LABEL_CHAR_PX))
+          : 34;
         return label.length > limit ? `${label.slice(0, limit - 1)}…` : label;
       },
     },
