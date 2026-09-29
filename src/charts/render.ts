@@ -39,7 +39,16 @@ export const palette = (model: ViewModel, kind: ChartType, accent: string): stri
       ? roleColours(model.series.map((s) => s.label), model.roles, positional)
       : positional;
   }
-  return model.categoryKind === 'options' ? roleColours(model.categories, model.roles, positional) : positional;
+  if (model.categoryKind !== 'options') return positional;
+  // One series of answers on a bar: a categorical answer takes the theme's one
+  // accent, as bands.yaml has it ("the single accent on a one-series bar, and
+  // position everywhere else"). Four reasons to emigrate in green, leaf, gold
+  // and rose read as a scale they are not. A pie keeps position, as a pie in
+  // one colour says nothing; and don't-know is grey either way.
+  const base = kind === 'pie'
+    ? positional
+    : model.categories.map((c, i) => (model.roles?.[c] === 'categorical' ? accent : positional[i]!));
+  return roleColours(model.categories, model.roles, base);
 };
 
 const positionalPalette = (model: ViewModel, kind: ChartType, accent: string): string[] => {
@@ -134,19 +143,15 @@ const AXIS_PX = 70;
  * beside it.
  */
 export function wrapLabel(label: string, limit: number, maxLines = Infinity): string | string[] {
-  // A line may break after a space, and after a slash or hyphen inside a word:
-  // "technological/digital" and "Newspaper/Magazines" are wider than a phone's
-  // label column and stayed whole. A piece that ends in "/" or "-" joins the
-  // next without a space; a piece that does not, with one.
-  const pieces = label.replace(/\s+/g, ' ').trim().split(/ |(?<=[/-])/).filter(Boolean);
-  const join = (line: string, piece: string): string => (line === '' || /[/-]$/.test(line) ? line + piece : `${line} ${piece}`);
+  const pieces = labelPieces(label);
+  const join = (line: string, piece: Piece): string => (line === '' ? piece.text : piece.glued ? line + piece.text : `${line} ${piece.text}`);
   for (let width = limit; ; width += 1) {
     const lines: string[] = [];
     let line = '';
     for (const piece of pieces) {
       if (line && join(line, piece).length > width) {
         lines.push(line);
-        line = piece;
+        line = piece.text;
       } else {
         line = join(line, piece);
       }
@@ -154,6 +159,22 @@ export function wrapLabel(label: string, limit: number, maxLines = Infinity): st
     if (line) lines.push(line);
     if (lines.length <= maxLines || width >= label.length) return lines.length > 1 ? lines : lines[0] ?? '';
   }
+}
+
+/** A piece of a label a line may end after; `glued` when it continues the word before it. */
+type Piece = { text: string; glued: boolean };
+
+/**
+ * Where a label may break. After a space, and after a slash or hyphen inside a
+ * word: "technological/digital" and "Newspaper/Magazines" are wider than a
+ * phone's label column and stayed whole. Only inside a word: "X / Twitter" and
+ * "Disagree/ don't know" are spaced by the client, and a break that ate the
+ * space put them back as "X /Twitter". A piece that came off a word joins it
+ * again without a space; a piece that followed a space, with one.
+ */
+export function labelPieces(label: string): Piece[] {
+  return label.replace(/\s+/g, ' ').trim().split(' ').filter(Boolean).flatMap((word) =>
+    word.split(/(?<=\S[/-])(?=\S)/).map((text, i) => ({ text, glued: i > 0 })));
 }
 
 /**
@@ -227,11 +248,12 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
         const widest = Math.max(0, ...lines.map((line) => ctx.measureText(String(line)).width));
         ctx.restore();
         // The canvas was sized for an estimated column; the real one may wrap the
-        // labels to more lines than that. Grow it to fit, once, and lay out again.
-        // Only ever grows, so it settles after one pass.
+        // labels to more or fewer lines than that. Set it to what the lines drawn
+        // need and lay out again: the count depends on the width, not the height,
+        // so the second pass finds the same number and stops.
         const wrap = scale.chart.canvas.parentElement;
         const needed = Math.max(300, lines.length * ROW_PX + AXIS_PX);
-        if (wrap && wrap.getBoundingClientRect().height < needed - 1) {
+        if (wrap && Math.abs(wrap.getBoundingClientRect().height - needed) > 1) {
           wrap.style.height = `${needed}px`;
           requestAnimationFrame(() => scale.chart.resize());
         }
@@ -270,7 +292,7 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
         // slot ("environmental"), Chart.js will turn every label 45°, and a turned
         // label three lines deep runs into its neighbour: then wrap to two lines.
         const slotChars = Math.max(VERTICAL_MIN_CHARS, Math.floor(((this.chart.width - VALUE_AXIS_PX) / model.categories.length) / LABEL_CHAR_PX));
-        const upright = model.categories.every((c) => c.split(/\s+/).every((w) => w.length <= slotChars));
+        const upright = model.categories.every((c) => labelPieces(c).every((p) => p.text.length <= slotChars));
         return upright ? wrapLabel(label, slotChars) : wrapLabel(label, slotChars, 2);
       },
     },
@@ -316,8 +338,10 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
       // as that answer's series is; the earlier waves stay in the table and
       // notes() says which wave is shown. One ring per wave, each a flat colour,
       // was the chart the client could not read.
+      // Guarded on the shape, not on the series count: a comparison on a pie is
+      // refused before it gets here, but that is refuse()'s promise, not this one's.
       const latest = model.categories.length - 1;
-      const oneWave = multiSeries
+      const oneWave = model.seriesKind === 'options' && model.categoryKind === 'waves'
         ? {
           labels: model.series.map((s) => s.label),
           datasets: [{
@@ -598,7 +622,7 @@ function notes(model: ViewModel, requested: ChartType): string[] {
       + 'than stacked — stacked they would total more than 100%.',
     );
   }
-  if (requested === 'pie' && model.series.length > 1) {
+  if (requested === 'pie' && model.seriesKind === 'options' && model.categoryKind === 'waves') {
     const latest = model.categories[model.categories.length - 1];
     out.push(`Showing ${latest}; the earlier waves are in the table.`);
   }

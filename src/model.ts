@@ -277,7 +277,10 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
     // same respondents and have to total 100. Drawing three independent trends and
     // stacking them produces bars that run past the axis — which is exactly the
     // kind of number nobody questions until it is published.
-    if (spec.type === 'stacked') normalise(series, years.length);
+    // So is a pie: its slices are shares of the one wave it shows, and three
+    // independent trends summed to 157% of it, the slices drawn as shares of that
+    // while the tooltip and the table said the raw figures (review, 29 Sep).
+    if (spec.type === 'stacked' || spec.type === 'pie') normalise(series, years.length);
     return {
       ...common,
       categories: years.map(String),

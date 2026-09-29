@@ -160,7 +160,9 @@ function shades(role: 'positive' | 'negative', count: number): string[] {
   const [strong, weak] = role === 'positive' ? [BRAND.green, BRAND.leaf] : [BRAND.rose, mix(BRAND.gold, BRAND.rose, 0.5)];
   if (count <= 1) return [strong];
   if (count === 2) return [strong, weak];
-  const pale = role === 'positive' ? mix(BRAND.leaf, '#ffffff', 0.45) : mix(BRAND.gold, BRAND.rose, 0.15);
+  // Both pale ends go towards white. The negative side used to head for gold,
+  // and its palest shade (#d79740) was a hair from the neutral gold (#d4a338).
+  const pale = mix(weak, '#ffffff', 0.45);
   return Array.from({ length: count }, (_, i) => {
     const t = i / (count - 1);
     return t <= 0.5 ? mix(strong, weak, t * 2) : mix(weak, pale, (t - 0.5) * 2);
