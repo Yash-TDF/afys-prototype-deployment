@@ -23,8 +23,13 @@ import { showWave } from '../wave-badge';
 type FeatureLike = { properties: { name: string; surveyName: string | null; waves: number[] } };
 
 const AWAITED = 'Awaited from PSB';
-const UNGROUPED = 'Not yet grouped';
+const CHECKING = 'Being checked with PSB';
+const UNGROUPED = 'No agreed region yet';
 const n = (value: number): string => value.toLocaleString('en-GB');
+
+/** PSB's published total across the waves they have published one for. */
+const publishedTotal = (): number =>
+  Object.values(fieldwork.waves).reduce((sum, w) => sum + (w.published ?? 0), 0);
 
 /** Interviews achieved in a country in a wave, or null if it was not asked. */
 const achieved = (country: string, year: number): number | null =>
@@ -42,8 +47,8 @@ export function methodologyView(host: HTMLElement, params?: URLSearchParams): { 
   h1.textContent = 'Who was asked';
   const lede = document.createElement('p');
   lede.textContent =
-    'The African Youth Survey interviews people aged 18 to 24. Coverage has grown '
-    + 'with each wave, so a country missing from a chart was not asked that year — '
+    'The African Youth Survey interviews people aged 18 to 24. Coverage has changed '
+    + 'from wave to wave, so a country missing from a chart was not asked that year — '
     + 'it is not a result of zero.';
   head.append(h1, lede);
   host.append(head);
@@ -64,6 +69,8 @@ export function methodologyView(host: HTMLElement, params?: URLSearchParams): { 
 
   const detail = document.createElement('aside');
   detail.className = 'country-detail';
+  // Its content changes on a map click; a screen reader is told, without being interrupted.
+  detail.setAttribute('aria-live', 'polite');
 
   const layout = document.createElement('div');
   layout.className = 'method-layout an a2';
@@ -107,13 +114,17 @@ export function methodologyView(host: HTMLElement, params?: URLSearchParams): { 
       if (!value) dd.className = 'awaited';
       dl.append(dt, dd);
     };
+    // A supplied detail that is being queried with PSB is not shown as fact,
+    // here any more than in the table below: both cells say it is being checked.
+    const queried = Boolean(facts?.query);
     row('Region', facts?.region, UNGROUPED);
-    row('Languages', facts?.languages, AWAITED);
-    row('Locations', facts?.locations, AWAITED);
+    row('Languages', queried ? null : facts?.languages, queried ? CHECKING : AWAITED);
+    row('Locations', queried ? null : facts?.locations, queried ? CHECKING : AWAITED);
     detail.append(dl);
     const note = document.createElement('p');
     note.className = 'note';
-    note.textContent = 'Interviews are unweighted counts from the delivered survey file. Languages and locations are as supplied by PSB.';
+    note.textContent = (facts?.query ? `${facts.query} ` : '')
+      + 'Interviews are unweighted counts from the delivered survey file. Languages and locations are as supplied by PSB.';
     detail.append(note);
   };
 
@@ -253,20 +264,25 @@ function section(id: string, heading: string, content: HTMLElement, className: s
   // silently send a stat card nowhere.
   wrap.id = `m-${id}`;
   const h = document.createElement('h2');
+  h.id = `m-${id}-heading`;
   h.textContent = heading;
   wrap.append(h, content);
+  // Each table is named by the heading above it, for a reader moving by table.
+  for (const table of wrap.querySelectorAll('table')) table.setAttribute('aria-labelledby', h.id);
   return wrap;
 }
 
 function overview(): HTMLElement {
-  const total = Object.values(fieldwork.waves).reduce((sum, w) => sum + w.interviews, 0);
+  // The published total, 2020 to 2024, is PSB's own figure; the 2026 count is
+  // ours from the file and has no published total to stand against yet.
+  const latest = fieldwork.waves[String(latestWave)];
   const table = document.createElement('table');
   const tbody = document.createElement('tbody');
   const rows: [string, string][] = [
     ['Respondents', 'Aged 18 to 24'],
     ['Countries', `${countries.length} across ${waves.length} waves`],
     ['Latest wave', `${latestWave} · ${inWave(latestWave).length} countries`],
-    ['Interviews', `${n(total)} across ${waves.length} waves, unweighted`],
+    ['Interviews', `${n(publishedTotal())} published, 2020 to 2024 · ${n(latest?.interviews ?? 0)} in ${latestWave} (file count; no published total)`],
     ['Fielded by', 'PSB Insights'],
   ];
   for (const [term, value] of rows) {
@@ -293,6 +309,7 @@ function overview(): HTMLElement {
 function coverageTable(): HTMLElement {
   const wrap = document.createElement('div');
   const el = document.createElement('table');
+  const thead = document.createElement('thead');
   const head = document.createElement('tr');
   head.innerHTML = '<th scope="col">Country</th>';
   for (const w of waves) {
@@ -301,7 +318,9 @@ function coverageTable(): HTMLElement {
     th.textContent = String(w.year);
     head.append(th);
   }
-  el.append(head);
+  thead.append(head);
+  const tbody = document.createElement('tbody');
+  el.append(thead, tbody);
   for (const country of [...countries].sort((a, b) => a.name.localeCompare(b.name))) {
     const row = document.createElement('tr');
     const th = document.createElement('th');
@@ -315,38 +334,54 @@ function coverageTable(): HTMLElement {
       td.className = count !== null ? 'yes count' : 'no';
       row.append(td);
     }
-    el.append(row);
+    tbody.append(row);
   }
+  const tfoot = document.createElement('tfoot');
   const totals = document.createElement('tr');
   totals.className = 'total';
   totals.innerHTML = '<th scope="row">Interviews</th>';
   const published = document.createElement('tr');
   published.className = 'published';
   published.innerHTML = '<th scope="row">Published</th>';
+  const note = document.createElement('p');
+  note.className = 'note';
+  note.id = 'm-coverage-note';
+  const queries: string[] = [];
   for (const w of waves) {
     const fw = fieldwork.waves[String(w.year)];
     const td = document.createElement('td');
     td.textContent = fw ? n(fw.interviews) : '—';
-    // A count that differs from the published total is marked, as promised to PSB.
-    if (fw?.published !== null && fw?.published !== undefined && fw.interviews !== fw.published) td.className = 'count flag';
+    // A count that is open with PSB, or differs from the published total, is
+    // marked in colour and in text, and points at the note that says why.
+    const open = fw?.query ?? null;
+    const differs = fw?.published !== null && fw?.published !== undefined && fw.interviews !== fw.published;
+    if (fw && (open || differs)) {
+      td.className = 'count flag';
+      const mark = document.createElement('sup');
+      mark.textContent = '†';
+      mark.setAttribute('aria-hidden', 'true');
+      td.append(' ', mark);
+      const said = document.createElement('span');
+      said.className = 'sr-only';
+      said.textContent = ' (being checked with PSB)';
+      td.append(said);
+      td.setAttribute('aria-describedby', note.id);
+      queries.push(`${w.year}: ${open ?? `differs from the published ${n(fw.published ?? 0)}.`}`);
+    }
     totals.append(td);
     const tp = document.createElement('td');
     tp.textContent = fw?.published !== null && fw?.published !== undefined ? n(fw.published) : '—';
     published.append(tp);
   }
-  el.append(totals, published);
+  tfoot.append(totals, published);
+  el.append(tfoot);
   wrap.append(el);
 
-  const note = document.createElement('p');
-  note.className = 'note';
-  const gap = fieldwork.waves['2024'];
-  const short = gap && gap.published !== null ? gap.published - gap.interviews : 0;
   note.textContent =
     'Interviews are the unweighted counts achieved in each country, taken from the delivered survey file. '
     + 'Published figures are weighted so that every market counts equally, whatever its sample: South Africa’s '
     + `${n(achieved('South Africa', 2024) ?? 0)} interviews in 2024 do not weigh more than a market’s 300. `
-    + `The 2024 count is ${n(short)} short of the published ${n(gap?.published ?? 0)}, a difference already raised with PSB. `
-    + '2026 has no published total yet.';
+    + `† ${queries.join(' ')} ${latestWave} has no published total yet.`;
   wrap.append(note);
   return wrap;
 }
@@ -381,7 +416,7 @@ function regions(): HTMLElement {
   note.className = 'note';
   note.setAttribute('data-ungrouped', '');
   note.textContent =
-    `${pending.length} markets surveyed only in earlier waves are not yet grouped, pending PSB’s placement: `
+    `${pending.length} markets surveyed only in earlier waves have no agreed region yet (open with PSB): `
     + `${pending.join(', ')}.`;
   wrap.append(note);
   return wrap;
@@ -403,10 +438,13 @@ function fieldworkTable(): HTMLElement {
     const tdWaves = document.createElement('td');
     tdWaves.className = 'waves';
     tdWaves.textContent = country.waves.join(', ');
+    // A row PSB is being asked about shows neither cell as fact.
+    const queried = Boolean(facts?.query);
     const cell = (value: string | null | undefined): HTMLTableCellElement => {
       const td = document.createElement('td');
-      td.textContent = value ?? AWAITED;
-      if (!value) td.className = 'awaited';
+      const shown = queried ? null : value;
+      td.textContent = shown ?? (queried ? CHECKING : AWAITED);
+      if (!shown) td.className = 'awaited';
       return td;
     };
     tr.append(th, tdWaves, cell(facts?.languages), cell(facts?.locations));
@@ -416,10 +454,12 @@ function fieldworkTable(): HTMLElement {
   wrap.append(table);
   const note = document.createElement('p');
   note.className = 'note';
+  const queried = Object.entries(fieldwork.countries).filter(([, c]) => c.query).map(([name, c]) => `${name}: ${c.query}`);
   note.textContent =
-    'As supplied by PSB on 28 September 2026. The method used in each wave (face to face or telephone) and whether '
-    + 'coverage was national or urban are awaited. On the Tanzania row the languages and locations appear to have '
-    + 'swapped columns in the supplied list; they are shown as supplied and PSB has been asked to check.';
+    'As supplied by PSB on 28 September 2026, spellings included; those we would ask PSB to confirm are Kibi, '
+    + 'N’jamena, Sahr, KiyarRwanda, Mombassa and Khatoum North. The method used in each wave (face to face or '
+    + 'telephone) and whether coverage was national or urban are awaited. '
+    + queried.join(' ');
   wrap.append(note);
   return wrap;
 }

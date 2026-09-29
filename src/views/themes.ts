@@ -20,7 +20,7 @@
 // This page loads no charting library, and the sparklines are hand-written SVG —
 // that is the point of them. It also does not wait for the figures: see the
 // dynamic import at the foot of this file.
-import { type Theme, countries, inWave, latestWave, themes, waves } from '../content';
+import { type Theme, countries, fieldwork, inWave, latestWave, themes, waves } from '../content';
 import { sparkline } from '../ui/sparkline';
 import type { ThemeCardFigures } from './theme-card';
 
@@ -46,6 +46,9 @@ export function themesView(host: HTMLElement): void {
   // no illustrative marking. The other three cards have no series behind them and
   // get no line rather than an invented one.
   const perWave = waves.map((w) => inWave(w.year).length);
+  const n = (value: number): string => value.toLocaleString('en-GB');
+  const publishedTotal = Object.values(fieldwork.waves).reduce((sum, w) => sum + (w.published ?? 0), 0);
+  const latestCount = fieldwork.waves[String(latestWave)]?.interviews ?? 0;
   // Each card goes to the part of the Methodology page that backs it up, as the
   // approved prototype's cards opened a drawer. `section` is a section id on that
   // page, not a heading; the Themes card points down this page instead.
@@ -63,7 +66,11 @@ export function themesView(host: HTMLElement): void {
       sparkLabel: `Countries surveyed per wave: ${waves.map((w, i) => `${w.year}, ${perWave[i]}`).join('; ')}`,
     },
     {
-      label: 'Respondents', value: '14,000+', sub: 'Aged 18 to 24, in each wave',
+      // PSB's published total for the waves they have published one for; the
+      // latest wave's count is ours from the file, and says so on the page.
+      label: 'Respondents',
+      value: n(publishedTotal),
+      sub: `Aged 18 to 24 · published, 2020 to 2024 · ${n(latestCount)} more in ${latestWave}`,
       section: 'overview', opens: 'About the study',
     },
     {

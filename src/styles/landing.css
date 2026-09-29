@@ -120,7 +120,7 @@
 /* Stat-card and theme-card furniture, from the approved prototype ---------- */
 
 /* The top border wipes in on hover and an arrow appears in the corner, because
-   the card goes somewhere: it opens the data drawer at the section behind its
+   the card goes somewhere: the Methodology page, at the section behind its
    figure. It is a <button>, so it has to be told to look like the card it is. */
 .stat {
   position: relative;

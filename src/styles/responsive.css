@@ -30,6 +30,9 @@
   /* Five columns need more room than a phone's card has: scroll the table sideways instead of squashing it. */
   .coverage { overflow-x: auto; }
   .coverage th, .coverage td { white-space: nowrap; }
+  /* The text tables (languages and locations, the overview) read better wrapped
+     than scrolled: their cells are sentences, not figures. */
+  .method-sec.text-table th, .method-sec.text-table td { white-space: normal; }
   /* On a phone the chart types take the bar's full width and scroll sideways
      rather than wrapping into a block. */
   .filters > .type-switch { margin-left: 0; width: 100%; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }

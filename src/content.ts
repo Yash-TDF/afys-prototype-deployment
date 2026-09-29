@@ -57,7 +57,7 @@ export const likeForLike = (years: number[]): Country[] =>
   countries.filter((c) => years.every((y) => c.waves.includes(y)));
 
 /**
- * Who was asked, counted and as supplied. Built by docs/THE-348/build-fieldwork.py
+ * Who was asked, counted and as supplied. Built by tools/build-fieldwork.py
  * from three sources it names in `source`: the delivered four-wave survey file
  * (interviews per country and wave, unweighted rows), PSB's languages-and-locations
  * list of 28 September (cell text as supplied, gaps left as null), and PSB's four
@@ -72,10 +72,18 @@ export interface CountryFieldwork {
   languages: string | null;
   locations: string | null;
   region: string | null;
+  /** What is open with PSB about this country's supplied detail; the page shows it as being checked. */
+  query: string | null;
+}
+export interface WaveFieldwork {
+  interviews: number;
+  published: number | null;
+  /** What is open with PSB about this wave's count; the page flags the figure and says why. */
+  query: string | null;
 }
 export interface Fieldwork {
   source: Record<string, string>;
-  waves: Record<string, { interviews: number; published: number | null }>;
+  waves: Record<string, WaveFieldwork>;
   regions: { name: string; countries: string[] }[];
   countries: Record<string, CountryFieldwork>;
 }

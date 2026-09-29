@@ -1,26 +1,31 @@
 {
  "source": {
   "interviews": "Unweighted rows of Ichikowitz Family Foundation (IFF) - Africa Youth Survey Merged Final Data 04.30.26 dashboard 1.sav, by wave (job) and country (QCOUNTRY value label)",
-  "languagesAndLocations": "Languages and Locations.xlsx, supplied by PSB on 28 September 2026, cell text as supplied",
+  "languagesAndLocations": "Languages and Locations.xlsx, supplied by PSB on 28 September 2026, cell text as supplied with whitespace collapsed",
   "regions": "PSB's four 2026 regional groups, from their reply of 23 September 2026",
-  "builtBy": "docs/THE-348/build-fieldwork.py"
+  "published": "PSB's published interview totals per wave; none published for 2026",
+  "builtBy": "tools/build-fieldwork.py"
  },
  "waves": {
   "2020": {
    "interviews": 4200,
-   "published": 4200
+   "published": 4200,
+   "query": null
   },
   "2022": {
    "interviews": 4507,
-   "published": 4507
+   "published": 4507,
+   "query": "PSB's published 2022 tables may be based on the 4,206 interviews of their “Overall 2021” group rather than all 4,507; being checked with PSB."
   },
   "2024": {
    "interviews": 5575,
-   "published": 5604
+   "published": 5604,
+   "query": "29 short of the published 5,604; being checked with PSB."
   },
   "2026": {
    "interviews": 4901,
-   "published": null
+   "published": null,
+   "query": null
   }
  },
  "regions": [
@@ -68,7 +73,8 @@
    },
    "languages": null,
    "locations": "Luanda, Benguela and Huila",
-   "region": null
+   "region": null,
+   "query": null
   },
   "Botswana": {
    "interviews": {
@@ -76,7 +82,8 @@
    },
    "languages": "English and Setswana",
    "locations": "Gaborone, Francistown and Molepolole",
-   "region": null
+   "region": null,
+   "query": null
   },
   "Burkina Faso": {
    "interviews": {
@@ -84,7 +91,8 @@
    },
    "languages": "French",
    "locations": "Ouagadougou, Bobo Dioulasso, Koudougou",
-   "region": "Sahel and Central Africa"
+   "region": "Sahel and Central Africa",
+   "query": null
   },
   "Cameroon": {
    "interviews": {
@@ -92,7 +100,8 @@
    },
    "languages": "French",
    "locations": "Douala, Yaoundé, Kibi",
-   "region": null
+   "region": null,
+   "query": null
   },
   "Chad": {
    "interviews": {
@@ -101,7 +110,8 @@
    },
    "languages": "French",
    "locations": "N'jamena, Sahr and Abeche",
-   "region": "Sahel and Central Africa"
+   "region": "Sahel and Central Africa",
+   "query": null
   },
   "Congo Brazzaville": {
    "interviews": {
@@ -112,7 +122,8 @@
    },
    "languages": "French",
    "locations": "Brazzaville, Pointe Noire and Niari (Dolisie)",
-   "region": "Sahel and Central Africa"
+   "region": "Sahel and Central Africa",
+   "query": null
   },
   "Côte d'Ivoire": {
    "interviews": {
@@ -120,7 +131,8 @@
    },
    "languages": "French",
    "locations": "Abidjan, Yamoussoukro, Bouaké",
-   "region": null
+   "region": null,
+   "query": null
   },
   "DRC": {
    "interviews": {
@@ -129,7 +141,8 @@
    },
    "languages": "French",
    "locations": "Kinshasa, Lubumbashi and Mbujimayi",
-   "region": "Sahel and Central Africa"
+   "region": "Sahel and Central Africa",
+   "query": null
   },
   "Ethiopia": {
    "interviews": {
@@ -140,7 +153,8 @@
    },
    "languages": "Amharic and English",
    "locations": "Addis Ababa, Nazareth and Hawassa",
-   "region": "East Africa and Horn"
+   "region": "East Africa and Horn",
+   "query": null
   },
   "Gabon": {
    "interviews": {
@@ -150,7 +164,8 @@
    },
    "languages": "French, Fang",
    "locations": "Libreville, Ntoum, Port Gentil",
-   "region": null
+   "region": null,
+   "query": null
   },
   "Ghana": {
    "interviews": {
@@ -161,7 +176,8 @@
    },
    "languages": "English, Twi and Dagbani",
    "locations": "Accra, Kumasi and Tamale",
-   "region": "Coastal West Africa"
+   "region": "Coastal West Africa",
+   "query": null
   },
   "Kenya": {
    "interviews": {
@@ -172,7 +188,8 @@
    },
    "languages": "Swahili and English",
    "locations": "Nairobi, Mombassa and Kisumu",
-   "region": "East Africa and Horn"
+   "region": "East Africa and Horn",
+   "query": null
   },
   "Liberia": {
    "interviews": {
@@ -180,7 +197,8 @@
    },
    "languages": "English",
    "locations": "Monrovia, Gbarnga and Buchanan",
-   "region": "Coastal West Africa"
+   "region": "Coastal West Africa",
+   "query": null
   },
   "Malawi": {
    "interviews": {
@@ -190,7 +208,8 @@
    },
    "languages": "English and Chichewa",
    "locations": "Lilongwe, Blantyre, Zomba",
-   "region": null
+   "region": null,
+   "query": null
   },
   "Mali": {
    "interviews": {
@@ -198,7 +217,8 @@
    },
    "languages": null,
    "locations": null,
-   "region": null
+   "region": null,
+   "query": null
   },
   "Mozambique": {
    "interviews": {
@@ -207,7 +227,8 @@
    },
    "languages": "Portuguese",
    "locations": "Maputo City, Nampula and Beira",
-   "region": "Southern Africa"
+   "region": "Southern Africa",
+   "query": null
   },
   "Namibia": {
    "interviews": {
@@ -215,7 +236,8 @@
    },
    "languages": "English and Afrikaans",
    "locations": "Windhoek, Walvis Bay and Swakopmund",
-   "region": null
+   "region": null,
+   "query": null
   },
   "Nigeria": {
    "interviews": {
@@ -226,7 +248,8 @@
    },
    "languages": "English, Hausa and Pidgin English",
    "locations": "Lagos, Abuja and Port Harcourt",
-   "region": "Coastal West Africa"
+   "region": "Coastal West Africa",
+   "query": null
   },
   "Rwanda": {
    "interviews": {
@@ -235,9 +258,10 @@
     "2024": 308,
     "2026": 304
    },
-   "languages": "French, KiyarRwanda and  English",
+   "languages": "French, KiyarRwanda and English",
    "locations": "Kigali, Huye and Musanze",
-   "region": "East Africa and Horn"
+   "region": "East Africa and Horn",
+   "query": null
   },
   "Senegal": {
    "interviews": {
@@ -245,7 +269,8 @@
    },
    "languages": null,
    "locations": null,
-   "region": null
+   "region": null,
+   "query": null
   },
   "Somalia": {
    "interviews": {
@@ -253,7 +278,8 @@
    },
    "languages": "Somali",
    "locations": "Mogadishu, Baidoa and Kismayo",
-   "region": "East Africa and Horn"
+   "region": "East Africa and Horn",
+   "query": null
   },
   "South Africa": {
    "interviews": {
@@ -264,7 +290,8 @@
    },
    "languages": "English",
    "locations": "Johannesburg, Durban and Cape Town",
-   "region": "Southern Africa"
+   "region": "Southern Africa",
+   "query": null
   },
   "Sudan": {
    "interviews": {
@@ -272,7 +299,8 @@
    },
    "languages": null,
    "locations": "Khartoum, Omdurman and Khatoum North",
-   "region": null
+   "region": null,
+   "query": null
   },
   "Tanzania": {
    "interviews": {
@@ -280,7 +308,8 @@
    },
    "languages": "Dar es Salaam, Dodoma and Mwanza",
    "locations": "English and Swahili",
-   "region": null
+   "region": null,
+   "query": "The languages and locations appear to have swapped columns in the supplied list; being checked with PSB."
   },
   "Togo": {
    "interviews": {
@@ -289,7 +318,8 @@
    },
    "languages": "French",
    "locations": "Lome, Sokode and Kara",
-   "region": "Coastal West Africa"
+   "region": "Coastal West Africa",
+   "query": null
   },
   "Uganda": {
    "interviews": {
@@ -297,7 +327,8 @@
    },
    "languages": null,
    "locations": "Kampala, Jinja and Mbarara",
-   "region": null
+   "region": null,
+   "query": null
   },
   "Zambia": {
    "interviews": {
@@ -308,7 +339,8 @@
    },
    "languages": "English and Nyanja",
    "locations": "Lusaka, Kitwe and Ndola",
-   "region": "Southern Africa"
+   "region": "Southern Africa",
+   "query": null
   },
   "Zimbabwe": {
    "interviews": {
@@ -317,7 +349,8 @@
    },
    "languages": "English and Shona",
    "locations": "Harare, Bulawayo and Gweru",
-   "region": "Southern Africa"
+   "region": "Southern Africa",
+   "query": null
   }
  }
 }
