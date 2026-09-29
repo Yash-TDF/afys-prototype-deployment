@@ -492,10 +492,20 @@ export function renderFigure(
     showing.textContent = model.showing;
     head.append(showing);
   }
-  figure.append(head);
-
+  // Two parts, header and body, so that a card in a grid can be a two-row
+  // subgrid and side-by-side charts start at the same height whatever their
+  // headers do. Everything a reader sees above the chart is the head; the chart,
+  // its table and its notes are the body. THE-350.
+  const chartHead = document.createElement('div');
+  chartHead.className = 'chart-head';
+  chartHead.append(head);
   const readings = insightRow(model);
-  if (readings) figure.append(readings);
+  if (readings) chartHead.append(readings);
+  figure.append(chartHead);
+
+  const chartBody = document.createElement('div');
+  chartBody.className = 'chart-body';
+  figure.append(chartBody);
 
   let chart: Chart | undefined;
   let canvas: HTMLCanvasElement | undefined;
@@ -510,7 +520,7 @@ export function renderFigure(
     const only = table(model, colours);
     only.open = true;
     only.querySelector('summary')?.remove();
-    figure.append(only);
+    chartBody.append(only);
   } else {
     const canvasWrap = document.createElement('div');
     canvasWrap.className = kind === 'map' ? 'canvas canvas-map' : 'canvas';
@@ -518,8 +528,8 @@ export function renderFigure(
     canvas.setAttribute('role', 'img');
     canvas.setAttribute('aria-label', summarise(model, kind));
     canvasWrap.append(canvas);
-    figure.append(canvasWrap);
-    figure.append(table(model, colours));
+    chartBody.append(canvasWrap);
+    chartBody.append(table(model, colours));
     kindForChart = kind;
   }
 
@@ -527,7 +537,7 @@ export function renderFigure(
     const p = document.createElement('p');
     p.className = 'note';
     p.textContent = note;
-    figure.append(p);
+    chartBody.append(p);
   }
 
   // Attach before drawing. A responsive Chart.js chart measures its container at

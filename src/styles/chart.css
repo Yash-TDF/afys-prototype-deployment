@@ -7,6 +7,19 @@
   border-radius: var(--radius);
   padding: 28px;
 }
+/* Two cards in a row start their charts at the same height. Each card's header
+   runs 25 to 114px depending on whether the badge wraps and whether there is a
+   "Showing…" line, and the chart sat wherever the header ended, so side-by-side
+   charts began up to 142px apart. The cell is a two-row subgrid of the page's
+   grid — header row, body row — so both rows take the taller card's height
+   across the whole row. The figure itself contributes its two children directly.
+   THE-350. */
+.chart-cell { display: grid; grid-row: span 2; grid-template-rows: subgrid; row-gap: 0; }
+.chart-cell > figure.chart { display: contents; }
+@supports not (grid-template-rows: subgrid) {
+  /* Without subgrid, at least make the badge wrap the same way on every card. */
+  .chart figcaption h3 { flex-basis: 100%; }
+}
 
 /* A chart that has just been redrawn settles in rather than snapping: the second
    half of the prototype's refresh, which dims the card, redraws it and lets it
