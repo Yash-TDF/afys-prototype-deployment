@@ -274,9 +274,17 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
       // ("environmental" in a 66px slot). Chart.js rotates only when a label
       // does not fit, so short labels stay upright as they were.
       maxRotation: many ? 60 : 45,
-      // Upright, 12px names are still a hair taller than their 14px slots at 360px.
+      // Stood at 90 degrees on a phone, a name's height across the axis has to
+      // fit its slot, and the ink of a name is about 1.1 times the font size.
+      // 11px fits every phone 360px wide and up; at 320px sixteen names share
+      // about 10px each, so the size steps down to what the slot holds, never
+      // below 9px. (12px was a hair too tall at 360px: THE-246.)
       ...(!horizontal && many ? {
-        font: (ctx: { chart: { width: number } }) => (ctx.chart.width < 400 ? { size: 11 } : undefined),
+        font: (ctx: { chart: { width: number } }) => {
+          if (ctx.chart.width >= 400) return undefined;
+          const slot = (ctx.chart.width - VALUE_AXIS_PX) / model.categories.length;
+          return { size: Math.max(9, Math.min(11, Math.floor(slot / 1.1))) };
+        },
       } : {}),
       // Real answer options are long — "Increased access to essential services
       // and resources". Chart.js caps how much width it gives an axis and then
@@ -287,6 +295,11 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
         const label = this.getLabelForValue(value);
         // Horizontal: the label column.
         if (horizontal) return wrapLabel(label, columnChars(this.chart.width));
+        // A phone-width chart of many categories stands its labels at 90 degrees
+        // (afterCalculateLabelRotation above). There a second line sits beside the
+        // first, a line-height across, and lands on the next category: "Faso" over
+        // Chad. So a label stood upright stays one line, however long.
+        if (many && this.chart.width < 400) return label;
         // Vertical: the slot each category gets, the chart's width less the value
         // axis shared between the categories, so seven policies in a 525px chart
         // wrap to what 66px can hold. If any label holds a word wider than the
