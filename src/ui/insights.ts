@@ -20,6 +20,7 @@
 // is no seed in scope here, so that cannot happen.
 import { combine } from '../aggregate';
 import { partsFor, rows, type ViewModel } from '../model';
+import { fmtPct, fmtPts, roundHalfAway } from './format';
 
 export type InsightKind = 'high' | 'combined' | 'range' | 'shift' | 'refused';
 
@@ -50,14 +51,14 @@ export function insights(model: ViewModel): Insight[] {
   const bottom = sorted[sorted.length - 1]!;
 
   if (cells.length > 1) {
-    out.push({ kind: 'high', label: top.label, sub: `${top.value}% highest` });
+    out.push({ kind: 'high', label: top.label, sub: `${fmtPct(top.value!)} highest` });
   }
 
   out.push(combined(model, cells.length));
 
   const spread = Math.round((top.value! - bottom.value!) * 10) / 10;
   if (cells.length > 2 && spread >= RANGE_FLOOR) {
-    out.push({ kind: 'range', label: `${spread}pt range`, sub: `${top.label} to ${bottom.label}` });
+    out.push({ kind: 'range', label: `${roundHalfAway(spread)}pt range`, sub: `${top.label} to ${bottom.label}` });
   }
 
   return out;
@@ -86,7 +87,7 @@ function combined(model: ViewModel, count: number): Insight {
   const noun = count === 1 ? 'country' : 'countries';
   return {
     kind: 'combined',
-    label: `${result.pct}% combined`,
+    label: `${fmtPct(result.pct)} combined`,
     sub: `across ${result.parts} ${noun}, base ${result.base.toLocaleString('en-GB')}`,
   };
 }
@@ -105,7 +106,7 @@ function trend(model: ViewModel): Insight[] {
   if (Math.abs(delta) >= SHIFT_FLOOR) {
     out.push({
       kind: 'shift',
-      label: `${delta >= 0 ? '+' : ''}${delta}pts`,
+      label: fmtPts(delta),
       // The first year present, never "since the baseline": a question not asked
       // in 2020 starts in 2022, and the chip is read without opening anything.
       sub: `${model.categories[0]} to ${model.categories[model.categories.length - 1]}`,
@@ -114,7 +115,7 @@ function trend(model: ViewModel): Insight[] {
   }
 
   const peak = values.indexOf(Math.max(...values));
-  out.push({ kind: 'high', label: `Peak ${values[peak]}%`, sub: String(model.categories[peak]) });
+  out.push({ kind: 'high', label: `Peak ${fmtPct(values[peak]!)}`, sub: String(model.categories[peak]) });
 
   return out;
 }

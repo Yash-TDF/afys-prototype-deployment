@@ -21,6 +21,7 @@
 // that is the point of them. It also does not wait for the figures: see the
 // dynamic import at the foot of this file.
 import { type Theme, countries, inWave, latestWave, themes, waves } from '../content';
+import { fmtPct, fmtPts, roundHalfAway } from '../ui/format';
 import { sparkline } from '../ui/sparkline';
 import type { ThemeCardFigures } from './theme-card';
 
@@ -149,9 +150,11 @@ export function themesView(host: HTMLElement): void {
     tile.href = `#/theme/${theme.slug}`;
     tile.style.setProperty('--accent', theme.accent);
 
-    const tag = document.createElement('span');
+    // The pill is the card's heading. It used to say "Theme 4" with the name
+    // repeated underneath; the client asked for the name here and once.
+    const tag = document.createElement('h3');
     tag.className = 'theme-tag';
-    tag.textContent = `Theme ${theme.order}`;
+    tag.textContent = theme.name;
 
     const arrow = document.createElement('span');
     arrow.className = 'arrow';
@@ -163,19 +166,12 @@ export function themesView(host: HTMLElement): void {
     top.className = 'tt';
     top.append(tag, arrow);
 
-    const name = document.createElement('h3');
-    name.textContent = theme.name;
-
-    const meta = document.createElement('p');
-    meta.className = 'meta';
-    meta.textContent = `${theme.questions.length} question${theme.questions.length === 1 ? '' : 's'}`;
-
     // Empty, but present and height-reserved in CSS, so the figures landing a
     // moment later move nothing on the page.
     const slot = document.createElement('div');
     slot.className = 'tstats';
 
-    tile.append(top, name, meta, slot);
+    tile.append(top, slot);
     grid.append(tile);
     pending.push({ theme, tile, slot });
   });
@@ -212,14 +208,23 @@ function fill(
 
   const headline = document.createElement('span');
   headline.className = 'tstat-v';
-  headline.textContent = `${figures.headline}%`;
+  headline.textContent = fmtPct(figures.headline);
   left.append(headline);
+
+  // What the number is: a bare "58%" told the client nothing.
+  const caption = figures.caption ?? figures.of;
+  if (caption) {
+    const of = document.createElement('span');
+    of.className = 'tstat-of';
+    of.textContent = caption;
+    left.append(of);
+  }
 
   const badge = document.createElement('span');
   if (figures.delta) {
     const { points, from } = figures.delta;
     badge.className = `tstat-d ${points > 0 ? 'up' : points < 0 ? 'down' : 'flat'}`;
-    badge.textContent = `${points > 0 ? '+' : ''}${points}pts since ${from}`;
+    badge.textContent = `${fmtPts(points)} since ${from}`;
   } else {
     badge.className = 'tstat-d flat';
     badge.textContent = figures.note ?? '';
@@ -228,8 +233,10 @@ function fill(
   slot.append(left);
 
   if (figures.spark.length >= 2) {
+    // One scale for all twelve: on its own range every line filled the box, so a
+    // 15-point rise and a 5-point fall looked the same size.
     const line = sparkline(figures.spark, {
-      width: 78, height: 36, className: 'tspark', activeIndex: figures.activeIndex,
+      width: 78, height: 36, className: 'tspark', activeIndex: figures.activeIndex, domain: [0, 100],
     });
     if (line) slot.append(line);
   }
@@ -242,13 +249,12 @@ function fill(
   tile.append(chip);
 
   const reading = figures.delta
-    ? `${figures.headline}% in ${figures.delta.to}, ${figures.delta.points >= 0 ? 'up' : 'down'} `
-      + `${Math.abs(figures.delta.points)} points since ${figures.delta.from}`
-    : `${figures.headline}%${figures.note ? `, ${figures.note.toLowerCase()}` : ''}`;
+    ? `${fmtPct(figures.headline)} in ${figures.delta.to}, ${figures.delta.points >= 0 ? 'up' : 'down'} `
+      + `${roundHalfAway(Math.abs(figures.delta.points))} points since ${figures.delta.from}`
+    : `${fmtPct(figures.headline)}${figures.note ? `, ${figures.note.toLowerCase()}` : ''}`;
   tile.setAttribute(
     'aria-label',
-    `${theme.name}. ${theme.questions.length} questions. `
-    + `${figures.of ?? 'Illustrative figure'}: ${reading}. Illustrative figure, not a survey result.`,
+    `${theme.name}. ${caption ?? 'Illustrative figure'}: ${reading}. Illustrative figure, not a survey result.`,
   );
 }
 

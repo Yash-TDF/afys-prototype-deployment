@@ -17,6 +17,8 @@ export interface ThemeCardFigures {
   headline: number | null;
   /** What the percentage is of, in the deck's words where it gives them. */
   of: string | null;
+  /** The same, as a sentence for the card; null falls back to `of`. */
+  caption: string | null;
   /** Null unless the theme is tracked across at least two waves. */
   delta: { points: number; from: number; to: number } | null;
   spark: number[];
@@ -26,7 +28,32 @@ export interface ThemeCardFigures {
 }
 
 const NOTHING: ThemeCardFigures = {
-  headline: null, of: null, delta: null, spark: [], activeIndex: -1, note: null,
+  headline: null, of: null, caption: null, delta: null, spark: [], activeIndex: -1, note: null,
+};
+
+/**
+ * What each card's number measures, as a sentence, keyed by theme slug.
+ *
+ * The client asked for this (28 Sep): a bare "58%" said nothing. Tile 1 is in
+ * their own words, "African Continent is going in the right direction"; the
+ * other eleven follow it and are confirmed at sign-off. Each describes the
+ * series the card reads today, the first answer of the theme's first tracked
+ * chart, so a caption is only right while that chart is; a theme with no entry
+ * here, or whose headline chart changes, falls back to the answer's own label.
+ */
+const CAPTIONS: Record<string, string> = {
+  'afro-optimism': 'African Continent is going in the right direction',
+  'foreign-relations': 'Very concerned about influence from foreign powers',
+  'the-multilateral-order': 'Say the United States has influence in Africa',
+  'democracy-and-governance': 'Say democracy is always preferable',
+  'safety-security-and-extremism': 'Very concerned about asylum and immigration',
+  'identity-and-emigration': 'Very likely to emigrate',
+  'identity-and-social-justice': 'Strongly disagree that everyone is equal before the law',
+  'connected-africa': 'Have internet access',
+  'news-trust-and-the-fake-news-crisis': 'Encounter fake news at least once every day',
+  'government-satisfaction': 'Expect a very good or good quality of life',
+  'climate-change': 'Not at all concerned about climate change',
+  'environmental-realities': 'Strongly agree they are satisfied with recycling',
 };
 
 export function themeCardFigures(theme: Theme): ThemeCardFigures {
@@ -57,6 +84,7 @@ export function themeCardFigures(theme: Theme): ThemeCardFigures {
     return {
       headline: values[last]!,
       of: series.label,
+      caption: CAPTIONS[theme.slug] ?? null,
       // Named years, not "since the baseline". A question not asked in 2020
       // starts at 2022, and calling that the baseline would be wrong on the
       // one card most likely to be read without opening anything.
@@ -84,6 +112,7 @@ export function themeCardFigures(theme: Theme): ThemeCardFigures {
         ...NOTHING,
         headline: combined.pct,
         of: model.series[0]?.label ?? null,
+        caption: CAPTIONS[theme.slug] ?? null,
         note: `Across ${combined.parts} countries in ${latestWave}`,
       };
     }

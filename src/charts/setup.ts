@@ -16,6 +16,7 @@ import {
   type Plugin,
 } from 'chart.js';
 import { GRID, INK, labelInk, MUTED } from './palette';
+import { fmtPct } from '../ui/format';
 
 /**
  * Value labels on bars.
@@ -67,7 +68,7 @@ export const valueLabels: Plugin<'bar'> = {
           ?? (Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[j] : dataset.backgroundColor);
         ctx.fillStyle = stacked ? labelInk(fill) : INK;
         const cx = horizontal ? (stacked ? (x + base) / 2 : x + 6) : x;
-        ctx.fillText(`${value}%`, cx, horizontal ? y : y - 4);
+        ctx.fillText(fmtPct(value), cx, horizontal ? y : y - 4);
       });
     });
     ctx.restore();
@@ -119,6 +120,18 @@ export function setupCharts(): void {
   // On every tooltip, because a screenshot of one chart travels without the
   // banner that says the rest of it.
   Chart.defaults.plugins.tooltip.callbacks.afterBody = () => 'Illustrative figure — not a survey result';
+  // Chart.js prints the raw value; the page prints whole numbers. A pie parses
+  // to a number, a bar to a point on whichever axis carries the value. The map
+  // has its own label callback and is not affected.
+  Chart.defaults.plugins.tooltip.callbacks.label = (item) => {
+    const parsed = item.parsed as number | { x: number; y: number };
+    const value = typeof parsed === 'number'
+      ? parsed
+      : (item.chart.options.indexAxis === 'y' ? parsed.x : parsed.y);
+    if (typeof value !== 'number' || !Number.isFinite(value)) return item.formattedValue;
+    const name = item.dataset.label;
+    return `${name ? `${name}: ` : ''}${fmtPct(value)}`;
+  };
 }
 
 let geo: Promise<void> | null = null;
