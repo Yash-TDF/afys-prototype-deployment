@@ -9,6 +9,7 @@ import {
   type ChartSpec, type Question, type Theme, inWave, latestWave, likeForLike, question, waves,
 } from './content';
 import { base, distribution, headline, multi, optionsFor, trend } from './illustrative';
+import type { ColourRole } from './charts/palette';
 import { type Part, partsOf } from './aggregate';
 
 export interface Series {
@@ -67,6 +68,12 @@ export interface ViewModel {
   compare: CompareBy;
   /** Why a requested comparison was not drawn. Shown on the figure, never swallowed. */
   compareNote: string | null;
+  /**
+   * What each answer option means, keyed by its label, when bands.yaml records
+   * it; null otherwise. The drawing code colours by this rather than by
+   * position, so "Neither" is never red and "Strongly oppose" never green.
+   */
+  roles: Record<string, ColourRole> | null;
 }
 
 export interface Filters {
@@ -216,6 +223,7 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
     showing: spec.showing,
     caveats,
     optionsInvented: options.illustrative,
+    roles: options.roles,
     base: base(seed),
     question: q,
     // A single cut: one series, and no comparison. merge() overrides these when
@@ -269,7 +277,10 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
     // same respondents and have to total 100. Drawing three independent trends and
     // stacking them produces bars that run past the axis — which is exactly the
     // kind of number nobody questions until it is published.
-    if (spec.type === 'stacked') normalise(series, years.length);
+    // So is a pie: its slices are shares of the one wave it shows, and three
+    // independent trends summed to 157% of it, the slices drawn as shares of that
+    // while the tooltip and the table said the raw figures (review, 29 Sep).
+    if (spec.type === 'stacked' || spec.type === 'pie') normalise(series, years.length);
     return {
       ...common,
       categories: years.map(String),

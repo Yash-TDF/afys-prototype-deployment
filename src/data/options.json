@@ -1,5 +1,5 @@
 {
- "source": "Portal Content deck chart data, plus the answer lists written by hand from the 2026 questionnaire. Unconfirmed against the .sav value labels.",
+ "source": "Portal Content deck chart data, plus the answer lists written by hand from the 2026 questionnaire. Unconfirmed against the .sav value labels. Each option's colour_role is the one bands.yaml gives the band that carries it; multi-select options are categorical; unassigned lists every option with no role, and unplotted the bands production keeps in the base but does not draw.",
  "options": {
   "T01_Q1": [
    "Right direction",
@@ -37,8 +37,10 @@
    "Limiting the influence of foreign powers"
   ],
   "T02_Q1": [
-   "Concerned",
-   "Not concerned",
+   "Very concerned",
+   "Somewhat concerned",
+   "Not very concerned",
+   "Not at all concerned",
    "Don't know"
   ],
   "T02_Q2": [
@@ -51,17 +53,17 @@
    "China",
    "United Kingdom",
    "Russia",
-   "Germany**",
    "France",
    "India",
+   "Germany**",
    "Brazil**"
   ],
   "T03_Q1": [
    "The African Union",
-   "United Nations**",
    "World Trade Organisation",
-   "International Monetary Fund**",
    "The European Union",
+   "United Nations**",
+   "International Monetary Fund**",
    "G20**"
   ],
   "T03_Q2": [
@@ -134,9 +136,14 @@
    "Education opportunities",
    "Social connection"
   ],
+  "T06_Q3": [
+   "Temporarily for some time",
+   "Permanently without plans to return",
+   "Don't know"
+  ],
   "T07_Q1": [
-   "Strongly Disgree",
-   "Somewhat Disagree",
+   "Strongly disagree",
+   "Somewhat disagree",
    "Agree / DK"
   ],
   "T07_Q2": [
@@ -146,8 +153,7 @@
   ],
   "T07_Q3": [
    "Strongly agree",
-   "Somewhat agree",
-   "T2B"
+   "Somewhat agree"
   ],
   "T08_Q1": [
    "Yes",
@@ -179,24 +185,24 @@
    "Neither support or oppose",
    "Somewhat oppose",
    "Strongly oppose",
-   "Don't know / DO NOT READ"
+   "Don't know"
   ],
   "T09_Q1": [
-   "Facebook",
    "Television",
-   "TikTok",
-   "WhatsApp",
    "Friends and family",
    "Radio",
-   "Instagram",
    "Online news sources",
-   "X / Twitter",
-   "Telegram",
    "Newspaper/Magazines",
    "Religious leaders",
-   "AI",
-   "I'm not interested in news  / DO NOT READ",
-   "Don't know"
+   "I'm not interested in news",
+   "Facebook",
+   "X / Twitter",
+   "Don't know",
+   "TikTok",
+   "WhatsApp",
+   "Instagram",
+   "Telegram",
+   "AI"
   ],
   "T09_Q2": [
    "At least once every day",
@@ -208,11 +214,18 @@
   ],
   "T09_Q3": [
    "Interest groups and organisations deliberately share fake news to push their agenda",
-   "I worry that misinformation or 'fake news' shared online could lead to real-world violence or conflict in  my community",
+   "I worry that misinformation or 'fake news' shared online could lead to real-world violence or conflict in my community",
    "Fake news is a serious problem in my community today",
    "I worry that artifical intelligence (AI) has made is easier to create and spread fake news",
    "Fake news has led to greater divide within my society",
    "Fake news impacts my ability to stay informed about issues that matter to me"
+  ],
+  "T10_Q1": [
+   "Very good or good",
+   "Fair",
+   "Poor",
+   "Very poor",
+   "Don't know"
   ],
   "T10_Q2": [
    "Get better",
@@ -227,13 +240,13 @@
    "Don't know"
   ],
   "T10_Q4": [
-   "Maintaining political \nstability",
-   "Tackling government\ncorruption",
-   "Addressing climate change\nand environmental degradation",
-   "Limiting illegal immigration\ninto the country",
+   "Maintaining political stability",
+   "Tackling government corruption",
+   "Addressing climate change and environmental degradation",
+   "Limiting illegal immigration into the country",
    "Reducing poverty",
-   "Job creation and fighting\nunemployment",
-   "Tackling rising\ncosts"
+   "Job creation and fighting unemployment",
+   "Tackling rising costs"
   ],
   "T11_Q1": [
    "Not at all concerned",
@@ -243,8 +256,8 @@
    "Don't know"
   ],
   "T11_Q2": [
-   "Leading and driving action among a smaller group of countrie",
-   "Pushing discussion and debate on the international stage eve",
+   "Leading and driving action among a smaller group of countries to act sooner",
+   "Pushing discussion and debate on the international stage even if it takes longer to act",
    "Don't know"
   ],
   "T11_Q3": [
@@ -261,21 +274,424 @@
    "Somewhat concerned",
    "Not very concerned",
    "Not at all concerned",
-   "Don't know/ DO NOT READ"
+   "Don't know"
   ],
   "T12_Q2": [
    "Strongly agree",
-   "Somewhat agree",
-   "T2B"
+   "Somewhat agree"
   ],
   "T12_Q3": [
    "Strongly agree",
-   "Somewhat agree",
-   "T2B"
+   "Somewhat agree"
   ],
   "T12_Q4": [
    "Strongly agree",
    "Disagree/ don't know"
+  ]
+ },
+ "roles": {
+  "T01_Q1": {
+   "Right direction": "positive",
+   "Wrong direction": "negative",
+   "Don't know": "dontknow"
+  },
+  "T01_Q2": {
+   "Optimistic": "positive",
+   "Excited": "positive",
+   "Uncertain": "neutral",
+   "Concerned": "negative",
+   "Pessimistic": "negative",
+   "Don't know": "dontknow"
+  },
+  "T01_Q3": {
+   "International involvement in Africa": "categorical",
+   "Democratic changes": "categorical",
+   "Environmental challenges": "categorical",
+   "Increased access to essential services and resources": "categorical",
+   "The technological/digital revolution": "categorical",
+   "Deaths from infectious disease": "categorical",
+   "Political instability": "categorical",
+   "The rising cost of living": "categorical"
+  },
+  "T01_Q4": {
+   "Creating new, well-paying jobs": "categorical",
+   "Reducing government corruption": "categorical",
+   "Increasing access to basic needs and services": "categorical",
+   "Making it easier to start a business": "categorical",
+   "Achieving peace and stability in Africa": "categorical",
+   "Modernizing the education system": "categorical",
+   "Building a culture of innovation and entrepreneurship": "categorical",
+   "Encouraging more foreign investment": "categorical",
+   "Embracing digital and technological innovation": "categorical",
+   "Limiting the influence of foreign powers": "categorical"
+  },
+  "T02_Q1": {
+   "Very concerned": "negative",
+   "Somewhat concerned": "negative",
+   "Not very concerned": "positive",
+   "Not at all concerned": "positive",
+   "Don't know": "dontknow"
+  },
+  "T02_Q2": {
+   "More divided": "negative",
+   "More cooperative": "positive",
+   "Don't know": "dontknow"
+  },
+  "T02_Q3": {
+   "United States": "categorical",
+   "China": "categorical",
+   "United Kingdom": "categorical",
+   "Russia": "categorical",
+   "France": "categorical",
+   "India": "categorical",
+   "Germany**": "categorical",
+   "Brazil**": "categorical"
+  },
+  "T03_Q1": {
+   "The African Union": "categorical",
+   "World Trade Organisation": "categorical",
+   "The European Union": "categorical",
+   "United Nations**": "categorical",
+   "International Monetary Fund**": "categorical",
+   "G20**": "categorical"
+  },
+  "T03_Q2": {
+   "Celebrating and protecting the history and culture of my country": "categorical",
+   "Addressing climate change and its environmental impacts": "categorical",
+   "Caring for refugees and displaced people": "categorical",
+   "Supporting democratic development and free elections": "categorical",
+   "Providing humanitarian aid": "categorical",
+   "Supporting economic development and creating opportunities": "categorical",
+   "Protecting human rights": "categorical",
+   "Fighting the spread of infectious diseases": "categorical",
+   "Promoting peace and security": "categorical"
+  },
+  "T04_Q1": {
+   "Democracy is always preferable": "categorical",
+   "Non-democratic government can be preferable": "categorical",
+   "Don't know": "dontknow"
+  },
+  "T04_Q2": {
+   "Dem always pref": "positive",
+   "Non-dem can be": "negative",
+   "Don't Know": "dontknow"
+  },
+  "T04_Q3": {
+   "National unity and stability": "categorical",
+   "Regular free and fair elections": "categorical",
+   "Leaders who deliver jobs and services": "categorical",
+   "Community decision-making": "categorical",
+   "Respect for elders and traditional authorities": "categorical",
+   "A multi-party system with a wide range of political choices": "categorical",
+   "Strong leadership, even if power is concentrated": "categorical"
+  },
+  "T05_Q2": {
+   "Yes": "positive",
+   "No": "negative",
+   "Prefer not to say": "dontknow"
+  },
+  "T05_Q3": {
+   "Very concerned": "negative",
+   "Somewhat concerned": "negative",
+   "Not very concerned": "positive",
+   "Not at all concerned": "positive",
+   "Don't know": "dontknow"
+  },
+  "T05_Q4": {
+   "Satisfied": "positive",
+   "Dissatisfied": "negative",
+   "Don't know": "dontknow"
+  },
+  "T05_Q5": {
+   "Very confident": "positive",
+   "Somewhat confident": "positive",
+   "Not confident / DK": "negative"
+  },
+  "T06_Q1": {
+   "Very likely": "negative",
+   "Somewhat likely": "negative",
+   "Not so likely": "positive",
+   "Not at all likely": "positive",
+   "Don't Know": "dontknow"
+  },
+  "T06_Q2": {
+   "Push factors": "categorical",
+   "Economic reasons": "categorical",
+   "Education opportunities": "categorical",
+   "Social connection": "categorical"
+  },
+  "T06_Q3": {
+   "Temporarily for some time": "categorical",
+   "Permanently without plans to return": "categorical",
+   "Don't know": "dontknow"
+  },
+  "T07_Q1": {
+   "Strongly disagree": "negative",
+   "Somewhat disagree": "negative",
+   "Agree / DK": "positive"
+  },
+  "T07_Q2": {
+   "Agree": "positive",
+   "Disagree": "negative",
+   "Don't know": "dontknow"
+  },
+  "T07_Q3": {
+   "Strongly agree": "positive",
+   "Somewhat agree": "positive"
+  },
+  "T08_Q1": {
+   "Yes": "positive",
+   "No": "negative",
+   "Don't know": "dontknow"
+  },
+  "T08_Q2": {
+   "Satisfied": "positive",
+   "Dissatisfied": "negative",
+   "Don't know": "dontknow"
+  },
+  "T08_Q3": {
+   "A bargain": "positive",
+   "A fair price": "positive",
+   "High, but affordable": "negative",
+   "High, hard to afford": "negative",
+   "Not applicable": "dontknow"
+  },
+  "T08_Q4": {
+   "All of the time": "positive",
+   "20-30 days": "neutral",
+   "10-19 days": "neutral",
+   "Under 10 days": "negative",
+   "Not at all": "negative"
+  },
+  "T08_Q5": {
+   "Strongly support": "positive",
+   "Somewhat support": "positive",
+   "Neither support or oppose": "neutral",
+   "Somewhat oppose": "negative",
+   "Strongly oppose": "negative",
+   "Don't know": "dontknow"
+  },
+  "T09_Q1": {
+   "Television": "categorical",
+   "Friends and family": "categorical",
+   "Radio": "categorical",
+   "Online news sources": "categorical",
+   "Newspaper/Magazines": "categorical",
+   "Religious leaders": "categorical",
+   "I'm not interested in news": "categorical",
+   "Facebook": "categorical",
+   "X / Twitter": "categorical",
+   "Don't know": "dontknow",
+   "TikTok": "categorical",
+   "WhatsApp": "categorical",
+   "Instagram": "categorical",
+   "Telegram": "categorical",
+   "AI": "categorical"
+  },
+  "T09_Q2": {
+   "At least once every day": "negative",
+   "2-3 times a week": "negative",
+   "Once a week or less": "neutral",
+   "Once a month or less": "neutral",
+   "Never": "positive",
+   "Don't know": "dontknow"
+  },
+  "T09_Q3": {
+   "Interest groups and organisations deliberately share fake news to push their agenda": "categorical",
+   "I worry that misinformation or 'fake news' shared online could lead to real-world violence or conflict in my community": "categorical",
+   "Fake news is a serious problem in my community today": "categorical",
+   "I worry that artifical intelligence (AI) has made is easier to create and spread fake news": "categorical",
+   "Fake news has led to greater divide within my society": "categorical",
+   "Fake news impacts my ability to stay informed about issues that matter to me": "categorical"
+  },
+  "T10_Q1": {
+   "Very good or good": "positive",
+   "Fair": "neutral",
+   "Poor": "negative",
+   "Very poor": "negative",
+   "Don't know": "dontknow"
+  },
+  "T10_Q2": {
+   "Get better": "positive",
+   "Stay the same": "neutral",
+   "Get worse": "negative",
+   "Don't know": "dontknow"
+  },
+  "T10_Q3": {
+   "Better than my parents": "positive",
+   "About the same": "neutral",
+   "Worse than my parents": "negative",
+   "Don't know": "dontknow"
+  },
+  "T10_Q4": {
+   "Maintaining political stability": "categorical",
+   "Tackling government corruption": "categorical",
+   "Addressing climate change and environmental degradation": "categorical",
+   "Limiting illegal immigration into the country": "categorical",
+   "Reducing poverty": "categorical",
+   "Job creation and fighting unemployment": "categorical",
+   "Tackling rising costs": "categorical"
+  },
+  "T11_Q1": {
+   "Not at all concerned": "positive",
+   "Not very concerned": "positive",
+   "Somewhat concerned": "negative",
+   "Very concerned": "negative",
+   "Don't know": "dontknow"
+  },
+  "T11_Q2": {
+   "Leading and driving action among a smaller group of countries to act sooner": "categorical",
+   "Pushing discussion and debate on the international stage even if it takes longer to act": "categorical",
+   "Don't know": "dontknow"
+  },
+  "T11_Q3": {
+   "Developing carbon credit programs to fund climate adaptation": "categorical",
+   "Investment in early-warning systems for extreme weather": "categorical",
+   "Relocation assistance for those in at-risk areas": "categorical",
+   "Adopting green energy sources": "categorical",
+   "Funding for climate-resilient infrastructure": "categorical",
+   "Support for improved and sustainable farming methods": "categorical",
+   "Public education campaigns on climate adaptation": "categorical"
+  },
+  "T12_Q1": {
+   "Very concerned": "negative",
+   "Somewhat concerned": "negative",
+   "Not very concerned": "positive",
+   "Not at all concerned": "positive",
+   "Don't know": "dontknow"
+  },
+  "T12_Q4": {
+   "Strongly agree": "positive",
+   "Disagree/ don't know": "negative"
+  }
+ },
+ "unassigned": {
+  "T05_Q1": [
+   "Strongly agree",
+   "Somewhat agree",
+   "Disagree / DK"
+  ],
+  "T12_Q2": [
+   "Strongly agree",
+   "Somewhat agree"
+  ],
+  "T12_Q3": [
+   "Strongly agree",
+   "Somewhat agree"
+  ]
+ },
+ "unplotted": {
+  "T01_Q1": [
+   "Don't know"
+  ],
+  "T01_Q2": [
+   "Don't know"
+  ],
+  "T01_Q3": [
+   "Don't know",
+   "Other",
+   "Increased foreign direct investment into Africa",
+   "Globalization",
+   "Rise of terrorism",
+   "Civil wars",
+   "Rise of e-commerce",
+   "Increase in girls in primary school"
+  ],
+  "T02_Q1": [
+   "Don't know"
+  ],
+  "T02_Q2": [
+   "Don't know"
+  ],
+  "T02_Q3": [
+   "Don't know"
+  ],
+  "T03_Q1": [
+   "Don't know"
+  ],
+  "T04_Q1": [
+   "Don't know"
+  ],
+  "T04_Q2": [
+   "Don't know"
+  ],
+  "T05_Q1": [
+   "Don't know"
+  ],
+  "T05_Q2": [
+   "Prefer not to say"
+  ],
+  "T05_Q3": [
+   "Don't know"
+  ],
+  "T05_Q4": [
+   "Don't know"
+  ],
+  "T05_Q5": [
+   "Don't know"
+  ],
+  "T06_Q1": [
+   "Don't know"
+  ],
+  "T06_Q3": [
+   "Don't know"
+  ],
+  "T07_Q1": [
+   "Don't know"
+  ],
+  "T07_Q2": [
+   "Don't know"
+  ],
+  "T07_Q3": [
+   "Don't know"
+  ],
+  "T08_Q1": [
+   "Don't know"
+  ],
+  "T08_Q2": [
+   "Don't know"
+  ],
+  "T08_Q3": [
+   "Not applicable"
+  ],
+  "T08_Q5": [
+   "Don't know"
+  ],
+  "T09_Q2": [
+   "Don't know"
+  ],
+  "T09_Q3": [
+   "Don't know"
+  ],
+  "T10_Q1": [
+   "Don't know"
+  ],
+  "T10_Q2": [
+   "Don't know"
+  ],
+  "T10_Q3": [
+   "Don't know"
+  ],
+  "T10_Q4": [
+   "Don't know"
+  ],
+  "T11_Q1": [
+   "Don't know"
+  ],
+  "T11_Q2": [
+   "Don't know"
+  ],
+  "T12_Q1": [
+   "Don't know"
+  ],
+  "T12_Q2": [
+   "Don't know"
+  ],
+  "T12_Q3": [
+   "Don't know"
+  ],
+  "T12_Q4": [
+   "Don't know"
   ]
  }
 }
