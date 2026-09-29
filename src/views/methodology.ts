@@ -457,7 +457,7 @@ function fieldworkTable(): HTMLElement {
   const queried = Object.entries(fieldwork.countries).filter(([, c]) => c.query).map(([name, c]) => `${name}: ${c.query}`);
   note.textContent =
     'As supplied by PSB on 28 September 2026, spellings included; those we would ask PSB to confirm are Kibi, '
-    + 'N’jamena, Sahr, KiyarRwanda, Mombassa and Khatoum North. The method used in each wave (face to face or '
+    + "N'jamena, Sahr, KiyarRwanda, Mombassa and Khatoum North. The method used in each wave (face to face or "
     + 'telephone) and whether coverage was national or urban are awaited. '
     + queried.join(' ');
   wrap.append(note);

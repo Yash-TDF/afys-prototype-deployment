@@ -3,7 +3,12 @@
 Read-only on every source; writes one file. Needs pyreadstat (the portal's pipeline
 environment has it):
 
-    PYTHONUTF8=1 python tools/build-fieldwork.py [--sav PATH] [--workbook PATH]
+    PYTHONUTF8=1 python tools/build-fieldwork.py --sav PATH --workbook PATH
+
+Both inputs are outside this repository, so on any machine but the one this was
+written on `--sav` and `--workbook` are needed: the defaults only point at a
+`docs/adr` folder beside the checkout, where the delivered file and PSB's
+workbook happen to live here.
 
 Sources
   1. Interviews per country and wave: the delivered four-wave SPSS file, unweighted rows,

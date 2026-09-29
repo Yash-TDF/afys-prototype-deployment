@@ -36,8 +36,10 @@ export function themesView(host: HTMLElement): void {
   const lede = document.createElement('p');
   lede.className = 'an';
   lede.textContent =
-    `Explore findings across ${countries.length} countries and 14,000+ respondents `
-    + `aged 18 to 24, surveyed in ${waves.length} waves since ${waves[0]!.year}.`;
+    // No respondent count here: beside the Respondents card (published total plus
+    // the 2026 file count) a "14,000+" read as the whole four-wave total.
+    `Explore findings across ${countries.length} countries, from young people `
+    + `aged 18 to 24 surveyed in ${waves.length} waves since ${waves[0]!.year}.`;
   intro.append(h1, lede);
 
   const stats = document.createElement('div');
@@ -71,7 +73,7 @@ export function themesView(host: HTMLElement): void {
       // latest wave's count is ours from the file, and says so on the page.
       label: 'Respondents',
       value: n(publishedTotal),
-      sub: `Aged 18 to 24 · published, 2020 to 2024 · ${n(latestCount)} more in ${latestWave}`,
+      sub: `Aged 18 to 24 · published, 2020 to 2024 · ${n(latestCount)} more in ${latestWave} (file count)`,
       section: 'overview', opens: 'About the study',
     },
     {
