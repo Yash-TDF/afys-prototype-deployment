@@ -148,58 +148,79 @@ export function labelInk(background: unknown): string {
 /** What an answer means, as bands.yaml records it for the band that carries it. */
 export type ColourRole = 'positive' | 'negative' | 'neutral' | 'dontknow' | 'categorical';
 
+/** The meanings a colour can be given. bands.yaml's `categorical` means "coloured by position". */
+const SIDED: ReadonlySet<string> = new Set(['positive', 'negative', 'neutral', 'dontknow']);
+
 /**
- * Colours for a list of answers whose meaning is known.
+ * The shades one side of a scale gets, strongest first: as many as the side has
+ * answers, so a third answer never repeats the second's colour. Green to leaf
+ * and on towards white for agreement; rose towards gold for opposition.
+ */
+function shades(role: 'positive' | 'negative', count: number): string[] {
+  const [strong, weak] = role === 'positive' ? [BRAND.green, BRAND.leaf] : [BRAND.rose, mix(BRAND.gold, BRAND.rose, 0.5)];
+  if (count <= 1) return [strong];
+  if (count === 2) return [strong, weak];
+  const pale = role === 'positive' ? mix(BRAND.leaf, '#ffffff', 0.45) : mix(BRAND.gold, BRAND.rose, 0.15);
+  return Array.from({ length: count }, (_, i) => {
+    const t = i / (count - 1);
+    return t <= 0.5 ? mix(strong, weak, t * 2) : mix(weak, pale, (t - 0.5) * 2);
+  });
+}
+
+/**
+ * Colours for a list of answers, by meaning where the meaning is known.
  *
  * Green for agreement, support and the like; rose for their opposite; gold for a
  * midpoint; the off-scale grey for "Don't know". A second answer with the same
- * meaning takes the lighter step of its colour, so "Strongly support" and
+ * meaning takes a lighter shade of its colour, so "Strongly support" and
  * "Somewhat support" can be told apart while still reading as one side. The
  * client asked for exactly this rule (28 Sep): colour was being assigned by
  * position, so on a six-option pie "Neither" came out red and "Strongly oppose"
  * green.
  *
- * Categorical answers — events, sources, organisations — have no side, and take
- * the one colour handed in. Returns null when any label has no role: the caller
- * keeps its old colours for that chart rather than this guessing at meaning.
+ * `positional` is the colour each answer would have had by position, which is
+ * what an answer keeps when its meaning is not one of the four sides: a
+ * categorical answer (events, sources, organisations, which bands.yaml defines
+ * as "coloured by position"), a label no band claims, or a role this code does
+ * not know. So a chart is never all one colour because its answers have no
+ * side, and a typo in one label does not undo the colours of the others.
  */
 export function roleColours(
   labels: string[],
   roles: Record<string, ColourRole> | null,
-  categorical: string,
-): string[] | null {
-  if (!roles || labels.some((label) => !roles[label])) return null;
-  const steps: Record<Exclude<ColourRole, 'categorical'>, string[]> = {
-    positive: [BRAND.green, BRAND.leaf],
-    negative: [BRAND.rose, mix(BRAND.gold, BRAND.rose, 0.5)],
-    neutral: [BRAND.gold],
-    dontknow: [OFF_SCALE],
+  positional: string[],
+): string[] {
+  const role = (label: string): string | null => {
+    const r = roles?.[label];
+    return r && SIDED.has(r) ? r : null;
   };
   // A scale's strongest answers sit at its two ends, and the list runs from one
   // end to the other: "Strongly support, Somewhat support, Neither, Somewhat
   // oppose, Strongly oppose", or "Very concerned, Somewhat concerned, Not very
   // concerned, Not at all concerned". So a side listed first reads strong-to-weak
-  // and takes its ramp from the front, and a side listed after the midpoint or
-  // the other side reads weak-to-strong and takes it from the back. Which side is
-  // which is not fixed: the negatives lead a concern scale and trail an
+  // and takes its shades from the front, and a side listed after the midpoint or
+  // the other side reads weak-to-strong and takes them from the back. Which side
+  // is which is not fixed: the negatives lead a concern scale and trail an
   // agreement scale.
-  const onScale = (label: string): boolean => roles[label] !== 'categorical' && roles[label] !== 'dontknow';
   const total: Record<string, number> = {};
   const first: Record<string, number> = {};
   labels.forEach((label, i) => {
-    const role = roles[label]!;
-    total[role] = (total[role] ?? 0) + 1;
-    first[role] ??= i;
+    const r = role(label);
+    if (!r) return;
+    total[r] = (total[r] ?? 0) + 1;
+    first[r] ??= i;
   });
-  const fromBack = (role: string): boolean => labels.slice(0, first[role]).some((label) => onScale(label));
+  const fromBack = (r: string): boolean =>
+    labels.slice(0, first[r]).some((label) => { const o = role(label); return o !== null && o !== 'dontknow'; });
   const taken: Record<string, number> = {};
-  return labels.map((label) => {
-    const role = roles[label]!;
-    if (role === 'categorical') return categorical;
-    const n = taken[role] ?? 0;
-    taken[role] = n + 1;
-    const ramp = steps[role];
-    const step = fromBack(role) ? (total[role]! - 1 - n) : n;
-    return ramp[Math.min(step, ramp.length - 1)]!;
+  return labels.map((label, i) => {
+    const r = role(label);
+    if (r === null) return positional[i] ?? positional[0] ?? OFF_SCALE;
+    if (r === 'neutral') return BRAND.gold;
+    if (r === 'dontknow') return OFF_SCALE;
+    const n = taken[r] ?? 0;
+    taken[r] = n + 1;
+    const ramp = shades(r as 'positive' | 'negative', total[r]!);
+    return ramp[fromBack(r) ? (total[r]! - 1 - n) : n]!;
   });
 }

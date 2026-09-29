@@ -27,22 +27,26 @@ function outline(): Promise<{ features: FeatureLike[] }> {
 }
 
 export const palette = (model: ViewModel, kind: ChartType, accent: string): string[] => {
-  // By meaning first, wherever the meaning is recorded. Several series that are
-  // answer options (a tracked question, one line per answer) are coloured by
-  // what each answer means; so is a single distribution across answers. Only
-  // when nothing recorded a meaning does the positional logic below apply.
+  // By position first, as the charts have always been coloured; then, where the
+  // answers are options whose meaning bands.yaml records, each answer with a
+  // side takes its side's colour and the rest keep their positional one. So a
+  // tracked question's lines and a single distribution across answers read by
+  // meaning, while categorical answers, and any label no band claims, are as
+  // they were: several series stay distinguishable, and a pie is never one colour.
+  const positional = positionalPalette(model, kind, accent);
   if (model.series.length > 1) {
-    const byRole = model.seriesKind === 'options'
-      ? roleColours(model.series.map((s) => s.label), model.roles, accent)
-      : null;
-    if (byRole) return byRole;
+    return model.seriesKind === 'options'
+      ? roleColours(model.series.map((s) => s.label), model.roles, positional)
+      : positional;
+  }
+  return model.categoryKind === 'options' ? roleColours(model.categories, model.roles, positional) : positional;
+};
+
+const positionalPalette = (model: ViewModel, kind: ChartType, accent: string): string[] => {
+  if (model.series.length > 1) {
     return Array.from({ length: model.series.length }, (_, i) => SERIES[i % SERIES.length]!);
   }
   const count = model.categories.length;
-  if (model.categoryKind === 'options') {
-    const byRole = roleColours(model.categories, model.roles, accent);
-    if (byRole) return byRole;
-  }
   // Countries ranked against each other are one measurement, so one colour. So is
   // a long list of options — eight events cycling four colours reads as four
   // pairs, which is a grouping the data does not have. Only a short answer scale,
@@ -93,14 +97,19 @@ const LABEL_GUTTER_PX = 18;
  * are years spent 160px of its card on empty space and its bars sat against the
  * right edge. THE-350.
  */
+const labelCap = (chartWidth: number): number => (chartWidth < 400 ? Math.round(chartWidth * 0.4) : 205);
 const labelColumn = (chartWidth: number, longestLabel: number): number => {
   const needed = Math.ceil(longestLabel * LABEL_CHAR_PX) + LABEL_GUTTER_PX;
-  const cap = chartWidth < 400 ? Math.round(chartWidth * 0.4) : 205;
-  return Math.min(cap, needed);
+  return Math.min(labelCap(chartWidth), needed);
 };
-/** Characters a line of a horizontal label may hold once the column is at its cap. */
-const columnChars = (chartWidth: number, longestLabel: number): number =>
-  Math.max(12, Math.floor((labelColumn(chartWidth, longestLabel) - LABEL_GUTTER_PX) / LABEL_CHAR_PX));
+/**
+ * Characters a line of a horizontal label may hold: the cap's worth, 28 on a
+ * desktop chart. From the cap alone rather than the column less its gutter,
+ * which cut three characters that used to fit; the column is then measured to
+ * the widest line actually drawn (see afterFit below), so the estimate only has
+ * to be generous, never exact.
+ */
+const columnChars = (chartWidth: number): number => Math.max(12, Math.floor(labelCap(chartWidth) / LABEL_CHAR_PX));
 /** A vertical chart's category label never wraps tighter than this many characters a line. */
 const VERTICAL_MIN_CHARS = 8;
 /** Room the value axis takes from a vertical chart's width before the categories share the rest. */
@@ -125,16 +134,21 @@ const AXIS_PX = 70;
  * beside it.
  */
 export function wrapLabel(label: string, limit: number, maxLines = Infinity): string | string[] {
-  const words = label.replace(/\s+/g, ' ').trim().split(' ');
+  // A line may break after a space, and after a slash or hyphen inside a word:
+  // "technological/digital" and "Newspaper/Magazines" are wider than a phone's
+  // label column and stayed whole. A piece that ends in "/" or "-" joins the
+  // next without a space; a piece that does not, with one.
+  const pieces = label.replace(/\s+/g, ' ').trim().split(/ |(?<=[/-])/).filter(Boolean);
+  const join = (line: string, piece: string): string => (line === '' || /[/-]$/.test(line) ? line + piece : `${line} ${piece}`);
   for (let width = limit; ; width += 1) {
     const lines: string[] = [];
     let line = '';
-    for (const word of words) {
-      if (line && (line + ' ' + word).length > width) {
+    for (const piece of pieces) {
+      if (line && join(line, piece).length > width) {
         lines.push(line);
-        line = word;
+        line = piece;
       } else {
-        line = line ? `${line} ${word}` : word;
+        line = join(line, piece);
       }
     }
     if (line) lines.push(line);
@@ -201,14 +215,26 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
       // own font, never more than the cap the wrapping assumed. The character
       // estimate is deliberately generous so no line overruns its column; used as
       // the column width it left "I'm not interested in news" with 80px of air.
-      afterFit: (scale: { width: number; ctx: CanvasRenderingContext2D; ticks: { label: string | string[] }[]; chart: { width: number } }) => {
+      afterFit: (scale: {
+        width: number; ctx: CanvasRenderingContext2D; ticks: { label: string | string[] }[];
+        chart: { width: number; canvas: HTMLCanvasElement; resize(): void };
+      }) => {
         const cap = labelColumn(scale.chart.width, longestLabel);
         const { ctx } = scale;
         ctx.save();
         ctx.font = `${Chart.defaults.font.size}px ${Chart.defaults.font.family}`;
-        const widest = Math.max(0, ...scale.ticks.flatMap((t) => (Array.isArray(t.label) ? t.label : [t.label]))
-          .map((line) => ctx.measureText(String(line)).width));
+        const lines = scale.ticks.flatMap((t) => (Array.isArray(t.label) ? t.label : [t.label]));
+        const widest = Math.max(0, ...lines.map((line) => ctx.measureText(String(line)).width));
         ctx.restore();
+        // The canvas was sized for an estimated column; the real one may wrap the
+        // labels to more lines than that. Grow it to fit, once, and lay out again.
+        // Only ever grows, so it settles after one pass.
+        const wrap = scale.chart.canvas.parentElement;
+        const needed = Math.max(300, lines.length * ROW_PX + AXIS_PX);
+        if (wrap && wrap.getBoundingClientRect().height < needed - 1) {
+          wrap.style.height = `${needed}px`;
+          requestAnimationFrame(() => scale.chart.resize());
+        }
         scale.width = Math.min(cap, Math.ceil(widest) + LABEL_GUTTER_PX);
       },
     } : {}),
@@ -237,7 +263,7 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
       callback(this: { getLabelForValue(v: number): string; chart: { width: number } }, value: number) {
         const label = this.getLabelForValue(value);
         // Horizontal: the label column.
-        if (horizontal) return wrapLabel(label, columnChars(this.chart.width, longestLabel));
+        if (horizontal) return wrapLabel(label, columnChars(this.chart.width));
         // Vertical: the slot each category gets, the chart's width less the value
         // axis shared between the categories, so seven policies in a 525px chart
         // wrap to what 66px can hold. If any label holds a word wider than the
@@ -632,8 +658,13 @@ export function renderFigure(
     // column is narrower and the labels wrap further, which the extra rows absorb.
     const drawn = drawnAs(model, kind);
     if (drawn === 'hbar' || drawn === 'stacked') {
-      const longest = Math.max(0, ...model.categories.map((c) => c.length));
-      const limit = columnChars(Number.MAX_SAFE_INTEGER, longest);
+      // The chart is not built yet, so its width is estimated from the window:
+      // the page's gutters, the card's padding and its border come off it, 94px
+      // in all, measured. On a 375px phone that is a 281px chart and a 112px
+      // column holding fifteen characters, not the desktop's twenty-eight, and
+      // the rows must be counted at that. If the estimate still falls short, the
+      // axis grows the canvas once it has laid its ticks out (afterFit, below).
+      const limit = columnChars(Math.max(200, window.innerWidth - 94));
       const lines = model.categories.reduce((n, c) => {
         const wrapped = wrapLabel(c, limit);
         return n + (Array.isArray(wrapped) ? wrapped.length : 1);

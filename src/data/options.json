@@ -40,7 +40,7 @@
    "Very concerned",
    "Somewhat concerned",
    "Not very concerned",
-   "Not concerned at all",
+   "Not at all concerned",
    "Don't know"
   ],
   "T02_Q2": [
@@ -137,12 +137,12 @@
    "Social connection"
   ],
   "T06_Q3": [
-   "temporarily",
-   "perman",
+   "Temporarily for some time",
+   "Permanently without plans to return",
    "Don't know"
   ],
   "T07_Q1": [
-   "Strongly Disgree",
+   "Strongly disagree",
    "Somewhat Disagree",
    "Agree / DK"
   ],
@@ -257,8 +257,8 @@
    "Don't know"
   ],
   "T11_Q2": [
-   "Leading and driving action among a smaller group of countrie",
-   "Pushing discussion and debate on the international stage eve",
+   "Leading and driving action among a smaller group of countries to act sooner",
+   "Pushing discussion and debate on the international stage even if it takes longer to act",
    "Don't know"
   ],
   "T11_Q3": [
@@ -320,6 +320,7 @@
    "Very concerned": "negative",
    "Somewhat concerned": "negative",
    "Not very concerned": "positive",
+   "Not at all concerned": "positive",
    "Don't know": "dontknow"
   },
   "T02_Q2": {
@@ -356,7 +357,8 @@
   },
   "T05_Q5": {
    "Very confident": "positive",
-   "Somewhat confident": "positive"
+   "Somewhat confident": "positive",
+   "Not confident / DK": "negative"
   },
   "T06_Q1": {
    "Very likely": "negative",
@@ -366,10 +368,14 @@
    "Don't Know": "dontknow"
   },
   "T06_Q3": {
+   "Temporarily for some time": "categorical",
+   "Permanently without plans to return": "categorical",
    "Don't know": "dontknow"
   },
   "T07_Q1": {
-   "Somewhat Disagree": "negative"
+   "Strongly disagree": "negative",
+   "Somewhat Disagree": "negative",
+   "Agree / DK": "positive"
   },
   "T07_Q2": {
    "Agree": "positive",
@@ -378,7 +384,8 @@
   },
   "T07_Q3": {
    "Strongly agree": "positive",
-   "Somewhat agree": "positive"
+   "Somewhat agree": "positive",
+   "T2B": "positive"
   },
   "T08_Q1": {
    "Yes": "positive",
@@ -447,8 +454,8 @@
    "Don't know": "dontknow"
   },
   "T11_Q2": {
-   "Leading and driving action among a smaller group of countrie": "categorical",
-   "Pushing discussion and debate on the international stage eve": "categorical",
+   "Leading and driving action among a smaller group of countries to act sooner": "categorical",
+   "Pushing discussion and debate on the international stage even if it takes longer to act": "categorical",
    "Don't know": "dontknow"
   },
   "T12_Q1": {
@@ -459,7 +466,8 @@
    "Don't know": "dontknow"
   },
   "T12_Q4": {
-   "Strongly agree": "positive"
+   "Strongly agree": "positive",
+   "Disagree/ don't know": "negative"
   }
  }
 }
