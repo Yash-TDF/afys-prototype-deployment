@@ -769,7 +769,19 @@ export function renderFigure(
       // chart out again once the face is in; a destroyed chart has no canvas.
       const face = `${Chart.defaults.font.size}px ${Chart.defaults.font.family}`;
       if (!document.fonts.check(face)) {
-        void document.fonts.ready.then(() => { if (chart?.canvas) chart.update('none'); });
+        void document.fonts.ready.then(() => {
+          if (!chart?.canvas) return;
+          // Chart.js keeps each scale's text widths in a cache keyed by the font
+          // string, so a width measured in the fallback face is filed under
+          // Montserrat's name and reused on every update. On a vertical axis that
+          // sized the label area short: "Congo Brazzaville" was measured at 86px
+          // and drawn at 97px, and lost its first letter. Empty the caches, then
+          // lay out again in the real face.
+          for (const scale of Object.values(chart.scales)) {
+            (scale as unknown as { _longestTextCache: Record<string, unknown> })._longestTextCache = {};
+          }
+          chart.update('none');
+        });
       }
     }
   }
