@@ -143,7 +143,7 @@
   ],
   "T07_Q1": [
    "Strongly disagree",
-   "Somewhat Disagree",
+   "Somewhat disagree",
    "Agree / DK"
   ],
   "T07_Q2": [
@@ -427,7 +427,7 @@
   },
   "T07_Q1": {
    "Strongly disagree": "negative",
-   "Somewhat Disagree": "negative",
+   "Somewhat disagree": "negative",
    "Agree / DK": "positive"
   },
   "T07_Q2": {
@@ -481,7 +481,7 @@
    "I'm not interested in news": "categorical",
    "Facebook": "categorical",
    "X / Twitter": "categorical",
-   "Don't know": "categorical",
+   "Don't know": "dontknow",
    "TikTok": "categorical",
    "WhatsApp": "categorical",
    "Instagram": "categorical",

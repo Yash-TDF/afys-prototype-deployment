@@ -148,7 +148,12 @@ export function labelInk(background: unknown): string {
 /** What an answer means, as bands.yaml records it for the band that carries it. */
 export type ColourRole = 'positive' | 'negative' | 'neutral' | 'dontknow' | 'categorical';
 
-/** The meanings a colour can be given. bands.yaml's `categorical` means "coloured by position". */
+/**
+ * The meanings that take a colour of their own. bands.yaml's `categorical` is a
+ * plain option with no side: the theme's single accent on a one-series bar or
+ * hbar, and a positional colour on a pie, a stacked bar or any chart with
+ * several series. `palette()` in render.ts applies that; here it is "no side".
+ */
 const SIDED: ReadonlySet<string> = new Set(['positive', 'negative', 'neutral', 'dontknow']);
 
 /**
