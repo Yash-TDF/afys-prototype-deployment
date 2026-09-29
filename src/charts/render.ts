@@ -70,10 +70,22 @@ export const palette = (model: ViewModel, kind: ChartType, accent: string): stri
   return Array.from({ length: count }, (_, i) => scale[i % scale.length]!);
 };
 
-/** Width of a horizontal chart's label column: 205px, or 40% of a phone-width chart (under 400px). */
-const labelColumn = (chartWidth: number): number => (chartWidth < 400 ? Math.round(chartWidth * 0.4) : 205);
 /** 205px holds the 28 characters the labels are cut to, about 7.3px a character. */
 const LABEL_CHAR_PX = 205 / 28;
+/** Room beside the longest label for the axis's own padding. */
+const LABEL_GUTTER_PX = 18;
+/**
+ * Width of a horizontal chart's label column: what its longest label needs, up to
+ * 205px, or 40% of a phone-width chart (under 400px). A fixed 205px was right for
+ * "International involvement in Africa" and wrong for "2020": a chart whose labels
+ * are years spent 160px of its card on empty space and its bars sat against the
+ * right edge. THE-350.
+ */
+const labelCap = (chartWidth: number): number => (chartWidth < 400 ? Math.round(chartWidth * 0.4) : 205);
+const labelColumn = (chartWidth: number, longestLabel: number): number => {
+  const needed = Math.ceil(longestLabel * LABEL_CHAR_PX) + LABEL_GUTTER_PX;
+  return Math.min(labelCap(chartWidth), needed);
+};
 
 /**
  * Stacking a comparison would be wrong, so it is not drawn that way.
@@ -111,6 +123,7 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
     grid: { color: GRID },
     ticks: { callback: (v: string | number) => `${v}%` },
   };
+  const longestLabel = Math.max(0, ...model.categories.map((c) => c.length));
   const categoryAxis = {
     grid: { display: false },
     // Chart.js would otherwise allot the category axis a fraction of the canvas
@@ -119,7 +132,7 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
     // bars themselves, so on a chart under 400px wide the column takes 40% of it.
     ...(horizontal ? {
       afterFit: (scale: { width: number; chart: { width: number } }) => {
-        scale.width = labelColumn(scale.chart.width);
+        scale.width = labelColumn(scale.chart.width, longestLabel);
       },
     } : {}),
     // Sixteen country names turned to the 60° cap still overlap on a phone-width
@@ -144,7 +157,12 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
       // underneath carries the full wording either way.
       callback(this: { getLabelForValue(v: number): string; chart: { width: number } }, value: number) {
         const label = this.getLabelForValue(value);
-        const limit = horizontal ? Math.max(12, Math.floor(labelColumn(this.chart.width) / LABEL_CHAR_PX)) : 34;
+        const limit = horizontal
+          // From the cap alone, as before this column was sized to its labels: a
+          // column narrower than the cap already holds its longest label whole, and
+          // taking the gutter off the cap cut three characters that used to fit.
+          ? Math.max(12, Math.floor(labelCap(this.chart.width) / LABEL_CHAR_PX))
+          : 34;
         return label.length > limit ? `${label.slice(0, limit - 1)}…` : label;
       },
     },
@@ -492,10 +510,20 @@ export function renderFigure(
     showing.textContent = model.showing;
     head.append(showing);
   }
-  figure.append(head);
-
+  // Two parts, header and body, so that a card in a grid can be a two-row
+  // subgrid and side-by-side charts start at the same height whatever their
+  // headers do. Everything a reader sees above the chart is the head; the chart,
+  // its table and its notes are the body. THE-350.
+  const chartHead = document.createElement('div');
+  chartHead.className = 'chart-head';
+  chartHead.append(head);
   const readings = insightRow(model);
-  if (readings) figure.append(readings);
+  if (readings) chartHead.append(readings);
+  figure.append(chartHead);
+
+  const chartBody = document.createElement('div');
+  chartBody.className = 'chart-body';
+  figure.append(chartBody);
 
   let chart: Chart | undefined;
   let canvas: HTMLCanvasElement | undefined;
@@ -510,7 +538,7 @@ export function renderFigure(
     const only = table(model, colours);
     only.open = true;
     only.querySelector('summary')?.remove();
-    figure.append(only);
+    chartBody.append(only);
   } else {
     const canvasWrap = document.createElement('div');
     canvasWrap.className = kind === 'map' ? 'canvas canvas-map' : 'canvas';
@@ -518,8 +546,8 @@ export function renderFigure(
     canvas.setAttribute('role', 'img');
     canvas.setAttribute('aria-label', summarise(model, kind));
     canvasWrap.append(canvas);
-    figure.append(canvasWrap);
-    figure.append(table(model, colours));
+    chartBody.append(canvasWrap);
+    chartBody.append(table(model, colours));
     kindForChart = kind;
   }
 
@@ -527,7 +555,7 @@ export function renderFigure(
     const p = document.createElement('p');
     p.className = 'note';
     p.textContent = note;
-    figure.append(p);
+    chartBody.append(p);
   }
 
   // Attach before drawing. A responsive Chart.js chart measures its container at
