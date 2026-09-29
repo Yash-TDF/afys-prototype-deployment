@@ -82,10 +82,25 @@ export const palette = (model: ViewModel, kind: ChartType, accent: string): stri
   return Array.from({ length: count }, (_, i) => scale[i % scale.length]!);
 };
 
-/** Width of a horizontal chart's label column: 205px, or 40% of a phone-width chart (under 400px). */
-const labelColumn = (chartWidth: number): number => (chartWidth < 400 ? Math.round(chartWidth * 0.4) : 205);
 /** 205px holds 28 characters of the body face at 12px, about 7.3px a character. */
 const LABEL_CHAR_PX = 205 / 28;
+/** Room beside the longest label for the axis's own padding. */
+const LABEL_GUTTER_PX = 18;
+/**
+ * Width of a horizontal chart's label column: what its longest label needs, up to
+ * 205px, or 40% of a phone-width chart (under 400px). A fixed 205px was right for
+ * "International involvement in Africa" and wrong for "2020": a chart whose labels
+ * are years spent 160px of its card on empty space and its bars sat against the
+ * right edge. THE-350.
+ */
+const labelColumn = (chartWidth: number, longestLabel: number): number => {
+  const needed = Math.ceil(longestLabel * LABEL_CHAR_PX) + LABEL_GUTTER_PX;
+  const cap = chartWidth < 400 ? Math.round(chartWidth * 0.4) : 205;
+  return Math.min(cap, needed);
+};
+/** Characters a line of a horizontal label may hold once the column is at its cap. */
+const columnChars = (chartWidth: number, longestLabel: number): number =>
+  Math.max(12, Math.floor((labelColumn(chartWidth, longestLabel) - LABEL_GUTTER_PX) / LABEL_CHAR_PX));
 /** A vertical chart's category label never wraps tighter than this many characters a line. */
 const VERTICAL_MIN_CHARS = 8;
 /** Room the value axis takes from a vertical chart's width before the categories share the rest. */
@@ -103,21 +118,28 @@ const AXIS_PX = 70;
  * as one line per element, so the words are packed into lines no longer than
  * `limit`; a single word longer than the limit stays whole. A label that fits
  * on one line is returned as a string, as before.
+ *
+ * With `maxLines`, the limit is widened until the label fits in that many lines:
+ * a label Chart.js is going to turn 45° needs to be short in lines, not in
+ * characters, because each extra line of a turned label runs into the label
+ * beside it.
  */
-export function wrapLabel(label: string, limit: number): string | string[] {
+export function wrapLabel(label: string, limit: number, maxLines = Infinity): string | string[] {
   const words = label.replace(/\s+/g, ' ').trim().split(' ');
-  const lines: string[] = [];
-  let line = '';
-  for (const word of words) {
-    if (line && (line + ' ' + word).length > limit) {
-      lines.push(line);
-      line = word;
-    } else {
-      line = line ? `${line} ${word}` : word;
+  for (let width = limit; ; width += 1) {
+    const lines: string[] = [];
+    let line = '';
+    for (const word of words) {
+      if (line && (line + ' ' + word).length > width) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = line ? `${line} ${word}` : word;
+      }
     }
+    if (line) lines.push(line);
+    if (lines.length <= maxLines || width >= label.length) return lines.length > 1 ? lines : lines[0] ?? '';
   }
-  if (line) lines.push(line);
-  return lines.length > 1 ? lines : lines[0] ?? '';
 }
 
 /**
@@ -167,6 +189,7 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
     grid: { color: GRID },
     ticks: { callback: (v: string | number) => `${v}%` },
   };
+  const longestLabel = Math.max(0, ...model.categories.map((c) => c.length));
   const categoryAxis = {
     grid: { display: false },
     // Chart.js would otherwise allot the category axis a fraction of the canvas
@@ -174,8 +197,19 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
     // about this much. On a phone-width chart that would leave no room for the
     // bars themselves, so on a chart under 400px wide the column takes 40% of it.
     ...(horizontal ? {
-      afterFit: (scale: { width: number; chart: { width: number } }) => {
-        scale.width = labelColumn(scale.chart.width);
+      // The column is what the widest drawn line needs, measured in the chart's
+      // own font, never more than the cap the wrapping assumed. The character
+      // estimate is deliberately generous so no line overruns its column; used as
+      // the column width it left "I'm not interested in news" with 80px of air.
+      afterFit: (scale: { width: number; ctx: CanvasRenderingContext2D; ticks: { label: string | string[] }[]; chart: { width: number } }) => {
+        const cap = labelColumn(scale.chart.width, longestLabel);
+        const { ctx } = scale;
+        ctx.save();
+        ctx.font = `${Chart.defaults.font.size}px ${Chart.defaults.font.family}`;
+        const widest = Math.max(0, ...scale.ticks.flatMap((t) => (Array.isArray(t.label) ? t.label : [t.label]))
+          .map((line) => ctx.measureText(String(line)).width));
+        ctx.restore();
+        scale.width = Math.min(cap, Math.ceil(widest) + LABEL_GUTTER_PX);
       },
     } : {}),
     // Sixteen country names turned to the 60° cap still overlap on a phone-width
@@ -198,18 +232,20 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
       // Real answer options are long — "Increased access to essential services
       // and resources". Chart.js caps how much width it gives an axis and then
       // clips what does not fit, losing the *start* of the label, which is the
-      // half that identifies it. Truncate deliberately from the end instead, and
-      // below give the axis enough room for the length we truncate to. The table
-      // underneath carries the full wording either way.
+      // half that identifies it. Wrap to the room there is instead; the canvas
+      // height (below) and the label column (above) follow the lines.
       callback(this: { getLabelForValue(v: number): string; chart: { width: number } }, value: number) {
         const label = this.getLabelForValue(value);
-        // Horizontal: the label column. Vertical: the slot each category gets,
-        // the chart's width less the value axis shared between the categories,
-        // so seven policies in a 525px chart wrap to what 66px can hold.
-        const limit = horizontal
-          ? Math.max(12, Math.floor(labelColumn(this.chart.width) / LABEL_CHAR_PX))
-          : Math.max(VERTICAL_MIN_CHARS, Math.floor(((this.chart.width - VALUE_AXIS_PX) / model.categories.length) / LABEL_CHAR_PX));
-        return wrapLabel(label, limit);
+        // Horizontal: the label column.
+        if (horizontal) return wrapLabel(label, columnChars(this.chart.width, longestLabel));
+        // Vertical: the slot each category gets, the chart's width less the value
+        // axis shared between the categories, so seven policies in a 525px chart
+        // wrap to what 66px can hold. If any label holds a word wider than the
+        // slot ("environmental"), Chart.js will turn every label 45°, and a turned
+        // label three lines deep runs into its neighbour: then wrap to two lines.
+        const slotChars = Math.max(VERTICAL_MIN_CHARS, Math.floor(((this.chart.width - VALUE_AXIS_PX) / model.categories.length) / LABEL_CHAR_PX));
+        const upright = model.categories.every((c) => c.split(/\s+/).every((w) => w.length <= slotChars));
+        return upright ? wrapLabel(label, slotChars) : wrapLabel(label, slotChars, 2);
       },
     },
   };
@@ -251,7 +287,9 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
       return {
         type: 'pie',
         data: { labels: model.categories, datasets },
-        options: { ...shared, cutout: '52%' },
+        // A pie fills its canvas to the top edge, where the reading chips end;
+        // the padding is the gap a bar chart's axis area gives for free.
+        options: { ...shared, cutout: '52%', layout: { padding: { top: 16 } } },
       } as ChartConfiguration;
     default:
       return {
@@ -556,10 +594,20 @@ export function renderFigure(
     showing.textContent = model.showing;
     head.append(showing);
   }
-  figure.append(head);
-
+  // Two parts, header and body, so that a card in a grid can be a two-row
+  // subgrid and side-by-side charts start at the same height whatever their
+  // headers do. Everything a reader sees above the chart is the head; the chart,
+  // its table and its notes are the body. THE-350.
+  const chartHead = document.createElement('div');
+  chartHead.className = 'chart-head';
+  chartHead.append(head);
   const readings = insightRow(model);
-  if (readings) figure.append(readings);
+  if (readings) chartHead.append(readings);
+  figure.append(chartHead);
+
+  const chartBody = document.createElement('div');
+  chartBody.className = 'chart-body';
+  figure.append(chartBody);
 
   let chart: Chart | undefined;
   let canvas: HTMLCanvasElement | undefined;
@@ -574,7 +622,7 @@ export function renderFigure(
     const only = table(model, colours);
     only.open = true;
     only.querySelector('summary')?.remove();
-    figure.append(only);
+    chartBody.append(only);
   } else {
     const canvasWrap = document.createElement('div');
     canvasWrap.className = kind === 'map' ? 'canvas canvas-map' : 'canvas';
@@ -584,7 +632,8 @@ export function renderFigure(
     // column is narrower and the labels wrap further, which the extra rows absorb.
     const drawn = drawnAs(model, kind);
     if (drawn === 'hbar' || drawn === 'stacked') {
-      const limit = Math.max(12, Math.floor(205 / LABEL_CHAR_PX));
+      const longest = Math.max(0, ...model.categories.map((c) => c.length));
+      const limit = columnChars(Number.MAX_SAFE_INTEGER, longest);
       const lines = model.categories.reduce((n, c) => {
         const wrapped = wrapLabel(c, limit);
         return n + (Array.isArray(wrapped) ? wrapped.length : 1);
@@ -595,8 +644,8 @@ export function renderFigure(
     canvas.setAttribute('role', 'img');
     canvas.setAttribute('aria-label', summarise(model, kind));
     canvasWrap.append(canvas);
-    figure.append(canvasWrap);
-    figure.append(table(model, colours));
+    chartBody.append(canvasWrap);
+    chartBody.append(table(model, colours));
     kindForChart = kind;
   }
 
@@ -604,7 +653,7 @@ export function renderFigure(
     const p = document.createElement('p');
     p.className = 'note';
     p.textContent = note;
-    figure.append(p);
+    chartBody.append(p);
   }
 
   // Attach before drawing. A responsive Chart.js chart measures its container at

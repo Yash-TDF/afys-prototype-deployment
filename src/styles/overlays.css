@@ -96,6 +96,8 @@
 .dr-table td { padding: 9px 12px; border-bottom: 1px solid var(--line); color: var(--ink); }
 .dr-table td:first-child { font-weight: 600; color: var(--green); }
 .dr-table td:last-child { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+/* The header sits over the numbers it labels, not on the far side of the column. THE-350. */
+.dr-table th:last-child { text-align: right; }
 
 .dr-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .dr-chip { padding: 5px 11px; background: var(--wash); color: var(--green-mid); border-radius: 100px; font-size: 12px; font-weight: 600; }
