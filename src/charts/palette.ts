@@ -175,12 +175,23 @@ export function roleColours(
     neutral: [BRAND.gold],
     dontknow: [OFF_SCALE],
   };
-  // A scale reads strong-to-weak on the agreeing side and weak-to-strong on the
-  // disagreeing side — "Strongly support, Somewhat support, …, Somewhat oppose,
-  // Strongly oppose" — so the full rose belongs to the LAST negative, not the
-  // first. Positives take their ramp from the front; negatives from the back.
+  // A scale's strongest answers sit at its two ends, and the list runs from one
+  // end to the other: "Strongly support, Somewhat support, Neither, Somewhat
+  // oppose, Strongly oppose", or "Very concerned, Somewhat concerned, Not very
+  // concerned, Not at all concerned". So a side listed first reads strong-to-weak
+  // and takes its ramp from the front, and a side listed after the midpoint or
+  // the other side reads weak-to-strong and takes it from the back. Which side is
+  // which is not fixed: the negatives lead a concern scale and trail an
+  // agreement scale.
+  const onScale = (label: string): boolean => roles[label] !== 'categorical' && roles[label] !== 'dontknow';
   const total: Record<string, number> = {};
-  for (const label of labels) total[roles[label]!] = (total[roles[label]!] ?? 0) + 1;
+  const first: Record<string, number> = {};
+  labels.forEach((label, i) => {
+    const role = roles[label]!;
+    total[role] = (total[role] ?? 0) + 1;
+    first[role] ??= i;
+  });
+  const fromBack = (role: string): boolean => labels.slice(0, first[role]).some((label) => onScale(label));
   const taken: Record<string, number> = {};
   return labels.map((label) => {
     const role = roles[label]!;
@@ -188,7 +199,7 @@ export function roleColours(
     const n = taken[role] ?? 0;
     taken[role] = n + 1;
     const ramp = steps[role];
-    const step = role === 'negative' ? (total[role]! - 1 - n) : n;
+    const step = fromBack(role) ? (total[role]! - 1 - n) : n;
     return ramp[Math.min(step, ramp.length - 1)]!;
   });
 }
