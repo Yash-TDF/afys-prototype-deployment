@@ -6,7 +6,8 @@
 // series, plus the metadata a reader is owed (the base, the caveat, and whether
 // a cross-wave comparison was restricted).
 import {
-  type ChartSpec, type Question, type Theme, inWave, latestWave, likeForLike, question, waves,
+  type ChartSpec, type Question, type Theme, gridOf, inWave, latestWave, likeForLike, question,
+  waves,
 } from './content';
 import { base, distribution, headline, multi, optionsFor, trend } from './illustrative';
 import type { ColourRole } from './charts/palette';
@@ -211,9 +212,13 @@ function merge(built: ViewModel[], labels: string[], filters: Filters): ViewMode
 }
 
 function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
-  const q = question(spec.questions[0] ?? '');
+  // A grid's chart lists one child per row; it is drawn from the grid itself,
+  // whose deck options are those rows. Reading the first child instead drew one
+  // organisation's answers where the slide plots six organisations.
+  const code = gridOf(spec.questions) ?? spec.questions[0];
+  const q = question(code ?? '');
   const text = q?.text ?? spec.title;
-  const options = optionsFor(spec.questions[0] ?? spec.title, text, spec.showing);
+  const options = optionsFor(code ?? spec.title, text, spec.showing);
   const caveats = (spec.caveat ?? '').split('|').map((c) => c.trim()).filter(Boolean);
   const scope = filters.countries.length > 0 ? filters.countries : ['Africa'];
   const seed = key([theme.slug, spec.order, filters.wave, filters.gender, scope.join('+')]);
@@ -232,6 +237,37 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
     compare: 'none' as CompareBy,
     compareNote: null,
   };
+
+  // A grid's chart plots its rows, and each row is a question of its own with its
+  // own base (THE-315): one bar per row, each an independent share in the
+  // answers the chart is "showing" (slide 13's very + somewhat positive), never
+  // one distribution shared out across the rows. Tracked, one series per wave,
+  // so all six of slide 13's organisations are drawn where the trend branch
+  // below keeps three options. No bases: the rows are separate questions, and a
+  // combined figure across them would add up answers to different questions. A
+  // pie stays a distribution, of one row's answers (slide 49).
+  if (gridOf(spec.questions) && spec.type !== 'pie') {
+    const years = spec.comparison === 'tracked'
+      ? waves.map((w) => w.year).filter((y) => !notAsked(caveats).has(y))
+      : [filters.wave];
+    const values = options.labels.map((row) => trend(key([seed, row]), years));
+    const tracked = spec.comparison === 'tracked';
+    return {
+      ...common,
+      categories: options.labels,
+      series: years.map((year, i) => ({
+        label: tracked ? String(year) : (spec.showing ?? 'Share of respondents'),
+        values: values.map((row) => row[i]!),
+        bases: null,
+      })),
+      seriesKind: tracked ? 'waves' as SeriesKind : 'single' as SeriesKind,
+      likeForLike: tracked && !caveats.some((c) => c.toLowerCase().includes('comparing only'))
+        ? `Comparing only the ${likeForLike(years).length} countries surveyed in ${years.join(', ')}, `
+          + 'so figures differ from the single-wave totals.'
+        : null,
+      categoryKind: 'options',
+    };
+  }
 
   // A multi-select question is a ranking rather than a distribution: the deck
   // asks for "Top 10 for 2026", which is ten options in one wave, not one option

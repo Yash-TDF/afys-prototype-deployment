@@ -123,6 +123,25 @@ const questions = rows('005_questions.sql').map((r) => {
 });
 for (const q of questions) byOrder.get(q.theme)?.questions.push(q.code);
 
+// A grid question's rows are child questions, linked to the grid by a statement
+// after the INSERT (the parent's id is not known until then). THE-315. A link
+// naming a code the INSERT did not write stops the build: the child would be
+// drawn as a question of its own, with no grid to belong to.
+const byCode = new Map(questions.map((q) => [q.code, q]));
+for (const q of questions) q.parent = null;
+const links = readFileSync(join(SEEDS, '005_questions.sql'), 'utf8').matchAll(
+  /JOIN questions p ON p\.code = '([^']+)'\s+SET c\.parent_question_id = p\.id\s+WHERE c\.code IN \(([^)]*)\);/g,
+);
+for (const [, parent, list] of links) {
+  for (const [, child] of list.matchAll(/'([^']+)'/g)) {
+    if (!byCode.has(parent) || !byCode.has(child)) {
+      console.error(`005_questions.sql links ${child} to ${parent}, and one of them is not a seeded question.`);
+      process.exit(1);
+    }
+    byCode.get(child).parent = parent;
+  }
+}
+
 const charts = rows('006_tile_charts.sql').map((r) => {
   const [theme, order, title, type, qids, , comparison, , slide, caveat, showing] = r;
   return {

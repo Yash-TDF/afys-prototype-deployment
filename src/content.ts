@@ -13,6 +13,8 @@ export interface Question {
   code: string; theme: number; text: string; label: string; order: number;
   responseType: string; baseType: string; baseText: string | null;
   tracked: boolean; surfaced: boolean; slide: string | null;
+  /** The grid this question is a row of, or null. THE-315. */
+  parent: string | null;
 }
 export interface ChartSpec {
   theme: number; order: number; title: string; type: ChartType;
@@ -39,6 +41,19 @@ export const latestWave = waves[waves.length - 1]!.year;
 
 const byCode = new Map(questions.map((q) => [q.code, q]));
 export const question = (code: string): Question | undefined => byCode.get(code);
+
+/**
+ * The grid a chart plots, when every question it lists is a row of the same one.
+ * A grid's chart lists its children (slide 13's six organisations, slide 43's
+ * seven policies), and is drawn from the grid: the deck's options for it are
+ * the rows. A chart mixing a grid row with another question (slide 45) is not a
+ * grid chart. THE-315.
+ */
+export function gridOf(codes: string[]): string | null {
+  const parents = new Set(codes.map((code) => byCode.get(code)?.parent ?? null));
+  const [only] = parents;
+  return codes.length > 1 && parents.size === 1 && only ? only : null;
+}
 
 const bySlug = new Map(themes.map((t) => [t.slug, t]));
 export const theme = (slug: string): Theme | undefined => bySlug.get(slug);

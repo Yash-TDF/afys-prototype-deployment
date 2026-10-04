@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-15",
+ "generatedAt": "2026-10-04",
  "source": "afys-portal/db/seeds — structure only, no survey results",
  "waves": [
   {
@@ -408,6 +408,12 @@
    "accent": "#60cbee",
    "questions": [
     "T03_Q1",
+    "T03_Q1_AU",
+    "T03_Q1_UN",
+    "T03_Q1_WTO",
+    "T03_Q1_IMF",
+    "T03_Q1_EU",
+    "T03_Q1_G20",
     "T03_Q2"
    ],
    "charts": [
@@ -430,7 +436,12 @@
      "title": "Positive Influence of Foreign Organisations",
      "type": "bar",
      "questions": [
-      "T03_Q1"
+      "T03_Q1_AU",
+      "T03_Q1_UN",
+      "T03_Q1_WTO",
+      "T03_Q1_IMF",
+      "T03_Q1_EU",
+      "T03_Q1_G20"
      ],
      "comparison": "tracked",
      "slide": 13,
@@ -579,6 +590,7 @@
    "accent": "#1f2337",
    "questions": [
     "T06_Q1",
+    "T06_Q3",
     "T06_Q2"
    ],
    "charts": [
@@ -601,7 +613,7 @@
      "title": "Temporary vs Permanent Emigration",
      "type": "stacked",
      "questions": [
-      "T06_Q1"
+      "T06_Q3"
      ],
      "comparison": "tracked",
      "slide": 26,
@@ -739,14 +751,20 @@
    "questions": [
     "T09_Q1",
     "T09_Q2",
-    "T09_Q3"
+    "T09_Q3",
+    "T09_Q3_AGENDA",
+    "T09_Q3_VIOLENCE",
+    "T09_Q3_PROBLEM",
+    "T09_Q3_AI",
+    "T09_Q3_DIVIDE",
+    "T09_Q3_INFORMED"
    ],
    "charts": [
     {
      "theme": 9,
      "order": 1,
      "title": "News Sources",
-     "type": "line",
+     "type": "hbar",
      "questions": [
       "T09_Q1"
      ],
@@ -774,7 +792,12 @@
      "title": "Impact of Fake News on Society",
      "type": "hbar",
      "questions": [
-      "T09_Q3"
+      "T09_Q3_AGENDA",
+      "T09_Q3_VIOLENCE",
+      "T09_Q3_PROBLEM",
+      "T09_Q3_AI",
+      "T09_Q3_DIVIDE",
+      "T09_Q3_INFORMED"
      ],
      "comparison": "none",
      "slide": 39,
@@ -792,7 +815,14 @@
     "T10_Q1",
     "T10_Q2",
     "T10_Q3",
-    "T10_Q4"
+    "T10_Q4",
+    "T10_Q4_STABILITY",
+    "T10_Q4_CORRUPTION",
+    "T10_Q4_CLIMATE",
+    "T10_Q4_IMMIGRATION",
+    "T10_Q4_POVERTY",
+    "T10_Q4_JOBS",
+    "T10_Q4_COSTS"
    ],
    "charts": [
     {
@@ -829,7 +859,13 @@
      "title": "Satisfaction with national government performance",
      "type": "bar",
      "questions": [
-      "T10_Q4"
+      "T10_Q4_STABILITY",
+      "T10_Q4_CORRUPTION",
+      "T10_Q4_CLIMATE",
+      "T10_Q4_IMMIGRATION",
+      "T10_Q4_POVERTY",
+      "T10_Q4_JOBS",
+      "T10_Q4_COSTS"
      ],
      "comparison": "none",
      "slide": 43,
@@ -856,7 +892,7 @@
      "type": "line",
      "questions": [
       "T11_Q1",
-      "T10_Q4"
+      "T10_Q4_CLIMATE"
      ],
      "comparison": "tracked",
      "slide": 45,
@@ -898,6 +934,9 @@
    "accent": "#e82d4e",
    "questions": [
     "T12_Q1",
+    "T12_Q1_PLASTIC",
+    "T12_Q1_WATER",
+    "T12_Q1_RESOURCES",
     "T12_Q2",
     "T12_Q3",
     "T12_Q4"
@@ -909,7 +948,9 @@
      "title": "Concern with Environmental Challenges",
      "type": "pie",
      "questions": [
-      "T12_Q1"
+      "T12_Q1_PLASTIC",
+      "T12_Q1_WATER",
+      "T12_Q1_RESOURCES"
      ],
      "comparison": "none",
      "slide": 49,
@@ -970,7 +1011,8 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 3"
+   "slide": "Deck slide 3",
+   "parent": null
   },
   {
    "code": "T01_Q2",
@@ -983,7 +1025,8 @@
    "baseText": null,
    "tracked": false,
    "surfaced": true,
-   "slide": "Deck slide 4"
+   "slide": "Deck slide 4",
+   "parent": null
   },
   {
    "code": "T01_Q3",
@@ -996,7 +1039,8 @@
    "baseText": null,
    "tracked": false,
    "surfaced": true,
-   "slide": "Deck slide 5"
+   "slide": "Deck slide 5",
+   "parent": null
   },
   {
    "code": "T01_Q4",
@@ -1009,7 +1053,8 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 6"
+   "slide": "Deck slide 6",
+   "parent": null
   },
   {
    "code": "T02_Q1",
@@ -1022,7 +1067,8 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 8"
+   "slide": "Deck slide 8",
+   "parent": null
   },
   {
    "code": "T02_Q2",
@@ -1035,7 +1081,8 @@
    "baseText": null,
    "tracked": false,
    "surfaced": true,
-   "slide": "Deck slide 9"
+   "slide": "Deck slide 9",
+   "parent": null
   },
   {
    "code": "T02_Q3",
@@ -1048,7 +1095,8 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 10"
+   "slide": "Deck slide 10",
+   "parent": null
   },
   {
    "code": "T03_Q1",
@@ -1061,7 +1109,92 @@
    "baseText": "Among those that said they had influence",
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 13"
+   "slide": "Deck slide 13",
+   "parent": null
+  },
+  {
+   "code": "T03_Q1_AU",
+   "theme": 3,
+   "text": "And would you say the influence of each of the following countries or organisations on your country is positive or negative? [The African Union]",
+   "label": "Positive Influence of Foreign Organisations: African Union",
+   "order": 1,
+   "responseType": "battery_item",
+   "baseType": "filtered",
+   "baseText": "Among those who said the African Union has influence",
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 13",
+   "parent": "T03_Q1"
+  },
+  {
+   "code": "T03_Q1_UN",
+   "theme": 3,
+   "text": "And would you say the influence of each of the following countries or organisations on your country is positive or negative? [United Nations]",
+   "label": "Positive Influence of Foreign Organisations: United Nations",
+   "order": 1,
+   "responseType": "battery_item",
+   "baseType": "filtered",
+   "baseText": "Among those who said the United Nations has influence",
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 13",
+   "parent": "T03_Q1"
+  },
+  {
+   "code": "T03_Q1_WTO",
+   "theme": 3,
+   "text": "And would you say the influence of each of the following countries or organisations on your country is positive or negative? [World Trade Organisation]",
+   "label": "Positive Influence of Foreign Organisations: World Trade Organisation",
+   "order": 1,
+   "responseType": "battery_item",
+   "baseType": "filtered",
+   "baseText": "Among those who said the World Trade Organisation has influence",
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 13",
+   "parent": "T03_Q1"
+  },
+  {
+   "code": "T03_Q1_IMF",
+   "theme": 3,
+   "text": "And would you say the influence of each of the following countries or organisations on your country is positive or negative? [International Monetary Fund (IMF)]",
+   "label": "Positive Influence of Foreign Organisations: International Monetary Fund",
+   "order": 1,
+   "responseType": "battery_item",
+   "baseType": "filtered",
+   "baseText": "Among those who said the International Monetary Fund has influence",
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 13",
+   "parent": "T03_Q1"
+  },
+  {
+   "code": "T03_Q1_EU",
+   "theme": 3,
+   "text": "And would you say the influence of each of the following countries or organisations on your country is positive or negative? [European Union]",
+   "label": "Positive Influence of Foreign Organisations: European Union",
+   "order": 1,
+   "responseType": "battery_item",
+   "baseType": "filtered",
+   "baseText": "Among those who said the European Union has influence",
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 13",
+   "parent": "T03_Q1"
+  },
+  {
+   "code": "T03_Q1_G20",
+   "theme": 3,
+   "text": "And would you say the influence of each of the following countries or organisations on your country is positive or negative? [G20]",
+   "label": "Positive Influence of Foreign Organisations: G20",
+   "order": 1,
+   "responseType": "battery_item",
+   "baseType": "filtered",
+   "baseText": "Among those who said the G20 has influence",
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 13",
+   "parent": "T03_Q1"
   },
   {
    "code": "T03_Q2",
@@ -1069,12 +1202,13 @@
    "text": "And which of the following are more important for the UN to focus on in your country over the next five years?",
    "label": "Areas of Focus for the UN in Your Country",
    "order": 2,
-   "responseType": "single",
+   "responseType": "multi",
    "baseType": "all",
    "baseText": null,
    "tracked": false,
    "surfaced": true,
-   "slide": "Deck slide 14"
+   "slide": "Deck slide 14",
+   "parent": null
   },
   {
    "code": "T04_Q1",
@@ -1087,7 +1221,8 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 16"
+   "slide": "Deck slide 16",
+   "parent": null
   },
   {
    "code": "T04_Q2",
@@ -1100,7 +1235,8 @@
    "baseText": null,
    "tracked": false,
    "surfaced": true,
-   "slide": "Deck slide 17"
+   "slide": "Deck slide 17",
+   "parent": null
   },
   {
    "code": "T04_Q3",
@@ -1113,7 +1249,8 @@
    "baseText": null,
    "tracked": false,
    "surfaced": true,
-   "slide": "Deck slide 18"
+   "slide": "Deck slide 18",
+   "parent": null
   },
   {
    "code": "T05_Q1",
@@ -1126,7 +1263,8 @@
    "baseText": null,
    "tracked": false,
    "surfaced": true,
-   "slide": "Deck slide 20"
+   "slide": "Deck slide 20",
+   "parent": null
   },
   {
    "code": "T05_Q2",
@@ -1139,7 +1277,8 @@
    "baseText": null,
    "tracked": false,
    "surfaced": true,
-   "slide": "Deck slide 21"
+   "slide": "Deck slide 21",
+   "parent": null
   },
   {
    "code": "T05_Q3",
@@ -1152,7 +1291,8 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 22"
+   "slide": "Deck slide 22",
+   "parent": null
   },
   {
    "code": "T05_Q4",
@@ -1165,7 +1305,8 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 22"
+   "slide": "Deck slide 22",
+   "parent": null
   },
   {
    "code": "T05_Q5",
@@ -1178,20 +1319,36 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 23"
+   "slide": "Deck slide 23",
+   "parent": null
   },
   {
    "code": "T06_Q1",
    "theme": 6,
-   "text": "If you were to emigrate, would you be leaving your country… [Among those ‘Very Likely’ / ‘Somewhat Likely’ / ‘Not so likely’ to emigrate in the next 3 years]",
+   "text": "How likely or unlikely are you to consider emigrating in the next three years?",
    "label": "Likelihood to Emigrate",
    "order": 1,
+   "responseType": "single",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 25",
+   "parent": null
+  },
+  {
+   "code": "T06_Q3",
+   "theme": 6,
+   "text": "If you were to emigrate, would you be leaving your country… [Among those ‘Very Likely’ / ‘Somewhat Likely’ / ‘Not so likely’ to emigrate in the next 3 years]",
+   "label": "Temporary vs Permanent Emigration",
+   "order": 3,
    "responseType": "single",
    "baseType": "filtered",
    "baseText": "Among those ‘Very Likely’ / ‘Somewhat Likely’ / ‘Not so likely’ to emigrate in the next 3 years",
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 25"
+   "slide": "Deck slide 26",
+   "parent": null
   },
   {
    "code": "T06_Q2",
@@ -1204,7 +1361,8 @@
    "baseText": "Among those ‘Very likely’, Somewhat likely’ or ‘Not so likely’ to emigrate",
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 27"
+   "slide": "Deck slide 27",
+   "parent": null
   },
   {
    "code": "T07_Q1",
@@ -1217,7 +1375,8 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 29"
+   "slide": "Deck slide 29",
+   "parent": null
   },
   {
    "code": "T07_Q2",
@@ -1230,7 +1389,8 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 30"
+   "slide": "Deck slide 30",
+   "parent": null
   },
   {
    "code": "T07_Q3",
@@ -1243,7 +1403,8 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 31"
+   "slide": "Deck slide 31",
+   "parent": null
   },
   {
    "code": "T08_Q1",
@@ -1256,7 +1417,8 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 33"
+   "slide": "Deck slide 33",
+   "parent": null
   },
   {
    "code": "T08_Q2",
@@ -1269,7 +1431,8 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 33"
+   "slide": "Deck slide 33",
+   "parent": null
   },
   {
    "code": "T08_Q3",
@@ -1282,7 +1445,8 @@
    "baseText": null,
    "tracked": false,
    "surfaced": true,
-   "slide": "Deck slide 34"
+   "slide": "Deck slide 34",
+   "parent": null
   },
   {
    "code": "T08_Q4",
@@ -1295,7 +1459,8 @@
    "baseText": null,
    "tracked": false,
    "surfaced": true,
-   "slide": "Deck slide 34"
+   "slide": "Deck slide 34",
+   "parent": null
   },
   {
    "code": "T08_Q5",
@@ -1308,7 +1473,8 @@
    "baseText": null,
    "tracked": false,
    "surfaced": true,
-   "slide": "Deck slide 35"
+   "slide": "Deck slide 35",
+   "parent": null
   },
   {
    "code": "T09_Q1",
@@ -1321,7 +1487,8 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 37"
+   "slide": "Deck slide 37",
+   "parent": null
   },
   {
    "code": "T09_Q2",
@@ -1334,7 +1501,8 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 38"
+   "slide": "Deck slide 38",
+   "parent": null
   },
   {
    "code": "T09_Q3",
@@ -1347,7 +1515,92 @@
    "baseText": null,
    "tracked": false,
    "surfaced": true,
-   "slide": "Deck slide 39"
+   "slide": "Deck slide 39",
+   "parent": null
+  },
+  {
+   "code": "T09_Q3_AGENDA",
+   "theme": 9,
+   "text": "To what extent do you agree or disagree with each of the following statements about fake news? [Interest groups and organisations deliberately share fake news to push their agenda]",
+   "label": "Impact of Fake News on Society: Groups share it to push an agenda",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 39",
+   "parent": "T09_Q3"
+  },
+  {
+   "code": "T09_Q3_VIOLENCE",
+   "theme": 9,
+   "text": "To what extent do you agree or disagree with each of the following statements about fake news? [I worry that misinformation or 'fake news' shared online could lead to real-world violence or conflict in my community]",
+   "label": "Impact of Fake News on Society: It could lead to real-world violence",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 39",
+   "parent": "T09_Q3"
+  },
+  {
+   "code": "T09_Q3_PROBLEM",
+   "theme": 9,
+   "text": "To what extent do you agree or disagree with each of the following statements about fake news? [Fake news is a serious problem in my community today]",
+   "label": "Impact of Fake News on Society: A serious problem in my community",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 39",
+   "parent": "T09_Q3"
+  },
+  {
+   "code": "T09_Q3_AI",
+   "theme": 9,
+   "text": "To what extent do you agree or disagree with each of the following statements about fake news? [I worry that artificial intelligence (AI) has made it easier to create and spread fake news]",
+   "label": "Impact of Fake News on Society: AI has made it easier to spread",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 39",
+   "parent": "T09_Q3"
+  },
+  {
+   "code": "T09_Q3_DIVIDE",
+   "theme": 9,
+   "text": "To what extent do you agree or disagree with each of the following statements about fake news? [Fake news has led to greater divide within my society]",
+   "label": "Impact of Fake News on Society: It has divided my society",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 39",
+   "parent": "T09_Q3"
+  },
+  {
+   "code": "T09_Q3_INFORMED",
+   "theme": 9,
+   "text": "To what extent do you agree or disagree with each of the following statements about fake news? [Fake news impacts my ability to stay informed about issues that matter to me]",
+   "label": "Impact of Fake News on Society: It affects my ability to stay informed",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 39",
+   "parent": "T09_Q3"
   },
   {
    "code": "T10_Q1",
@@ -1360,7 +1613,8 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 41"
+   "slide": "Deck slide 41",
+   "parent": null
   },
   {
    "code": "T10_Q2",
@@ -1373,7 +1627,8 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 41"
+   "slide": "Deck slide 41",
+   "parent": null
   },
   {
    "code": "T10_Q3",
@@ -1386,7 +1641,8 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 41"
+   "slide": "Deck slide 41",
+   "parent": null
   },
   {
    "code": "T10_Q4",
@@ -1399,7 +1655,106 @@
    "baseText": null,
    "tracked": false,
    "surfaced": true,
-   "slide": "Deck slide 43"
+   "slide": "Deck slide 43",
+   "parent": null
+  },
+  {
+   "code": "T10_Q4_STABILITY",
+   "theme": 10,
+   "text": "How satisfied are you with your national government’s performance on each of the following? [Maintaining political stability]",
+   "label": "Satisfaction with national government performance: Maintaining political stability",
+   "order": 4,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 43",
+   "parent": "T10_Q4"
+  },
+  {
+   "code": "T10_Q4_CORRUPTION",
+   "theme": 10,
+   "text": "How satisfied are you with your national government’s performance on each of the following? [Tackling government corruption]",
+   "label": "Satisfaction with national government performance: Tackling government corruption",
+   "order": 4,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 43",
+   "parent": "T10_Q4"
+  },
+  {
+   "code": "T10_Q4_CLIMATE",
+   "theme": 10,
+   "text": "How satisfied are you with your national government’s performance on each of the following? [Addressing climate change and environmental degradation]",
+   "label": "Satisfaction with national government performance: Addressing climate change",
+   "order": 4,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 43",
+   "parent": "T10_Q4"
+  },
+  {
+   "code": "T10_Q4_IMMIGRATION",
+   "theme": 10,
+   "text": "How satisfied are you with your national government’s performance on each of the following? [Limiting illegal immigration into the country]",
+   "label": "Satisfaction with national government performance: Limiting illegal immigration",
+   "order": 4,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 43",
+   "parent": "T10_Q4"
+  },
+  {
+   "code": "T10_Q4_POVERTY",
+   "theme": 10,
+   "text": "How satisfied are you with your national government’s performance on each of the following? [Reducing poverty]",
+   "label": "Satisfaction with national government performance: Reducing poverty",
+   "order": 4,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 43",
+   "parent": "T10_Q4"
+  },
+  {
+   "code": "T10_Q4_JOBS",
+   "theme": 10,
+   "text": "How satisfied are you with your national government’s performance on each of the following? [Job creation and fighting unemployment]",
+   "label": "Satisfaction with national government performance: Job creation",
+   "order": 4,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 43",
+   "parent": "T10_Q4"
+  },
+  {
+   "code": "T10_Q4_COSTS",
+   "theme": 10,
+   "text": "How satisfied are you with your national government’s performance on each of the following? [Tackling rising costs (e.g. inflation, food costs, fuel costs, etc.)]",
+   "label": "Satisfaction with national government performance: Tackling rising costs",
+   "order": 4,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 43",
+   "parent": "T10_Q4"
   },
   {
    "code": "T11_Q1",
@@ -1412,7 +1767,8 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 45"
+   "slide": "Deck slide 45",
+   "parent": null
   },
   {
    "code": "T11_Q2",
@@ -1425,7 +1781,8 @@
    "baseText": null,
    "tracked": true,
    "surfaced": true,
-   "slide": "Deck slide 46"
+   "slide": "Deck slide 46",
+   "parent": null
   },
   {
    "code": "T11_Q3",
@@ -1438,7 +1795,8 @@
    "baseText": null,
    "tracked": false,
    "surfaced": true,
-   "slide": "Deck slide 47"
+   "slide": "Deck slide 47",
+   "parent": null
   },
   {
    "code": "T12_Q1",
@@ -1451,7 +1809,50 @@
    "baseText": null,
    "tracked": false,
    "surfaced": true,
-   "slide": "Deck slide 49"
+   "slide": "Deck slide 49",
+   "parent": null
+  },
+  {
+   "code": "T12_Q1_PLASTIC",
+   "theme": 12,
+   "text": "Next, please tell me how concerned you are about each of the following issues... ? [The amount of plastic waste]",
+   "label": "Concern with Environmental Challenges: The amount of plastic waste",
+   "order": 1,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 49",
+   "parent": "T12_Q1"
+  },
+  {
+   "code": "T12_Q1_WATER",
+   "theme": 12,
+   "text": "Next, please tell me how concerned you are about each of the following issues... ? [Water scarcity]",
+   "label": "Concern with Environmental Challenges: Water scarcity",
+   "order": 1,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 49",
+   "parent": "T12_Q1"
+  },
+  {
+   "code": "T12_Q1_RESOURCES",
+   "theme": 12,
+   "text": "Next, please tell me how concerned you are about each of the following issues... ? [The unregulated use of natural resources such as wildlife, timber trees, fish or minerals]",
+   "label": "Concern with Environmental Challenges: Unregulated use of natural resources",
+   "order": 1,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": false,
+   "surfaced": true,
+   "slide": "Deck slide 49",
+   "parent": "T12_Q1"
   },
   {
    "code": "T12_Q2",
@@ -1464,7 +1865,8 @@
    "baseText": null,
    "tracked": false,
    "surfaced": true,
-   "slide": "Deck slide 50"
+   "slide": "Deck slide 50",
+   "parent": null
   },
   {
    "code": "T12_Q3",
@@ -1477,7 +1879,8 @@
    "baseText": null,
    "tracked": false,
    "surfaced": true,
-   "slide": "Deck slide 51"
+   "slide": "Deck slide 51",
+   "parent": null
   },
   {
    "code": "T12_Q4",
@@ -1490,7 +1893,8 @@
    "baseText": null,
    "tracked": false,
    "surfaced": true,
-   "slide": "Deck slide 52"
+   "slide": "Deck slide 52",
+   "parent": null
   }
  ],
  "charts": [
@@ -1604,7 +2008,12 @@
    "title": "Positive Influence of Foreign Organisations",
    "type": "bar",
    "questions": [
-    "T03_Q1"
+    "T03_Q1_AU",
+    "T03_Q1_UN",
+    "T03_Q1_WTO",
+    "T03_Q1_IMF",
+    "T03_Q1_EU",
+    "T03_Q1_G20"
    ],
    "comparison": "tracked",
    "slide": 13,
@@ -1735,7 +2144,7 @@
    "title": "Temporary vs Permanent Emigration",
    "type": "stacked",
    "questions": [
-    "T06_Q1"
+    "T06_Q3"
    ],
    "comparison": "tracked",
    "slide": 26,
@@ -1839,7 +2248,7 @@
    "theme": 9,
    "order": 1,
    "title": "News Sources",
-   "type": "line",
+   "type": "hbar",
    "questions": [
     "T09_Q1"
    ],
@@ -1867,7 +2276,12 @@
    "title": "Impact of Fake News on Society",
    "type": "hbar",
    "questions": [
-    "T09_Q3"
+    "T09_Q3_AGENDA",
+    "T09_Q3_VIOLENCE",
+    "T09_Q3_PROBLEM",
+    "T09_Q3_AI",
+    "T09_Q3_DIVIDE",
+    "T09_Q3_INFORMED"
    ],
    "comparison": "none",
    "slide": 39,
@@ -1908,7 +2322,13 @@
    "title": "Satisfaction with national government performance",
    "type": "bar",
    "questions": [
-    "T10_Q4"
+    "T10_Q4_STABILITY",
+    "T10_Q4_CORRUPTION",
+    "T10_Q4_CLIMATE",
+    "T10_Q4_IMMIGRATION",
+    "T10_Q4_POVERTY",
+    "T10_Q4_JOBS",
+    "T10_Q4_COSTS"
    ],
    "comparison": "none",
    "slide": 43,
@@ -1922,7 +2342,7 @@
    "type": "line",
    "questions": [
     "T11_Q1",
-    "T10_Q4"
+    "T10_Q4_CLIMATE"
    ],
    "comparison": "tracked",
    "slide": 45,
@@ -1961,7 +2381,9 @@
    "title": "Concern with Environmental Challenges",
    "type": "pie",
    "questions": [
-    "T12_Q1"
+    "T12_Q1_PLASTIC",
+    "T12_Q1_WATER",
+    "T12_Q1_RESOURCES"
    ],
    "comparison": "none",
    "slide": 49,

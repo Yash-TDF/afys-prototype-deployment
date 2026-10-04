@@ -76,6 +76,8 @@ export const cleanLabel = (label: string): string =>
 const AGREEMENT = ['Strongly agree', 'Somewhat agree', 'Somewhat disagree', 'Strongly disagree'];
 const CONCERN = ['Very concerned', 'Somewhat concerned', 'Not very concerned', 'Not at all concerned'];
 const INFLUENCE = ['A lot of influence', 'Some influence', 'Not much influence', 'No influence at all'];
+const POSITIVE = ['Very positive', 'Somewhat positive', 'Somewhat negative', 'Very negative'];
+const SATISFACTION = ['Very satisfied', 'Somewhat satisfied', 'Not very satisfied', 'Not satisfied at all'];
 const DIRECTION = ['Right direction', 'Wrong direction', "Don't know"];
 
 /**
@@ -115,6 +117,12 @@ export function optionsFor(code: string, text: string, showing: string | null): 
     };
   }
   if (lower.includes('how concerned')) return { labels: CONCERN, illustrative: true, roles: null };
+  // A grid's child question has no deck chart of its own: the deck files the
+  // chart under the grid, whose options are the rows. So a child is answered
+  // from its wording, and slide 13's asks whether an influence is positive, not
+  // how much of it there is; slide 43's how satisfied. THE-315.
+  if (lower.includes('positive or negative')) return { labels: POSITIVE, illustrative: true, roles: null };
+  if (lower.includes('satisfied')) return { labels: SATISFACTION, illustrative: true, roles: null };
   if (lower.includes('influence')) return { labels: INFLUENCE, illustrative: true, roles: null };
   void code;
   return { labels: AGREEMENT, illustrative: true, roles: null };
