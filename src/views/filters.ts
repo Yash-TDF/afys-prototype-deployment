@@ -277,11 +277,17 @@ function select(
   return wrap;
 }
 
-function multiField(
+/**
+ * A multi-select field in the filter card. Nothing ticked means all of them,
+ * which is what `placeholder` says: the Country field reads "All countries".
+ */
+export function multiField(
   label: string,
   values: string[],
   selected: string[],
   onChange: (selected: string[]) => void,
+  placeholder = ALL_COUNTRIES,
+  searchFor = 'countries',
 ): HTMLElement {
   // A div rather than a label: the trigger is a button, and a label wrapping a
   // button would give the field two accessible names and one confused click
@@ -297,8 +303,8 @@ function multiField(
     label,
     values,
     selected,
-    placeholder: ALL_COUNTRIES,
-    searchFor: 'countries',
+    placeholder,
+    searchFor,
     onChange,
   });
   return wrap;

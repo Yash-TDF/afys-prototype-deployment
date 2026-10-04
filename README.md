@@ -227,6 +227,11 @@ it rather than guessed at.
     figure out and ends "illustrative figure, not a survey result". They are
     computed by the same `buildViewModel` the explorer uses, so a card and the
     chart it leads to cannot disagree.
+15. The explorer lets a reader hide answers (the client's 28 September ask), from
+    an Answers field or by clicking a legend entry. Hiding is display only: the
+    answers left keep their share of everyone, never rebased to 100%. A pie
+    leaves the hidden slice's share as a gap, and the chart, its PNG, the CSV and
+    the link all say what is hidden (`src/charts/hidden.ts`, THE-349)
 
 ## Layout
 
@@ -239,7 +244,7 @@ src/content.ts            the deck, typed
 src/illustrative.ts       the generated figures — deleted when the API is wired up
 src/model.ts              chart spec + filters → view model (shaped like the API response)
 src/aggregate.ts          the only place percentages are combined — never averaged
-src/charts/               Chart.js setup, the value-label plugin, the renderer
+src/charts/               Chart.js setup, the value-label plugin, the renderer, hidden answers
 src/ui/                   sparkline · insights · quality · download · toast · drawer · spotlight
 src/styles/               the stylesheet by section; styles.css is the import list
 src/views/                themes · theme-card · tile · explorer · methodology · filters · dropdown

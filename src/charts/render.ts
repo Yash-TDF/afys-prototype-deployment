@@ -8,8 +8,9 @@
 import type { ChartConfiguration, ChartType as ChartJsType } from 'chart.js';
 import type { ChartType } from '../content';
 import { type CategoryKind, type SeriesKind, type ViewModel, sharedBases } from '../model';
-import { GRID, NO_DATA, OFF_SCALE, OFF_SCALE_LABEL, pieStops, ramp, roleColours, SCALE_3, SCALE_4, SCALE_5, SERIES } from './palette';
+import { GRID, MUTED, NO_DATA, OFF_SCALE, OFF_SCALE_LABEL, pieStops, ramp, roleColours, SCALE_3, SCALE_4, SCALE_5, SERIES } from './palette';
 import { Chart, registerGeo, setupCharts, valueLabels } from './setup';
+import { hiddenCaption, hiddenNote, hiddenOn, withHidden } from './hidden';
 import { badgeElement, sampleBadge } from '../ui/quality';
 import { fmtPct } from '../ui/format';
 import { insightRow } from '../ui/insights';
@@ -200,12 +201,22 @@ const drawnAs = (model: ViewModel, kind: ChartType): ChartType => {
   return kind;
 };
 
-function baseConfig(model: ViewModel, requested: ChartType, accent: string): ChartConfiguration {
+/** Answers hidden on this chart, and what to call when its legend lists answers. THE-349. */
+interface Hiding {
+  hidden: ReadonlySet<string>;
+  onToggle?: (answer: string) => void;
+  /** Drawn inside the canvas, so a downloaded image says what is hidden. */
+  caption: string[] | null;
+}
+
+function baseConfig(model: ViewModel, requested: ChartType, colours: string[], hiding: Hiding): ChartConfiguration {
   const kind = drawnAs(model, requested);
   const horizontal = kind === 'hbar' || kind === 'stacked';
   const multiSeries = model.series.length > 1;
-  const colours = palette(model, kind, accent);
   const many = model.categories.length > 8;
+  // A series that is an answer stays in the legend when hidden, struck through,
+  // so the legend can bring it back.
+  const answerSeries = model.seriesKind === 'options';
 
   const datasets = model.series.map((s, i) => ({
     label: s.label,
@@ -217,6 +228,7 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
     tension: 0.3,
     pointRadius: 3,
     fill: false,
+    hidden: answerSeries && hiding.hidden.has(s.label),
   }));
 
   const percentAxis = {
@@ -312,11 +324,32 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
     },
   };
 
+  // Where the legend lists answers, a click on one is the same switch as the
+  // answers picker, so the two cannot disagree. Left to Chart.js, a pie's legend
+  // hides the slice and spreads the others over the whole circle: a rebase drawn
+  // where no number on the page admits to it.
+  const toggle = hiding.onToggle && (answerSeries || kind === 'pie')
+    ? { onClick: (_event: unknown, item: { text: string }) => hiding.onToggle!(item.text) }
+    : {};
+  const subtitle = hiding.caption
+    ? {
+      subtitle: {
+        display: true,
+        text: hiding.caption,
+        position: 'bottom' as const,
+        color: MUTED,
+        font: { size: 11, style: 'italic' as const },
+        padding: { top: 10 },
+      },
+    }
+    : {};
+
   const shared = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { display: multiSeries || kind === 'pie', position: 'bottom' as const },
+      legend: { display: multiSeries || kind === 'pie', position: 'bottom' as const, ...toggle },
+      ...subtitle,
     },
   };
 
@@ -355,24 +388,59 @@ function baseConfig(model: ViewModel, requested: ChartType, accent: string): Cha
       // Guarded on the shape, not on the series count: a comparison on a pie is
       // refused before it gets here, but that is refuse()'s promise, not this one's.
       const latest = model.categories.length - 1;
-      const oneWave = model.seriesKind === 'options' && model.categoryKind === 'waves'
+      const oneWave = model.seriesKind === 'options' && model.categoryKind === 'waves';
+      const labels = oneWave ? model.series.map((s) => s.label) : model.categories;
+      // A hidden slice keeps its share of the circle and is drawn empty. Its
+      // value stays in the data, because the arcs are sized from the data's
+      // total: taking it out would widen every other slice. THE-349.
+      const fill = colours.map((colour, i) => (hiding.hidden.has(labels[i] ?? '') ? 'transparent' : colour));
+      const data = oneWave
         ? {
-          labels: model.series.map((s) => s.label),
+          labels,
           datasets: [{
             label: String(model.categories[latest] ?? ''),
             data: model.series.map((s) => s.values[latest] ?? 0),
-            backgroundColor: colours,
-            borderColor: colours,
+            backgroundColor: fill,
+            borderColor: fill,
             borderWidth: 0,
           }],
         }
-        : { labels: model.categories, datasets };
+        : {
+          labels,
+          datasets: multiSeries ? datasets : datasets.map((d) => ({ ...d, backgroundColor: fill, borderColor: fill })),
+        };
       return {
         type: 'pie',
-        data: oneWave,
+        data,
         // A pie fills its canvas to the top edge, where the reading chips end;
         // the padding is the gap a bar chart's axis area gives for free.
-        options: { ...shared, plugins: { legend: { display: true, position: 'bottom' as const } }, cutout: '52%', layout: { padding: { top: 16 } } },
+        options: {
+          ...shared,
+          plugins: {
+            ...shared.plugins,
+            legend: {
+              ...shared.plugins.legend,
+              display: true,
+              labels: {
+                // The legend keeps the hidden answer's colour, struck through, rather
+                // than an empty swatch nobody could match to anything.
+                generateLabels: (chart: Chart) => Chart.overrides.pie.plugins.legend.labels
+                  .generateLabels(chart)
+                  .map((item) => ({
+                    ...item,
+                    fillStyle: colours[item.index ?? 0],
+                    strokeStyle: colours[item.index ?? 0],
+                    // Or hidden by Chart.js's own legend click, where no picker owns it.
+                    hidden: item.hidden || hiding.hidden.has(String(item.text)),
+                  })),
+              },
+            },
+            // Nothing is drawn in the gap, so there is nothing there to describe.
+            tooltip: { filter: (item: { label: string }) => !hiding.hidden.has(item.label) },
+          },
+          cutout: '52%',
+          layout: { padding: { top: 16 } },
+        },
       } as ChartConfiguration;
     }
     default:
@@ -625,8 +693,11 @@ function summarise(model: ViewModel, kind: ChartType): string {
     + 'The same values follow as a table.';
 }
 
-function notes(model: ViewModel, requested: ChartType): string[] {
+function notes(model: ViewModel, requested: ChartType, hidden: readonly string[] = []): string[] {
   const out: string[] = [];
+  // First: it is the one note that says the chart is not the whole answer.
+  const hiding = hiddenNote(hidden);
+  if (hiding) out.push(hiding);
   if (model.likeForLike) out.push(model.likeForLike);
   // A refused comparison is said, not swallowed.
   if (model.compareNote) out.push(model.compareNote);
@@ -653,14 +724,47 @@ function notes(model: ViewModel, requested: ChartType): string[] {
 
 export interface Figure { destroy(): void }
 
+/** How a figure is shown, as distinct from what it measures. */
+export interface Display {
+  /** Answers the reader has hidden: taken off the screen, never recomputed. THE-349. */
+  hidden?: readonly string[];
+  /** Called with an answer when its legend item is clicked, where the legend lists answers. */
+  onToggle?: (answer: string) => void;
+}
+
+/**
+ * The colours of what is drawn, taken from the colours of the whole chart.
+ *
+ * Worked out on every answer and then thinned, never on what is left: a short
+ * answer scale is coloured by position, so colouring what is left would hand a
+ * hidden answer's colour to the one after it, and a chart that hid "Strongly
+ * agree" would paint "Agree" in its colour.
+ */
+function coloursShown(model: ViewModel, colours: string[], hidden: ReadonlySet<string>): string[] {
+  if (hidden.size === 0) return colours;
+  if (model.series.length > 1) {
+    return model.seriesKind === 'options' ? colours.filter((_, i) => !hidden.has(model.series[i]!.label)) : colours;
+  }
+  return model.categoryKind === 'options' ? colours.filter((_, i) => !hidden.has(model.categories[i]!)) : colours;
+}
+
 export function renderFigure(
   host: HTMLElement,
-  model: ViewModel,
+  full: ViewModel,
   kind: ChartType,
   accent: string,
+  display: Display = {},
 ): Figure {
   setupCharts();
   host.replaceChildren();
+
+  // Everything a reader sees reads `model`, the chart without its hidden
+  // answers; the values in it are the ones `full` was built with. Only the
+  // canvas reads `full`, where a pie needs the hidden slice's share to leave
+  // its gap and a line keeps a hidden answer in its legend to bring it back.
+  const hidden = hiddenOn(full, display.hidden ?? []);
+  const hiddenSet = new Set(hidden);
+  const model = withHidden(full, hidden);
 
   const figure = document.createElement('figure');
   figure.className = 'chart';
@@ -704,7 +808,9 @@ export function renderFigure(
   // The kind that is drawn, not the kind that was asked for: the colours in the
   // table have to be the ones on the canvas beside it, and `drawnAs` is the only
   // place that knows the difference.
-  const colours = palette(model, drawnAs(model, kind), accent);
+  const fullColours = palette(full, drawnAs(full, kind), accent);
+  const colours = coloursShown(full, fullColours, hiddenSet);
+  const hiding = hiddenNote(hidden);
 
   if (kind === 'table') {
     const only = table(model, colours);
@@ -735,14 +841,14 @@ export function renderFigure(
     }
     canvas = document.createElement('canvas');
     canvas.setAttribute('role', 'img');
-    canvas.setAttribute('aria-label', summarise(model, kind));
+    canvas.setAttribute('aria-label', hiding ? `${summarise(model, kind)} ${hiding}` : summarise(model, kind));
     canvasWrap.append(canvas);
     chartBody.append(canvasWrap);
     chartBody.append(table(model, colours));
     kindForChart = kind;
   }
 
-  for (const note of notes(model, kind)) {
+  for (const note of notes(model, kind, hidden)) {
     const p = document.createElement('p');
     p.className = 'note';
     p.textContent = note;
@@ -762,7 +868,15 @@ export function renderFigure(
         chart = new Chart(canvas!, config);
       });
     } else {
-      chart = new Chart(canvas, baseConfig(model, kindForChart, accent));
+      // A pie and a line draw from the whole chart (see the top of this
+      // function); bars draw only what is shown.
+      const whole = drawnAs(full, kindForChart) === 'pie' || full.seriesKind === 'options';
+      const caption = hiddenCaption(hidden);
+      chart = new Chart(canvas, baseConfig(whole ? full : model, kindForChart, whole ? fullColours : colours, {
+        hidden: hiddenSet,
+        onToggle: display.onToggle,
+        caption: caption ? [wrapLabel(caption, Math.max(24, Math.floor((host.clientWidth || 600) / 6.6)))].flat() : null,
+      }));
       // On a first visit the charts are built before Montserrat has arrived, so
       // every label is measured in the fallback face and then drawn in a wider
       // one: a column sized to the measurement cut the first letters off. Lay the
