@@ -10,8 +10,9 @@ import type { ChartType } from '../content';
 import { type CategoryKind, type SeriesKind, type ViewModel, sharedBases } from '../model';
 import { GRID, MUTED, NO_DATA, OFF_SCALE, OFF_SCALE_LABEL, pieStops, ramp, roleColours, SCALE_3, SCALE_4, SCALE_5, SERIES } from './palette';
 import { Chart, registerGeo, setupCharts, valueLabels } from './setup';
-import { hiddenCaption, hiddenNote, hiddenOn, withHidden } from './hidden';
+import { hiddenCaption, hiddenNote, hiddenOn, LAST_ANSWER, toggled, withHidden } from './hidden';
 import { badgeElement, sampleBadge } from '../ui/quality';
+import { toast } from '../ui/toast';
 import { fmtPct } from '../ui/format';
 import { insightRow } from '../ui/insights';
 
@@ -430,8 +431,7 @@ function baseConfig(model: ViewModel, requested: ChartType, colours: string[], h
                     ...item,
                     fillStyle: colours[item.index ?? 0],
                     strokeStyle: colours[item.index ?? 0],
-                    // Or hidden by Chart.js's own legend click, where no picker owns it.
-                    hidden: item.hidden || hiding.hidden.has(String(item.text)),
+                    hidden: hiding.hidden.has(String(item.text)),
                   })),
               },
             },
@@ -748,12 +748,52 @@ function coloursShown(model: ViewModel, colours: string[], hidden: ReadonlySet<s
   return model.categoryKind === 'options' ? colours.filter((_, i) => !hidden.has(model.categories[i]!)) : colours;
 }
 
+/**
+ * Draw a figure.
+ *
+ * A caller that keeps the hidden answers itself (the explorer, which puts them
+ * in the link) passes `onToggle`. Anywhere else the figure keeps them: a theme
+ * page has no answers field, but its pies and lines have legends, and left to
+ * Chart.js a pie legend click hides the slice and widens every other one over
+ * the whole circle. So a legend click there hides the answer the same way, as a
+ * gap with a note, and only for as long as the page is open.
+ */
 export function renderFigure(
   host: HTMLElement,
   full: ViewModel,
   kind: ChartType,
   accent: string,
   display: Display = {},
+): Figure {
+  if (display.onToggle) return drawFigure(host, full, kind, accent, display);
+
+  let hidden = hiddenOn(full, display.hidden ?? []);
+  let current: Figure | null = null;
+  const draw = (): void => {
+    current?.destroy();
+    current = drawFigure(host, full, kind, accent, {
+      hidden,
+      onToggle: (answer) => {
+        const next = toggled(full, hidden, answer);
+        if (!next) {
+          toast(LAST_ANSWER);
+          return;
+        }
+        hidden = next;
+        draw();
+      },
+    });
+  };
+  draw();
+  return { destroy: () => current?.destroy() };
+}
+
+function drawFigure(
+  host: HTMLElement,
+  full: ViewModel,
+  kind: ChartType,
+  accent: string,
+  display: Display,
 ): Figure {
   setupCharts();
   host.replaceChildren();

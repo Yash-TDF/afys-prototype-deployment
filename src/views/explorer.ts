@@ -20,7 +20,7 @@ import {
   type ChartSpec, type ChartType, type Question,
 } from '../content';
 import { renderFigure, type Figure } from '../charts/render';
-import { answersOf, hiddenOn, withHidden } from '../charts/hidden';
+import { answersOf, hiddenOn, LAST_ANSWER, toggled, withHidden } from '../charts/hidden';
 import {
   buildViewModel, DEFAULT_FILTERS, type CompareBy, type Filters, type ViewModel,
 } from '../model';
@@ -413,16 +413,8 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
       hidden: state.hidden,
       // The legend's answers are the same switch as the field above.
       onToggle: (answer) => {
-        const hidden = state.hidden.includes(answer)
-          ? state.hidden.filter((a) => a !== answer)
-          : [...state.hidden, answer];
-        // Hiding the last answer would leave no chart. settle() would show
-        // them all instead, which is not what a click on one answer asked for.
-        if (hidden.length >= answers.length) {
-          toast('At least one answer stays on the chart');
-          return;
-        }
-        hide(hidden);
+        const hidden = toggled(model, state.hidden, answer);
+        if (hidden) hide(hidden); else toast(LAST_ANSWER);
       },
     });
 

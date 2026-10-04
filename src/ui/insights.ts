@@ -92,11 +92,18 @@ function combined(model: ViewModel, count: number): Insight {
   };
 }
 
-/** Waves on the axis: the peak, and the distance from the first year to the last. */
+/**
+ * Waves on the axis: the peak, and the distance from the first year to the last.
+ *
+ * Of the first line drawn. Where there are several, the chip names it: "Peak
+ * 55%" beside three lines said nothing about which, and once a reader could
+ * hide the first line the chips moved to the next one without a word. THE-349.
+ */
 function trend(model: ViewModel): Insight[] {
   const out: Insight[] = [];
   const series = model.series[0];
   if (!series || model.categories.length < 2) return out;
+  const of = model.series.length > 1 ? `${series.label} · ` : '';
 
   const values = series.values;
   const first = values[0]!;
@@ -109,13 +116,13 @@ function trend(model: ViewModel): Insight[] {
       label: fmtPts(delta),
       // The first year present, never "since the baseline": a question not asked
       // in 2020 starts in 2022, and the chip is read without opening anything.
-      sub: `${model.categories[0]} to ${model.categories[model.categories.length - 1]}`,
+      sub: `${of}${model.categories[0]} to ${model.categories[model.categories.length - 1]}`,
       down: delta < 0,
     });
   }
 
   const peak = values.indexOf(Math.max(...values));
-  out.push({ kind: 'high', label: `Peak ${fmtPct(values[peak]!)}`, sub: String(model.categories[peak]) });
+  out.push({ kind: 'high', label: `Peak ${fmtPct(values[peak]!)}`, sub: `${of}${model.categories[peak]}` });
 
   return out;
 }

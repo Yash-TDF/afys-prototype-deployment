@@ -37,6 +37,19 @@ export function hiddenOn(model: ViewModel, hidden: readonly string[]): string[] 
   return chosen.length === answers.length ? [] : chosen;
 }
 
+/**
+ * The hidden set after a click on one answer, or null when that click would
+ * hide the last answer left: that is no chart, and showing everything instead
+ * is not what a click on one answer asked for.
+ */
+export function toggled(model: ViewModel, hidden: readonly string[], answer: string): string[] | null {
+  const next = hidden.includes(answer) ? hidden.filter((a) => a !== answer) : [...hidden, answer];
+  return next.length >= answersOf(model).length ? null : next;
+}
+
+/** What a refused click says. */
+export const LAST_ANSWER = 'At least one answer stays on the chart';
+
 /** The model as drawn: hidden answers left out, every other value exactly as built. */
 export function withHidden(model: ViewModel, hidden: readonly string[]): ViewModel {
   const gone = new Set(hiddenOn(model, hidden));

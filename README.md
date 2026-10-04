@@ -231,7 +231,9 @@ it rather than guessed at.
     an Answers field or by clicking a legend entry. Hiding is display only: the
     answers left keep their share of everyone, never rebased to 100%. A pie
     leaves the hidden slice's share as a gap, and the chart, its PNG, the CSV and
-    the link all say what is hidden (`src/charts/hidden.ts`, THE-349)
+    the link all say what is hidden (`src/charts/hidden.ts`, THE-349). A legend
+    click on a theme page hides the same way, for as long as the page is open;
+    left to Chart.js, a pie's legend widened every other slice to fill the circle
 
 ## Layout
 
