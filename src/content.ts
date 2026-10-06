@@ -13,6 +13,13 @@ export interface Question {
   code: string; theme: number; text: string; label: string; order: number;
   responseType: string; baseType: string; baseText: string | null;
   tracked: boolean; surfaced: boolean; slide: string | null;
+  /** The grid this question is a row of, or null. THE-315. */
+  parent: string | null;
+  /**
+   * The waves the portal maps this question in (its crosswave.csv rows), or null
+   * when it has none. A grid's rows differ: slide 13's UN is asked only in 2026.
+   */
+  waves: number[] | null;
 }
 export interface ChartSpec {
   theme: number; order: number; title: string; type: ChartType;
@@ -39,6 +46,37 @@ export const latestWave = waves[waves.length - 1]!.year;
 
 const byCode = new Map(questions.map((q) => [q.code, q]));
 export const question = (code: string): Question | undefined => byCode.get(code);
+
+/**
+ * The grid a chart plots, when every question it lists is a row of the same one.
+ * A grid's chart lists its children (slide 13's six organisations, slide 43's
+ * seven policies), and is drawn from the grid: the deck's options for it are
+ * the rows. A chart mixing a grid row with another question (slide 45) is not a
+ * grid chart. THE-315.
+ */
+export function gridOf(codes: string[]): string | null {
+  const parents = new Set(codes.map((code) => byCode.get(code)?.parent ?? null));
+  const [only] = parents;
+  return codes.length > 1 && parents.size === 1 && only ? only : null;
+}
+
+/** The questions that are rows of this grid, in seed order. Empty for a question that is not a grid. */
+export const childrenOf = (code: string): Question[] => questions.filter((q) => q.parent === code);
+
+/**
+ * A grid row's own name: "African Union" for "Positive Influence of Foreign
+ * Organisations: African Union". Its label after the grid's, else the row its
+ * text names in brackets, else the whole label.
+ */
+export function rowName(child: Question): string {
+  const grid = child.parent ? byCode.get(child.parent) : undefined;
+  if (grid && child.label.startsWith(`${grid.label}: `)) return child.label.slice(grid.label.length + 2);
+  return /\[([^\]]+)\]\s*$/.exec(child.text)?.[1] ?? child.label;
+}
+
+/** Whether a question was asked in a wave. A question with no recorded waves is not narrowed. */
+export const askedIn = (q: Question | undefined, year: number): boolean =>
+  !q?.waves || q.waves.includes(year);
 
 const bySlug = new Map(themes.map((t) => [t.slug, t]));
 export const theme = (slug: string): Theme | undefined => bySlug.get(slug);

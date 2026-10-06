@@ -123,6 +123,77 @@ const questions = rows('005_questions.sql').map((r) => {
 });
 for (const q of questions) byOrder.get(q.theme)?.questions.push(q.code);
 
+// A grid question's rows are child questions, linked to the grid by a statement
+// after the INSERT (the parent's id is not known until then). THE-315. A link
+// naming a code the INSERT did not write stops the build: the child would be
+// drawn as a question of its own, with no grid to belong to.
+const byCode = new Map(questions.map((q) => [q.code, q]));
+for (const q of questions) q.parent = null;
+const links = readFileSync(join(SEEDS, '005_questions.sql'), 'utf8').matchAll(
+  /JOIN questions p ON p\.code = '([^']+)'\s+SET c\.parent_question_id = p\.id\s+WHERE c\.code IN \(([^)]*)\);/g,
+);
+for (const [, parent, list] of links) {
+  for (const [, child] of list.matchAll(/'([^']+)'/g)) {
+    if (!byCode.has(parent) || !byCode.has(child)) {
+      console.error(`005_questions.sql links ${child} to ${parent}, and one of them is not a seeded question.`);
+      process.exit(1);
+    }
+    byCode.get(child).parent = parent;
+  }
+}
+
+// The waves each question is mapped in, from the portal's crosswave.csv: a row
+// per question and wave the file holds an answer for (a multi-select's options
+// give a row each). A grid's rows are asked in different waves: slide 13's UN,
+// IMF and G20 only in 2026, and T03_Q1's three others from 2024, since 2020 and
+// 2022 were asked of a different base (THE-315). A chart that drew every row in
+// every wave would put a value where the survey has nothing (review of #20).
+// Null for a question with no row at all: nothing is known, so nothing is
+// narrowed.
+const CROSSWAVE = join(here, '..', '..', 'afys-portal', 'pipeline', 'mappings', 'crosswave.csv');
+
+/** One CSV line's cells, honouring double quotes. */
+function cells(line) {
+  const out = [];
+  let cell = '', quoted = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const c = line[i];
+    if (quoted) {
+      if (c === '"' && line[i + 1] === '"') { cell += '"'; i += 1; }
+      else if (c === '"') quoted = false;
+      else cell += c;
+    } else if (c === '"') quoted = true;
+    else if (c === ',') { out.push(cell); cell = ''; }
+    else cell += c;
+  }
+  out.push(cell);
+  return out;
+}
+
+const asked = new Map();
+const lines = readFileSync(CROSSWAVE, 'utf8').replace(/^﻿/, '').split(/\r?\n/)
+  .filter((line) => line.trim() && !line.trimStart().startsWith('#'));
+const header = cells(lines[0]);
+const [codeAt, waveAt] = [header.indexOf('question_code'), header.indexOf('wave')];
+if (codeAt === -1 || waveAt === -1) {
+  console.error(`crosswave.csv has no question_code and wave columns: ${lines[0]}`);
+  process.exit(1);
+}
+for (const line of lines.slice(1)) {
+  const row = cells(line);
+  const code = row[codeAt]?.trim();
+  const wave = Number(row[waveAt]);
+  if (!byCode.has(code) || !years.has(wave)) {
+    // A row for a question or wave the seeds do not have would narrow nothing
+    // and say nothing; stopping is the only way it gets seen.
+    console.error(`crosswave.csv maps ${code} in ${row[waveAt]}, and the seeds have no such question or wave.`);
+    process.exit(1);
+  }
+  if (!asked.has(code)) asked.set(code, new Set());
+  asked.get(code).add(wave);
+}
+for (const q of questions) q.waves = asked.has(q.code) ? [...asked.get(q.code)].sort() : null;
+
 const charts = rows('006_tile_charts.sql').map((r) => {
   const [theme, order, title, type, qids, , comparison, , slide, caveat, showing] = r;
   return {

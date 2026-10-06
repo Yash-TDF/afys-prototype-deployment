@@ -41,7 +41,13 @@ export function insights(model: ViewModel): Insight[] {
 
   if (model.categoryKind === 'waves') return trend(model);
 
-  const cells = rows(model).filter((r) => r.value !== undefined);
+  // A tracked grid draws one series per wave, earliest first. Its chips read the
+  // latest wave and say which, where they used to read 2020 without saying so
+  // (review of #20). Every other chart reads its first series, as it always has.
+  const grid = model.categoryKind === 'rows';
+  const index = grid ? model.series.length - 1 : 0;
+  const wave = grid && model.seriesKind === 'waves' ? ` in ${model.series[index]?.label}` : '';
+  const cells = rows(model, index).filter((r) => r.value !== undefined);
   if (cells.length === 0) return out;
 
   // Differences between measured figures. These are honest whatever the bases
@@ -51,7 +57,7 @@ export function insights(model: ViewModel): Insight[] {
   const bottom = sorted[sorted.length - 1]!;
 
   if (cells.length > 1) {
-    out.push({ kind: 'high', label: top.label, sub: `${fmtPct(top.value!)} highest` });
+    out.push({ kind: 'high', label: top.label, sub: `${fmtPct(top.value!)} highest${wave}` });
   }
 
   out.push(combined(model, cells.length));
@@ -72,6 +78,11 @@ export function insights(model: ViewModel): Insight[] {
  * available reads as a page that failed to load.
  */
 function combined(model: ViewModel, count: number): Insight {
+  // A grid's rows are separate questions, each with its own base: there is no
+  // combined figure, and "answers to one question" would be the wrong reason.
+  if (model.categoryKind === 'rows') {
+    return { kind: 'refused', label: 'No combined figure', sub: 'each row is a separate question' };
+  }
   const parts = partsFor(model);
   if (!parts) {
     return {
@@ -105,7 +116,9 @@ function trend(model: ViewModel): Insight[] {
   if (!series || model.categories.length < 2) return out;
   const of = model.series.length > 1 ? `${series.label} · ` : '';
 
-  const values = series.values;
+  // A wave with no figure breaks the line, and a shift across a gap is not one.
+  if (series.values.some((v) => v === null)) return out;
+  const values = series.values as number[];
   const first = values[0]!;
   const last = values[values.length - 1]!;
   const delta = Math.round((last - first) * 10) / 10;

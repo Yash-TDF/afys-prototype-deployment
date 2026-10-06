@@ -28,11 +28,20 @@ Other scripts:
 | `pnpm content` | regenerate `src/data/content.json` and `public/africa.geo.json` from the portal's seeds |
 | `pnpm audit:options` | list what is still open with PSB; add `--write` to regenerate `NEEDED_FROM_PSB.md` |
 | `pnpm typecheck` | `tsc --noEmit` |
+| `node tools/verify-the-315.mjs` | in a browser: every grid chart draws its own rows, with a gap where a row was not asked, and a grid is never drawn as one question |
+| `node tools/verify-map.mjs` | in a browser: each of the 28 countries fills, names and opens on the map, in every wave |
 | `node tools/verify-the-349.mjs` | in a browser: hiding answers is display only, and every view says what is hidden |
 
-`pnpm content` reads `../afys-portal/db/seeds/*.sql`, so the two directories have
-to sit side by side. If the deck changes, regenerate rather than editing
-`content.json` by hand.
+`pnpm content` reads `../afys-portal/db/seeds/*.sql` and the portal's
+`pipeline/mappings/crosswave.csv`, so the two directories have to sit side by
+side. If the deck changes, regenerate rather than editing `content.json` by hand.
+
+The two `verify-` checks drive the installed Google Chrome against a running
+copy of the prototype: start it with `pnpm exec vite` (not `pnpm dev`, which
+regenerates `content.json` first), then run either. They exit 1 on any failure
+and write their results to `node_modules/.cache/`. `verify-map.mjs` also reads
+the portal's seeds, as its expected values, so it needs the portal beside this
+repo too.
 
 `verify-the-349.mjs` drives the installed Google Chrome against a running copy
 of the prototype: start it with `pnpm exec vite` (not `pnpm dev`, which
@@ -251,6 +260,8 @@ tools/build-content.mjs   seeds → src/data/content.json
 tools/make-africa.mjs     world-atlas → public/africa.geo.json (Africa only, 110m)
 tools/report-size.mjs     what loads, when, gzipped
 tools/audit-options.ts    what is still open with PSB → NEEDED_FROM_PSB.md
+tools/verify-the-315.mjs  browser check: grid charts draw their own rows
+tools/verify-map.mjs      browser check: the 28 countries on the map, every wave
 tools/verify-the-349.mjs  browser check: hiding answers never rebases
 src/content.ts            the deck, typed
 src/illustrative.ts       the generated figures — deleted when the API is wired up

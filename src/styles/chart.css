@@ -81,6 +81,10 @@ figure.chart { margin: 0; }
 .explorer-figure-map .canvas { max-width: 640px; margin-inline: auto; }
 
 .chart .note { margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+/* A wave the rows were not asked in: a sentence where the chart would be, in the
+   chart's own frame so the card keeps its height beside its neighbours. */
+.chart .not-asked { margin: 0; padding: 32px 16px; text-align: center; color: var(--muted); font-size: 14px;
+  border: 1px dashed var(--line); border-radius: 10px; }
 .slide-ref { margin: 12px 0 0; color: var(--faint); font-size: 11.5px; }
 
 /* Tables ------------------------------------------------------------------ */
