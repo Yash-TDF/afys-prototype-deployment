@@ -709,3 +709,7 @@ console.log(`tooltip paint: ${paintChecks.map((p) => `${p.mode} ${p.wave}: opaci
 console.log(`page errors: ${pageErrors.length} (${[...new Set(pageErrors.map((e) => e.message))].join(' / ')})`);
 console.log(`identity: ${identity.rows.filter((r) => r.pass).length}/${identity.rows.length} outlines match ISO numeric`);
 console.log(`wrote ${join(HERE, 'results.md')}`);
+// Exit 1 on any failure, as the README says both checks do. Without it a run
+// that drew no-data as 0 reported 286 of 1036 failures and still exited 0
+// (review of #20).
+process.exit(failures.length || pageErrors.length ? 1 : 0);
