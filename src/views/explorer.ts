@@ -20,13 +20,14 @@ import {
   type ChartSpec, type ChartType, type Question,
 } from '../content';
 import { renderFigure, type Figure } from '../charts/render';
+import { answersOf, hiddenOn, LAST_ANSWER, toggled, withHidden } from '../charts/hidden';
 import {
   buildViewModel, DEFAULT_FILTERS, type CompareBy, type Filters, type ViewModel,
 } from '../model';
 import type { View } from '../main';
 import { csvEscape, copyText, downloadBlob, saveAs, slug } from '../ui/download';
 import { toast } from '../ui/toast';
-import { filterBar, REGIONS } from './filters';
+import { filterBar, multiField, REGIONS } from './filters';
 import { enhance } from './dropdown';
 
 import { showWave } from '../wave-badge';
@@ -50,6 +51,51 @@ interface State {
   code: string;
   kind: ChartType;
   filters: Filters;
+  /**
+   * Answers the reader has taken off the chart. Display only: never part of
+   * Filters, so nothing that builds a figure can see it, and no figure can be
+   * rebased on it. THE-349.
+   */
+  hidden: string[];
+}
+
+/**
+ * The explorer's chart for a question. Every chart here is built from this, so
+ * the answers a link may hide are checked against the chart it will draw.
+ */
+function specFor(found: Question, kind: ChartType): ChartSpec {
+  return {
+    theme: found.theme,
+    order: 1,
+    title: found.label,
+    type: kind,
+    questions: [found.code],
+    // A map and a country bar chart are both "one value per country"; a line is
+    // "one value per wave"; everything else is the distribution.
+    comparison: kind === 'map' || kind === 'bar' ? 'country'
+      : kind === 'line' ? 'tracked' : 'none',
+    slide: null,
+    caveat: null,
+    showing: null,
+  };
+}
+
+function modelFor(found: Question, kind: ChartType, filters: Filters): ViewModel {
+  const parent = themes.find((t) => t.order === found.theme)!;
+  return buildViewModel(specFor(found, kind), theme(parent.slug)!, filters);
+}
+
+/**
+ * Keep only the hidden answers this chart has, in its order.
+ *
+ * Called whenever the chart could change under them. A link naming an answer
+ * the question does not have, or one a country chart does not draw, or every
+ * answer at once, would otherwise sit in the address bar claiming something
+ * the chart is not doing.
+ */
+function settle(state: State, ordered: Question[]): State {
+  const found = ordered.find((q) => q.code === state.code) ?? ordered[0]!;
+  return { ...state, hidden: hiddenOn(modelFor(found, state.kind, state.filters), state.hidden) };
 }
 
 export function explorerView(host: HTMLElement, params: URLSearchParams): View {
@@ -168,7 +214,7 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
     // nowhere lands on the first or last match rather than doing nothing.
     const to = at === -1 ? (delta > 0 ? 0 : list.length - 1) : at + delta;
     if (to < 0 || to >= list.length) return;
-    state = { ...state, code: list[to]!.code };
+    state = { ...state, code: list[to]!.code, hidden: [] };
     record('push');
     draw();
   }
@@ -205,7 +251,7 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
         button.textContent = q.label;
         button.setAttribute('aria-current', String(q.code === state.code));
         button.addEventListener('click', () => {
-          state = { ...state, code: q.code };
+          state = { ...state, code: q.code, hidden: [] };
           record('push');
           draw();
         });
@@ -284,7 +330,8 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
       select.append(group);
     }
     select.addEventListener('change', () => {
-      state = { ...state, code: select.value };
+      // Another question's answers are other answers: nothing carries over.
+      state = { ...state, code: select.value, hidden: [] };
       record('push');
       draw();
     });
@@ -344,7 +391,9 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
     // line chart ignores the wave filter rather than hiding it, which is what the
     // portal will do.
     const bar = filterBar(state.filters, (nextFilters) => {
-      state = { ...state, filters: nextFilters };
+      // A multi-select's top ten can change with the filters, so an answer
+      // hidden here may not be on the next chart.
+      state = settle({ ...state, filters: nextFilters }, ordered);
       record('replace');
       draw();
     });
@@ -361,7 +410,9 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
       button.className = option.value === state.kind ? 'active' : '';
       button.setAttribute('aria-pressed', String(option.value === state.kind));
       button.addEventListener('click', () => {
-        state = { ...state, kind: option.value };
+        // The answers are the same strings on every chart type, so what was
+        // hidden stays hidden where the new chart draws it.
+        state = settle({ ...state, kind: option.value }, ordered);
         record('push');
         draw();
       });
@@ -371,30 +422,47 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
     // filters — one card for everything that changes the chart.
     bar.insertBefore(switcher, bar.querySelector('.ftags'));
 
-    const spec: ChartSpec = {
-      theme: found.theme,
-      order: 1,
-      title: found.label,
-      type: state.kind,
-      questions: [found.code],
-      // A map and a country bar chart are both "one value per country"; a line is
-      // "one value per wave"; everything else is the distribution.
-      comparison: state.kind === 'map' || state.kind === 'bar' ? 'country'
-        : state.kind === 'line' ? 'tracked' : 'none',
-      slide: null,
-      caveat: null,
-      showing: null,
+    const model: ViewModel = modelFor(found, state.kind, state.filters);
+    const answers = answersOf(model);
+
+    const hide = (hidden: string[]): void => {
+      state = settle({ ...state, hidden }, ordered);
+      record('replace');
+      draw();
     };
 
-    const model: ViewModel = buildViewModel(spec, theme(parent.slug)!, state.filters);
+    // Which answers are on the chart. Read like the Country field: nothing
+    // ticked is all of them. Only where the chart is drawn across answers; a
+    // chart across countries plots one answer, so there is nothing to choose.
+    if (answers.length > 1) {
+      const shown = state.hidden.length > 0 ? answers.filter((a) => !state.hidden.includes(a)) : [];
+      const field = multiField('Answers', answers, shown, (ticked) => {
+        hide(ticked.length === 0 ? [] : answers.filter((a) => !ticked.includes(a)));
+        // The redraw replaced the field, and with it the trigger the list had
+        // just handed focus back to, so focus fell to the page and a keyboard
+        // or screen reader user lost their place. The new field's trigger takes
+        // it (review of #19).
+        content.querySelector('#field-answers')?.parentElement
+          ?.querySelector<HTMLElement>('.picker-trigger')?.focus();
+      }, 'All answers', 'answers');
+      bar.insertBefore(field, switcher);
+    }
+
     const holder = document.createElement('div');
     holder.className = state.kind === 'map' ? 'explorer-figure explorer-figure-map' : 'explorer-figure';
     content.append(holder);
-    figure = renderFigure(holder, model, state.kind, parent.accent);
+    figure = renderFigure(holder, model, state.kind, parent.accent, {
+      hidden: state.hidden,
+      // The legend's answers are the same switch as the field above.
+      onToggle: (answer) => {
+        const hidden = toggled(model, state.hidden, answer);
+        if (hidden) hide(hidden); else toast(LAST_ANSWER);
+      },
+    });
 
     // A wave the row was not asked in has no figures, so nothing to download.
     if (!model.notAsked) {
-      const downloads = exports(model, found, state.filters, () => record('replace'));
+      const downloads = exports(withHidden(model, state.hidden), found, state.filters, state.hidden, () => record('replace'));
       const caption = holder.querySelector('figcaption');
       // On the title's row. `.showing` takes a full row of its own, so going in
       // ahead of it keeps the buttons level with the title.
@@ -481,7 +549,7 @@ function parse(params: URLSearchParams, ordered: Question[]): State {
     ? inWave(wave).map((c) => c.name).filter((name) => REGIONS[region]!.includes(name))
     : [];
 
-  return {
+  return settle({
     code: ordered.some((q) => q.code === code) ? code! : ordered[0]!.code,
     kind: TYPES.some((t) => t.value === kind) ? kind as ChartType : 'bar',
     filters: {
@@ -497,7 +565,9 @@ function parse(params: URLSearchParams, ordered: Question[]): State {
       region: inRegion.length > 0 ? region : '',
       compare: COMPARES.includes(compare as CompareBy) ? compare as CompareBy : 'none',
     },
-  };
+    // Repeated, like the countries. settle() keeps only answers this chart has.
+    hidden: params.getAll('hide'),
+  }, ordered);
 }
 
 /** The canonical query for a state — also how two states are compared. */
@@ -512,6 +582,7 @@ function query(state: State): string {
   else for (const name of state.filters.countries) params.append('country', name);
   if (state.filters.gender !== 'all') params.set('gender', state.filters.gender);
   if (state.filters.compare !== 'none') params.set('cmp', state.filters.compare);
+  for (const answer of state.hidden) params.append('hide', answer);
   return params.toString();
 }
 
@@ -571,7 +642,7 @@ function kbd(text: string): HTMLElement {
  * Every line goes through csvEscape. They are comments to us but cells to a
  * spreadsheet, and an unquoted "Base: 10,759" opens as "Base: 10" beside "759".
  */
-function provenance(model: ViewModel, question: Question, filters: Filters): string[] {
+function provenance(model: ViewModel, question: Question, filters: Filters, hidden: readonly string[]): string[] {
   const overWaves = model.categoryKind === 'waves' || model.compare === 'wave';
   // A chart across waves ignores the wave filter, so naming the filter's value
   // here would describe a choice the figures did not use.
@@ -597,12 +668,29 @@ function provenance(model: ViewModel, question: Question, filters: Filters): str
     ...(model.likeForLike ? [model.likeForLike] : []),
     ...(model.compareNote ? [model.compareNote] : []),
     ...(model.optionsInvented ? ['The answer options on this chart are placeholders, not the questionnaire’s.'] : []),
+    // The rows below leave these out, so a file that did not say so would pass
+    // for the whole question. THE-349.
+    ...(hidden.length > 0
+      ? [`Answers hidden: ${hidden.join('; ')}. The percentages are of all respondents and were not rebased, `
+        + 'so the rows do not add up to 100%.']
+      : []),
     `Source: ${window.location.href}`,
   ].map((line) => csvEscape(`# ${line}`));
 }
 
-/** The download row. Wired up because "can I have this as an image" arrives on day one. */
-function exports(model: ViewModel, question: Question, filters: Filters, sync: () => void): HTMLElement {
+/**
+ * The download row. Wired up because "can I have this as an image" arrives on day one.
+ *
+ * `model` is the chart as shown, hidden answers already out of it; the PNG
+ * carries the hidden line because the chart draws it inside its canvas.
+ */
+function exports(
+  model: ViewModel,
+  question: Question,
+  filters: Filters,
+  hidden: readonly string[],
+  sync: () => void,
+): HTMLElement {
   const row = document.createElement('div');
   row.className = 'exports';
   const code = question.code;
@@ -618,7 +706,7 @@ function exports(model: ViewModel, question: Question, filters: Filters, sync: (
       [csvEscape(category), ...model.series.map((s) => s.values[i] ?? '')].join(','));
     // The URL is part of the provenance, so make sure it is the current one.
     sync();
-    const meta = provenance(model, question, filters);
+    const meta = provenance(model, question, filters, hidden);
     // A BOM, or Excel reads the em dash and "Côte d'Ivoire" as mojibake.
     downloadBlob(`\uFEFF${[...meta, header, ...lines].join('\r\n')}`, 'text/csv;charset=utf-8;', `${name}.csv`);
     toast('CSV downloaded');
