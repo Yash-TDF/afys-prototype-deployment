@@ -298,6 +298,45 @@ for (const r of flat) {
 check('slide 39 is among the grids checked at a wave none of its rows was asked in',
   flat.some((r) => r.slide === 39 && r.empty !== undefined), JSON.stringify(flat.map((r) => [r.slide, r.empty ?? null])));
 
+// 9. Tile 3 reads a row of slide 12 as its trend (THE-379). Slide 12's categories
+//    are organisations, not years, so before this the card skipped it and printed
+//    "Not tracked across waves". The row is worked out here from content.json: the
+//    chart's first listed question, the deck's own first row. Not the tallest bar,
+//    which is an accident of the illustrative figures.
+if (twelve) {
+  const theme = content.themes.find((t) => t.order === twelve.theme);
+  const expectedRow = names[twelve.questions[0]];
+  const drawn = charts['12'];
+  const at = drawn.labels.indexOf(expectedRow);
+  const column = drawn.series.map((year, s) => ({ year: Number(year), value: drawn.values[s][at] }));
+  const start = column.findIndex((p) => p.value !== null);
+  const trendRow = start < 0 ? [] : column.slice(start);
+  await page.goto(`${BASE}/#/`, { waitUntil: 'load' });
+  await page.waitForTimeout(800);
+  const card = await page.evaluate(async (slug) => {
+    const { themes } = await import('/src/content.ts');
+    const { themeCardFigures } = await import('/src/views/theme-card.ts');
+    const figures = themeCardFigures(themes.find((t) => t.slug === slug));
+    const tile = [...document.querySelectorAll('.tile')].find((t) => t.querySelector('.theme-tag')?.closest('.tile')
+      && t.textContent.includes(themes.find((x) => x.slug === slug).name));
+    return { ...figures, printedOf: tile?.querySelector('.tstat-of')?.textContent?.trim() ?? null,
+      printedNone: tile?.querySelector('.tstat-none')?.textContent?.trim() ?? null };
+  }, theme.slug);
+  check(`tile ${theme.order} headlines slide 12's first row, ${expectedRow}`, card.of === expectedRow && card.headline !== null,
+    `reads ${JSON.stringify(card.of)}, headline ${card.headline}, note ${JSON.stringify(card.note)}`);
+  check(`tile ${theme.order}'s trend is that row as slide 12 draws it`,
+    trendRow.length >= 2 && same(card.spark, trendRow.map((p) => p.value))
+      && card.delta?.from === trendRow[0].year && card.delta?.to === trendRow[trendRow.length - 1].year,
+    `spark ${JSON.stringify(card.spark)} from ${card.delta?.from} to ${card.delta?.to}; `
+    + `slide 12 ${JSON.stringify(trendRow)}`);
+  check(`tile ${theme.order} prints a caption for that row, not "Not tracked"`,
+    Boolean(card.caption) && card.printedOf === card.caption && !card.printedNone,
+    `caption ${JSON.stringify(card.caption)}, printed ${JSON.stringify(card.printedOf)}, none ${JSON.stringify(card.printedNone)}`);
+} else {
+  check('tile 3 headlines slide 12\'s first row', true,
+    'not applicable: this content has slide 12 as a single question (before THE-363)');
+}
+
 check('no page errors', errors.length === 0, errors.join(' | ') || 'none');
 await browser.close();
 
