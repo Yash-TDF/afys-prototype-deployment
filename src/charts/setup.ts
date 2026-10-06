@@ -12,7 +12,7 @@
 //      or the projection maths up front.
 import {
   Chart, ArcElement, BarController, BarElement, CategoryScale, Filler, Legend,
-  LineController, LineElement, LinearScale, PieController, PointElement, Tooltip,
+  LineController, LineElement, LinearScale, PieController, PointElement, SubTitle, Tooltip,
   type Plugin,
 } from 'chart.js';
 import { GRID, INK, labelInk, MUTED } from './palette';
@@ -83,6 +83,8 @@ export function setupCharts(): void {
   Chart.register(
     ArcElement, BarController, BarElement, CategoryScale, Filler, Legend,
     LineController, LineElement, LinearScale, PieController, PointElement, Tooltip,
+    // Draws the hidden-answers line inside the canvas, so a PNG says it too. THE-349.
+    SubTitle,
   );
   Chart.defaults.font.family = bodyFont();
   Chart.defaults.font.size = 12;
