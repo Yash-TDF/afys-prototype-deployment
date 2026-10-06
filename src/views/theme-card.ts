@@ -92,8 +92,10 @@ export function themeCardFigures(theme: Theme): ThemeCardFigures {
     const model = buildViewModel(chart, theme, DEFAULT_FILTERS);
     const series = model.series[0];
     const years = model.categories.map(Number);
-    const values = series?.values ?? [];
-    if (!series || values.length < 2) continue;
+    const raw = series?.values ?? [];
+    // A year with no figure cannot be a point on the card's trend.
+    if (!series || raw.length < 2 || raw.some((v) => v === null)) continue;
+    const values = raw as number[];
     // Every category has to parse, not just the first: a half-numeric axis would
     // put a real year on the card and still be reading options as time.
     if (!years.every((y) => Number.isFinite(y))) continue;

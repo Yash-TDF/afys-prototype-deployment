@@ -176,6 +176,17 @@
 }
 .base-note { margin: 0; font-size: 13px; color: var(--warn-ink); background: var(--warn-bg); padding: 8px 14px; border-radius: 100px; }
 
+/* A grid chosen in the explorer: no chart, a way to each row (review of #20). */
+.grid-notice { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px 28px; color: var(--ink); }
+.grid-notice p { margin: 0 0 12px; font-size: 14px; }
+.grid-notice ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.grid-row-link {
+  font: inherit; font-size: 13px; color: var(--ink); background: var(--card);
+  border: 1px solid var(--line-strong); border-left: 3px solid var(--accent);
+  border-radius: 100px; padding: 6px 14px; cursor: pointer;
+}
+.grid-row-link:hover, .grid-row-link:focus-visible { background: var(--warn-bg); }
+
 /* Chart-type switch, as the approved prototype draws it: a segmented control
    set into the filter card and pushed to its far end, not a card of its own. */
 .type-switch {

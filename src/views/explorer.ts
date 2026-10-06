@@ -16,7 +16,7 @@
 // replaceState rather than assigning to location.hash: assigning fires
 // hashchange, and the view would be told about a change it had just made.
 import {
-  inWave, questions, theme, themes, waves,
+  childrenOf, inWave, questions, rowName, theme, themes, waves,
   type ChartSpec, type ChartType, type Question,
 } from '../content';
 import { renderFigure, type Figure } from '../charts/render';
@@ -296,6 +296,42 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
     wording.className = 'question-text';
     wording.textContent = found.text;
     content.append(wording);
+
+    // A grid has no figures of its own: each row is a separate question, asked
+    // of its own respondents (THE-315). Drawn as one question it read like a
+    // finding, "53% combined across 16 countries", and its bar view summed the
+    // rows to 100%, the error the grid split exists to remove. So no chart, and
+    // a way to each row instead (review of #20).
+    const rowsOfGrid = childrenOf(found.code);
+    if (rowsOfGrid.length > 0) {
+      figure = null;
+      const notice = document.createElement('div');
+      notice.className = 'grid-notice';
+      notice.setAttribute('role', 'status');
+      const lead = document.createElement('p');
+      lead.textContent = 'This grid has no figures of its own. Each row is a separate question, '
+        + 'asked of its own respondents. Choose a row to see its figures.';
+      const list = document.createElement('ul');
+      for (const child of rowsOfGrid) {
+        const item = document.createElement('li');
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'grid-row-link';
+        button.textContent = rowName(child);
+        button.addEventListener('click', () => {
+          state = { ...state, code: child.code };
+          record('push');
+          draw();
+        });
+        item.append(button);
+        list.append(item);
+      }
+      notice.append(lead, list);
+      content.append(notice);
+      renderList();
+      syncNav();
+      return;
+    }
 
     if (found.baseType === 'filtered' && found.baseText) {
       const base = document.createElement('p');

@@ -142,6 +142,58 @@ for (const [, parent, list] of links) {
   }
 }
 
+// The waves each question is mapped in, from the portal's crosswave.csv: a row
+// per question and wave the file holds an answer for (a multi-select's options
+// give a row each). A grid's rows are asked in different waves: slide 13's UN,
+// IMF and G20 only in 2026, and T03_Q1's three others from 2024, since 2020 and
+// 2022 were asked of a different base (THE-315). A chart that drew every row in
+// every wave would put a value where the survey has nothing (review of #20).
+// Null for a question with no row at all: nothing is known, so nothing is
+// narrowed.
+const CROSSWAVE = join(here, '..', '..', 'afys-portal', 'pipeline', 'mappings', 'crosswave.csv');
+
+/** One CSV line's cells, honouring double quotes. */
+function cells(line) {
+  const out = [];
+  let cell = '', quoted = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const c = line[i];
+    if (quoted) {
+      if (c === '"' && line[i + 1] === '"') { cell += '"'; i += 1; }
+      else if (c === '"') quoted = false;
+      else cell += c;
+    } else if (c === '"') quoted = true;
+    else if (c === ',') { out.push(cell); cell = ''; }
+    else cell += c;
+  }
+  out.push(cell);
+  return out;
+}
+
+const asked = new Map();
+const lines = readFileSync(CROSSWAVE, 'utf8').replace(/^﻿/, '').split(/\r?\n/)
+  .filter((line) => line.trim() && !line.trimStart().startsWith('#'));
+const header = cells(lines[0]);
+const [codeAt, waveAt] = [header.indexOf('question_code'), header.indexOf('wave')];
+if (codeAt === -1 || waveAt === -1) {
+  console.error(`crosswave.csv has no question_code and wave columns: ${lines[0]}`);
+  process.exit(1);
+}
+for (const line of lines.slice(1)) {
+  const row = cells(line);
+  const code = row[codeAt]?.trim();
+  const wave = Number(row[waveAt]);
+  if (!byCode.has(code) || !years.has(wave)) {
+    // A row for a question or wave the seeds do not have would narrow nothing
+    // and say nothing; stopping is the only way it gets seen.
+    console.error(`crosswave.csv maps ${code} in ${row[waveAt]}, and the seeds have no such question or wave.`);
+    process.exit(1);
+  }
+  if (!asked.has(code)) asked.set(code, new Set());
+  asked.get(code).add(wave);
+}
+for (const q of questions) q.waves = asked.has(q.code) ? [...asked.get(q.code)].sort() : null;
+
 const charts = rows('006_tile_charts.sql').map((r) => {
   const [theme, order, title, type, qids, , comparison, , slide, caveat, showing] = r;
   return {

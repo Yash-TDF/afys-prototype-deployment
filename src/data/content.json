@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-04",
+ "generatedAt": "2026-10-06",
  "source": "afys-portal/db/seeds — structure only, no survey results",
  "waves": [
   {
@@ -838,7 +838,7 @@
      "comparison": "tracked",
      "slide": 41,
      "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
-     "showing": "Showing % selecting ‘I will have a better"
+     "showing": "Showing % selecting ‘Very good’ or ‘Good’ | Showing % selecting ‘Get better’ | Showing % selecting ‘I will have a better life than my parents did’"
     },
     {
      "theme": 10,
@@ -1012,7 +1012,13 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 3",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T01_Q2",
@@ -1026,7 +1032,13 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 4",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T01_Q3",
@@ -1040,7 +1052,13 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 5",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T01_Q4",
@@ -1054,7 +1072,8 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 6",
-   "parent": null
+   "parent": null,
+   "waves": null
   },
   {
    "code": "T02_Q1",
@@ -1068,7 +1087,13 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 8",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T02_Q2",
@@ -1082,7 +1107,10 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 9",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2026
+   ]
   },
   {
    "code": "T02_Q3",
@@ -1096,7 +1124,8 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 10",
-   "parent": null
+   "parent": null,
+   "waves": null
   },
   {
    "code": "T03_Q1",
@@ -1110,7 +1139,8 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 13",
-   "parent": null
+   "parent": null,
+   "waves": null
   },
   {
    "code": "T03_Q1_AU",
@@ -1124,7 +1154,11 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 13",
-   "parent": "T03_Q1"
+   "parent": "T03_Q1",
+   "waves": [
+    2024,
+    2026
+   ]
   },
   {
    "code": "T03_Q1_UN",
@@ -1138,7 +1172,10 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 13",
-   "parent": "T03_Q1"
+   "parent": "T03_Q1",
+   "waves": [
+    2026
+   ]
   },
   {
    "code": "T03_Q1_WTO",
@@ -1152,7 +1189,11 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 13",
-   "parent": "T03_Q1"
+   "parent": "T03_Q1",
+   "waves": [
+    2024,
+    2026
+   ]
   },
   {
    "code": "T03_Q1_IMF",
@@ -1166,7 +1207,10 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 13",
-   "parent": "T03_Q1"
+   "parent": "T03_Q1",
+   "waves": [
+    2026
+   ]
   },
   {
    "code": "T03_Q1_EU",
@@ -1180,7 +1224,11 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 13",
-   "parent": "T03_Q1"
+   "parent": "T03_Q1",
+   "waves": [
+    2024,
+    2026
+   ]
   },
   {
    "code": "T03_Q1_G20",
@@ -1194,7 +1242,10 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 13",
-   "parent": "T03_Q1"
+   "parent": "T03_Q1",
+   "waves": [
+    2026
+   ]
   },
   {
    "code": "T03_Q2",
@@ -1208,7 +1259,8 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 14",
-   "parent": null
+   "parent": null,
+   "waves": null
   },
   {
    "code": "T04_Q1",
@@ -1222,7 +1274,12 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 16",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T04_Q2",
@@ -1236,7 +1293,8 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 17",
-   "parent": null
+   "parent": null,
+   "waves": null
   },
   {
    "code": "T04_Q3",
@@ -1250,7 +1308,8 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 18",
-   "parent": null
+   "parent": null,
+   "waves": null
   },
   {
    "code": "T05_Q1",
@@ -1264,7 +1323,10 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 20",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2026
+   ]
   },
   {
    "code": "T05_Q2",
@@ -1278,7 +1340,11 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 21",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2024,
+    2026
+   ]
   },
   {
    "code": "T05_Q3",
@@ -1292,7 +1358,13 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 22",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T05_Q4",
@@ -1306,7 +1378,11 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 22",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2024,
+    2026
+   ]
   },
   {
    "code": "T05_Q5",
@@ -1320,7 +1396,12 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 23",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T06_Q1",
@@ -1334,7 +1415,12 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 25",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T06_Q3",
@@ -1348,7 +1434,12 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 26",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T06_Q2",
@@ -1362,7 +1453,8 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 27",
-   "parent": null
+   "parent": null,
+   "waves": null
   },
   {
    "code": "T07_Q1",
@@ -1376,7 +1468,13 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 29",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T07_Q2",
@@ -1390,7 +1488,11 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 30",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2024,
+    2026
+   ]
   },
   {
    "code": "T07_Q3",
@@ -1404,7 +1506,13 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 31",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T08_Q1",
@@ -1418,7 +1526,13 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 33",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T08_Q2",
@@ -1432,7 +1546,13 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 33",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T08_Q3",
@@ -1446,7 +1566,12 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 34",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T08_Q4",
@@ -1460,7 +1585,8 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 34",
-   "parent": null
+   "parent": null,
+   "waves": null
   },
   {
    "code": "T08_Q5",
@@ -1474,7 +1600,10 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 35",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2026
+   ]
   },
   {
    "code": "T09_Q1",
@@ -1488,7 +1617,8 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 37",
-   "parent": null
+   "parent": null,
+   "waves": null
   },
   {
    "code": "T09_Q2",
@@ -1502,7 +1632,12 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 38",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T09_Q3",
@@ -1516,7 +1651,8 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 39",
-   "parent": null
+   "parent": null,
+   "waves": null
   },
   {
    "code": "T09_Q3_AGENDA",
@@ -1530,7 +1666,10 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 39",
-   "parent": "T09_Q3"
+   "parent": "T09_Q3",
+   "waves": [
+    2026
+   ]
   },
   {
    "code": "T09_Q3_VIOLENCE",
@@ -1544,7 +1683,10 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 39",
-   "parent": "T09_Q3"
+   "parent": "T09_Q3",
+   "waves": [
+    2026
+   ]
   },
   {
    "code": "T09_Q3_PROBLEM",
@@ -1558,7 +1700,12 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 39",
-   "parent": "T09_Q3"
+   "parent": "T09_Q3",
+   "waves": [
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T09_Q3_AI",
@@ -1572,7 +1719,11 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 39",
-   "parent": "T09_Q3"
+   "parent": "T09_Q3",
+   "waves": [
+    2024,
+    2026
+   ]
   },
   {
    "code": "T09_Q3_DIVIDE",
@@ -1586,7 +1737,12 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 39",
-   "parent": "T09_Q3"
+   "parent": "T09_Q3",
+   "waves": [
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T09_Q3_INFORMED",
@@ -1600,7 +1756,12 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 39",
-   "parent": "T09_Q3"
+   "parent": "T09_Q3",
+   "waves": [
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T10_Q1",
@@ -1614,7 +1775,13 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 41",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T10_Q2",
@@ -1628,7 +1795,13 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 41",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T10_Q3",
@@ -1642,7 +1815,12 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 41",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T10_Q4",
@@ -1656,7 +1834,8 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 43",
-   "parent": null
+   "parent": null,
+   "waves": null
   },
   {
    "code": "T10_Q4_STABILITY",
@@ -1670,7 +1849,12 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 43",
-   "parent": "T10_Q4"
+   "parent": "T10_Q4",
+   "waves": [
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T10_Q4_CORRUPTION",
@@ -1684,7 +1868,12 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 43",
-   "parent": "T10_Q4"
+   "parent": "T10_Q4",
+   "waves": [
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T10_Q4_CLIMATE",
@@ -1698,7 +1887,12 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 43",
-   "parent": "T10_Q4"
+   "parent": "T10_Q4",
+   "waves": [
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T10_Q4_IMMIGRATION",
@@ -1712,7 +1906,11 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 43",
-   "parent": "T10_Q4"
+   "parent": "T10_Q4",
+   "waves": [
+    2024,
+    2026
+   ]
   },
   {
    "code": "T10_Q4_POVERTY",
@@ -1726,7 +1924,12 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 43",
-   "parent": "T10_Q4"
+   "parent": "T10_Q4",
+   "waves": [
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T10_Q4_JOBS",
@@ -1740,7 +1943,12 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 43",
-   "parent": "T10_Q4"
+   "parent": "T10_Q4",
+   "waves": [
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T10_Q4_COSTS",
@@ -1754,7 +1962,11 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 43",
-   "parent": "T10_Q4"
+   "parent": "T10_Q4",
+   "waves": [
+    2024,
+    2026
+   ]
   },
   {
    "code": "T11_Q1",
@@ -1768,7 +1980,13 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 45",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T11_Q2",
@@ -1782,7 +2000,11 @@
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 46",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2024,
+    2026
+   ]
   },
   {
    "code": "T11_Q3",
@@ -1796,7 +2018,8 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 47",
-   "parent": null
+   "parent": null,
+   "waves": null
   },
   {
    "code": "T12_Q1",
@@ -1810,7 +2033,8 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 49",
-   "parent": null
+   "parent": null,
+   "waves": null
   },
   {
    "code": "T12_Q1_PLASTIC",
@@ -1824,7 +2048,13 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 49",
-   "parent": "T12_Q1"
+   "parent": "T12_Q1",
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T12_Q1_WATER",
@@ -1838,7 +2068,13 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 49",
-   "parent": "T12_Q1"
+   "parent": "T12_Q1",
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T12_Q1_RESOURCES",
@@ -1852,7 +2088,10 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 49",
-   "parent": "T12_Q1"
+   "parent": "T12_Q1",
+   "waves": [
+    2026
+   ]
   },
   {
    "code": "T12_Q2",
@@ -1866,7 +2105,13 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 50",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T12_Q3",
@@ -1880,7 +2125,13 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 51",
-   "parent": null
+   "parent": null,
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T12_Q4",
@@ -1894,7 +2145,8 @@
    "tracked": false,
    "surfaced": true,
    "slide": "Deck slide 52",
-   "parent": null
+   "parent": null,
+   "waves": null
   }
  ],
  "charts": [
@@ -2301,7 +2553,7 @@
    "comparison": "tracked",
    "slide": 41,
    "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
-   "showing": "Showing % selecting ‘I will have a better"
+   "showing": "Showing % selecting ‘Very good’ or ‘Good’ | Showing % selecting ‘Get better’ | Showing % selecting ‘I will have a better life than my parents did’"
   },
   {
    "theme": 10,

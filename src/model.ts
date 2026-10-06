@@ -6,8 +6,8 @@
 // series, plus the metadata a reader is owed (the base, the caveat, and whether
 // a cross-wave comparison was restricted).
 import {
-  type ChartSpec, type Question, type Theme, gridOf, inWave, latestWave, likeForLike, question,
-  waves,
+  type ChartSpec, type Question, type Theme, askedIn, gridOf, inWave, latestWave, likeForLike,
+  question, rowName, waves,
 } from './content';
 import { base, distribution, headline, multi, optionsFor, trend } from './illustrative';
 import type { ColourRole } from './charts/palette';
@@ -15,7 +15,11 @@ import { type Part, partsOf } from './aggregate';
 
 export interface Series {
   label: string;
-  values: number[];
+  /**
+   * One per category. Null where nothing was measured: a grid row not asked in
+   * this series' wave. Drawn as a gap and listed as not asked, never as zero.
+   */
+  values: (number | null)[];
   /**
    * Unweighted n behind each value, aligned with `categories`.
    *
@@ -37,7 +41,7 @@ const sum = (values: number[]): number => values.reduce((a, b) => a + b, 0);
  * on an agreement scale are different answers and take the scale's colours.
  * Cycling a palette across country names implies a difference that is not there.
  */
-export type CategoryKind = 'countries' | 'options' | 'waves';
+export type CategoryKind = 'countries' | 'options' | 'waves' | 'rows';
 
 /**
  * What the *series* are, as distinct from what the axis is.
@@ -139,6 +143,12 @@ function refuse(spec: ChartSpec, filters: Filters): string | null {
   // for the same reason.
   if (spec.type === 'map') return 'A map draws one figure per country, so it cannot show two series at once.';
   if (spec.type === 'pie') return 'A share chart is one whole, so it cannot show two series at once.';
+  // A tracked grid's series are already its waves. A gender split would take
+  // each cut's first series, its earliest wave, and label it Men or Women
+  // (review of #20).
+  if (filters.compare === 'gender' && gridOf(spec.questions) && spec.comparison === 'tracked') {
+    return 'This chart already draws each wave as a series, so it cannot also split by gender.';
+  }
   return null;
 }
 
@@ -221,7 +231,11 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
   const options = optionsFor(code ?? spec.title, text, spec.showing);
   const caveats = (spec.caveat ?? '').split('|').map((c) => c.trim()).filter(Boolean);
   const scope = filters.countries.length > 0 ? filters.countries : ['Africa'];
-  const seed = key([theme.slug, spec.order, filters.wave, filters.gender, scope.join('+')]);
+  // The questions are in the key, or two rows of one grid opened on their own in
+  // the explorer, where every chart is order 1 of its theme, drew the same
+  // figures (review of #20).
+  const seed = key([theme.slug, spec.order, spec.questions.join('+'), filters.wave, filters.gender,
+    scope.join('+')]);
 
   const common = {
     title: spec.title,
@@ -241,23 +255,44 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
   // A grid's chart plots its rows, and each row is a question of its own with its
   // own base (THE-315): one bar per row, each an independent share in the
   // answers the chart is "showing" (slide 13's very + somewhat positive), never
-  // one distribution shared out across the rows. Tracked, one series per wave,
-  // so all six of slide 13's organisations are drawn where the trend branch
-  // below keeps three options. No bases: the rows are separate questions, and a
-  // combined figure across them would add up answers to different questions. A
-  // pie stays a distribution, of one row's answers (slide 49).
+  // one distribution shared out across the rows. Tracked, one series per wave.
+  // No bases: the rows are separate questions, and a combined figure across them
+  // would add up answers to different questions. A pie stays a distribution, of
+  // one row's answers (slide 49).
+  //
+  // The rows are the chart's own questions, each named as its seed names it,
+  // not the grid's deck options: slides 10 and 12 are both rows of T02_Q3,
+  // eight countries on one and six organisations on the other, and reading the
+  // grid's options drew the countries on both. A row not asked in a wave has no
+  // value there, and the chart draws a gap: slide 13's UN, IMF and G20 are 2026
+  // only, and a tracked grid draws only the waves some row was asked in. Rows
+  // are ranked largest first by their latest figure, as the deck ranks them
+  // (review of #20).
   if (gridOf(spec.questions) && spec.type !== 'pie') {
-    const years = spec.comparison === 'tracked'
-      ? waves.map((w) => w.year).filter((y) => !notAsked(caveats).has(y))
-      : [filters.wave];
-    const values = options.labels.map((row) => trend(key([seed, row]), years));
+    const children = spec.questions.map((c) => question(c)).filter((c): c is Question => !!c);
     const tracked = spec.comparison === 'tracked';
+    const years = tracked
+      ? waves.map((w) => w.year)
+        .filter((y) => !notAsked(caveats).has(y) && children.some((c) => askedIn(c, y)))
+      : [filters.wave];
+    const drawn = children.map((child) => {
+      const values = trend(key([seed, child.code]), years);
+      return {
+        name: rowName(child),
+        values: years.map((year, i) => (askedIn(child, year) ? values[i]! : null)),
+      };
+    });
+    const latest = (values: (number | null)[]): number =>
+      [...values].reverse().find((v): v is number => v !== null) ?? -1;
+    drawn.sort((a, b) => latest(b.values) - latest(a.values));
     return {
       ...common,
-      categories: options.labels,
+      // The row names are the seeds' own; nothing on this chart is a placeholder.
+      optionsInvented: false,
+      categories: drawn.map((row) => row.name),
       series: years.map((year, i) => ({
         label: tracked ? String(year) : (spec.showing ?? 'Share of respondents'),
-        values: values.map((row) => row[i]!),
+        values: drawn.map((row) => row.values[i]!),
         bases: null,
       })),
       seriesKind: tracked ? 'waves' as SeriesKind : 'single' as SeriesKind,
@@ -265,7 +300,7 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
         ? `Comparing only the ${likeForLike(years).length} countries surveyed in ${years.join(', ')}, `
           + 'so figures differ from the single-wave totals.'
         : null,
-      categoryKind: 'options',
+      categoryKind: 'rows',
     };
   }
 
@@ -386,7 +421,8 @@ export function rows(model: ViewModel, seriesIndex = 0): Row[] {
   const series = model.series[seriesIndex];
   return model.categories.map((label, i) => ({
     label,
-    value: series?.values[i],
+    // A row not asked in this wave has no figure to read.
+    value: series?.values[i] ?? undefined,
     base: series?.bases?.[i] ?? null,
   }));
 }

@@ -65,7 +65,9 @@ const positionalPalette = (model: ViewModel, kind: ChartType, accent: string): s
   // The one colour is the theme's own, which is the colour the choropleth ramp on
   // the same page already ends on. Twelve themes drawing in one green said the
   // charts belonged to the site rather than to the theme they sit in.
-  if (model.categoryKind === 'countries' || count > 5) {
+  // A grid's rows are each one measurement too, of separate questions: a scale's
+  // colours across three organisations would read as a ranking of answers.
+  if (model.categoryKind === 'countries' || model.categoryKind === 'rows' || count > 5) {
     // Except on a pie. A bar can spend sixteen bars on one colour because the
     // axis says which bar is which; a pie has no axis, so one colour there means
     // the chart says nothing at all — eight arcs in one green, and a legend of
@@ -447,7 +449,15 @@ const CORNER: Record<CategoryKind, string> = {
   countries: 'Country',
   options: 'Response',
   waves: 'Wave',
+  // A grid's rows are organisations, statements or policies, each its own
+  // question; "Response" called them answers (review of #20).
+  rows: 'Item',
 };
+
+/** The base a figure states. A grid's rows are separate questions, each with its own. */
+const baseText = (model: ViewModel): string => (model.categoryKind === 'rows'
+  ? 'each row is a separate question with its own base'
+  : `base ${model.base.toLocaleString('en-GB')} respondents`);
 
 /**
  * Which column the table is sorted by, and which way.
@@ -471,7 +481,8 @@ function sortRows(
   const value = (row: number): string | number | undefined => {
     if (column === -1) return model.categories[row];
     if (column === model.series.length) return bases?.[row];
-    return model.series[column]?.values[row];
+    // A row not asked in a wave sorts with the absent ones, last.
+    return model.series[column]?.values[row] ?? undefined;
   };
 
   return [...order].sort((a, b) => {
@@ -499,8 +510,7 @@ function table(model: ViewModel, colours: string[]): HTMLDetailsElement {
 
   const el = document.createElement('table');
   const caption = document.createElement('caption');
-  caption.textContent = `${model.title} — illustrative figures, `
-    + `base ${model.base.toLocaleString('en-GB')} respondents`;
+  caption.textContent = `${model.title} — illustrative figures, ${baseText(model)}`;
   el.append(caption);
 
   // Only where the categories are separate samples, and only where every series
@@ -568,8 +578,10 @@ function table(model: ViewModel, colours: string[]): HTMLDetailsElement {
       model.series.forEach((s, series) => {
         const td = document.createElement('td');
         const value = s.values[i];
-        td.textContent = value === undefined ? '—' : fmtPct(value);
-        if (value !== undefined) {
+        // Null is a grid row the survey did not ask in this wave: said so, never a
+        // dash that could be read as a figure lost.
+        td.textContent = value === undefined ? '—' : value === null ? 'Not asked' : fmtPct(value);
+        if (value !== undefined && value !== null) {
           // The approved prototype draws a proportional bar under each figure,
           // which is what makes a column of numbers readable down the page. It is
           // decorative: the number it measures is already in the cell, so a screen
@@ -615,7 +627,7 @@ const SPLIT: Record<SeriesKind, string> = {
 
 /** A one-sentence description of the chart, for anyone who cannot see it. */
 function summarise(model: ViewModel, kind: ChartType): string {
-  const values = model.series.flatMap((s) => s.values);
+  const values = model.series.flatMap((s) => s.values).filter((v): v is number => v !== null);
   const low = Math.min(...values);
   const high = Math.max(...values);
   return `${kind === 'map' ? 'Map' : 'Chart'}: ${model.title}. `
@@ -647,7 +659,11 @@ function notes(model: ViewModel, requested: ChartType): string[] {
       + 'them. The real list is one of the things we need from PSB.',
     );
   }
-  out.push(`Base: ${model.base.toLocaleString('en-GB')} respondents (illustrative).`);
+  // One "Base: 412" under six organisations claimed one denominator for six
+  // questions (review of #20).
+  out.push(model.categoryKind === 'rows'
+    ? 'Each row is a separate question with its own base (illustrative).'
+    : `Base: ${model.base.toLocaleString('en-GB')} respondents (illustrative).`);
   return out;
 }
 

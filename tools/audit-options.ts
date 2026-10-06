@@ -32,7 +32,12 @@ const rows = questions.map((q) => {
   return { q, theme, invented: model.optionsInvented, listed: (LISTS.options[q.code] ?? []).length };
 });
 
-const invented = rows.filter((r) => r.invented);
+// A grid's rows take the grid's answer scale, which the questionnaire sets in
+// the METRIC header above the grid and the portal's bands.yaml records for each
+// row. That is not an ask of PSB: the prototype draws them as placeholders only
+// because its content does not carry the scales yet (review of #20).
+const gridRows = rows.filter((r) => r.q.parent !== null);
+const invented = rows.filter((r) => r.invented && r.q.parent === null);
 
 /**
  * Why a question is still open, where "we have not been sent it" is not the reason.
@@ -54,12 +59,42 @@ const BASES: Record<string, { settled: boolean; note: string }> = {
   T03_Q1: {
     settled: false,
     note:
-      'Asked about each organisation a respondent said has influence, and each respondent is shown '
-      + 'only nine of the fourteen (questionnaire: "ASK THE SAME 9 of 14 COUNTRIES SHOWN AT METRIC B"). '
-      + 'So the denominator differs for every organisation on the chart. We need to know how the '
-      + 'published figure was calculated.',
+      'A grid with no figures of its own: each organisation is a child question on its own base '
+      + '(below), which reproduces slide 13 for 2024 and 2026. Still open: in 2020 the follow-up was '
+      + 'asked only of "a lot" and "some", and 2022 matches neither routing. Being put to PSB; until '
+      + 'they answer, those two waves are not loaded.',
   },
-  T06_Q1: { settled: true, note: 'Questionnaire routing: IF QEMIGRATE1=C1-C3. Confirmed by PSB.' },
+  T03_Q1_AU: {
+    settled: true,
+    note: 'Among those who said the African Union has a lot, some or a little influence (QFR9_mA, METRIC A), '
+      + 'from the questionnaire routing. With this base the delivered file reproduces slide 13 (THE-315).',
+  },
+  T03_Q1_UN: {
+    settled: true,
+    note: 'Among those who said the United Nations has a lot, some or a little influence (QFR17_mA, METRIC A), '
+      + 'from the questionnaire routing. With this base the delivered file reproduces slide 13 (THE-315).',
+  },
+  T03_Q1_WTO: {
+    settled: true,
+    note: 'Among those who said the World Trade Organisation has a lot, some or a little influence (QFR10_mA, METRIC A), '
+      + 'from the questionnaire routing. With this base the delivered file reproduces slide 13 (THE-315).',
+  },
+  T03_Q1_IMF: {
+    settled: true,
+    note: 'Among those who said the IMF has a lot, some or a little influence (QFR21_mA, METRIC A), '
+      + 'from the questionnaire routing. With this base the delivered file reproduces slide 13 (THE-315).',
+  },
+  T03_Q1_EU: {
+    settled: true,
+    note: 'Among those who said the European Union has a lot, some or a little influence (QFR8_mA, METRIC A), '
+      + 'from the questionnaire routing. With this base the delivered file reproduces slide 13 (THE-315).',
+  },
+  T03_Q1_G20: {
+    settled: true,
+    note: 'Among those who said the G20 has a lot, some or a little influence (QFR16_mA, METRIC A), '
+      + 'from the questionnaire routing. With this base the delivered file reproduces slide 13 (THE-315).',
+  },
+  T06_Q3: { settled: true, note: 'Questionnaire routing: IF QEMIGRATE1=C1-C3. Confirmed by PSB.' },
   T06_Q2: { settled: true, note: 'Questionnaire routing: IF QEMIGRATE1=C1-C3, up to two answers. Confirmed by PSB.' },
 };
 
@@ -74,7 +109,8 @@ say(`Answer lists: ${LISTS.source}`);
 say();
 say('## Answer options');
 say();
-say(`**${rows.length - invented.length} of ${rows.length}** questions are drawn with their real answer options.`);
+const asked = rows.length - gridRows.length;
+say(`**${asked - invented.length} of ${asked}** questions are drawn with their real answer options.`);
 say();
 if (invented.length === 0) {
   say('None outstanding.');
@@ -88,6 +124,12 @@ if (invented.length === 0) {
   }
 }
 say();
+if (gridRows.length > 0) {
+  say(`Not counted above: ${gridRows.length} rows of grid questions. Each takes its grid's answer scale, `
+    + 'which the questionnaire sets above the grid and the portal records per row, so nothing is needed '
+    + 'from PSB for them; the prototype still draws their own answers as placeholders.');
+  say();
+}
 say('The real lists still need checking against the .sav value labels, since a chart can shorten a label.');
 
 const filtered = questions.filter((q) => q.baseType === 'filtered');
