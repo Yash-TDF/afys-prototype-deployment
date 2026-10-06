@@ -28,10 +28,16 @@ Other scripts:
 | `pnpm content` | regenerate `src/data/content.json` and `public/africa.geo.json` from the portal's seeds |
 | `pnpm audit:options` | list what is still open with PSB; add `--write` to regenerate `NEEDED_FROM_PSB.md` |
 | `pnpm typecheck` | `tsc --noEmit` |
+| `node tools/verify-the-349.mjs` | in a browser: hiding answers is display only, and every view says what is hidden |
 
 `pnpm content` reads `../afys-portal/db/seeds/*.sql`, so the two directories have
 to sit side by side. If the deck changes, regenerate rather than editing
 `content.json` by hand.
+
+`verify-the-349.mjs` drives the installed Google Chrome against a running copy
+of the prototype: start it with `pnpm exec vite` (not `pnpm dev`, which
+regenerates `content.json` first), then run it. It exits 1 on any failure and
+writes its results to `node_modules/.cache/`.
 
 ## What is real and what is not
 
@@ -233,7 +239,10 @@ it rather than guessed at.
     leaves the hidden slice's share as a gap, and the chart, its PNG, the CSV and
     the link all say what is hidden (`src/charts/hidden.ts`, THE-349). A legend
     click on a theme page hides the same way, for as long as the page is open;
-    left to Chart.js, a pie's legend widened every other slice to fill the circle
+    left to Chart.js, a pie's legend widened every other slice to fill the circle.
+    The legend is drawn on the canvas, so on a theme page hiding is mouse-only;
+    the explorer's Answers field is the keyboard route. For M2: a legend outside
+    the canvas.
 
 ## Layout
 
@@ -242,6 +251,7 @@ tools/build-content.mjs   seeds → src/data/content.json
 tools/make-africa.mjs     world-atlas → public/africa.geo.json (Africa only, 110m)
 tools/report-size.mjs     what loads, when, gzipped
 tools/audit-options.ts    what is still open with PSB → NEEDED_FROM_PSB.md
+tools/verify-the-349.mjs  browser check: hiding answers never rebases
 src/content.ts            the deck, typed
 src/illustrative.ts       the generated figures — deleted when the API is wired up
 src/model.ts              chart spec + filters → view model (shaped like the API response)
