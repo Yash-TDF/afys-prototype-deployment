@@ -9,7 +9,7 @@ import type { ChartConfiguration, ChartType as ChartJsType } from 'chart.js';
 import type { ChartType } from '../content';
 import { type CategoryKind, type SeriesKind, type ViewModel, sharedBases } from '../model';
 import { GRID, MUTED, NO_DATA, OFF_SCALE, OFF_SCALE_LABEL, pieStops, ramp, roleColours, SCALE_3, SCALE_4, SCALE_5, SERIES } from './palette';
-import { Chart, registerGeo, setupCharts, valueLabels } from './setup';
+import { Chart, evenBars, registerGeo, setupCharts, valueLabels } from './setup';
 import { hiddenCaption, hiddenNote, hiddenOn, LAST_ANSWER, toggled, withHidden } from './hidden';
 import { badgeElement, sampleBadge } from '../ui/quality';
 import { toast } from '../ui/toast';
@@ -228,6 +228,12 @@ function baseConfig(model: ViewModel, requested: ChartType, colours: string[], h
     borderColor: multiSeries ? colours[i] : colours,
     borderWidth: kind === 'line' ? 2 : 0,
     borderRadius: kind === 'bar' || kind === 'hbar' ? 3 : 0,
+    // A grid row asked only in 2026 has one bar where its group has room for
+    // four. Without this its bar kept the 2026 slot, at the far side of the
+    // group, while its name sat under the group's middle, so the bar read as the
+    // next row's (Germany, Brazil, G20 on the influence charts, since #20). With
+    // it, a category's bars are centred on its label whatever is missing.
+    skipNull: kind === 'bar' || kind === 'hbar',
     tension: 0.3,
     pointRadius: 3,
     fill: false,
@@ -362,7 +368,7 @@ function baseConfig(model: ViewModel, requested: ChartType, colours: string[], h
         type: 'bar',
         data: { labels: model.categories, datasets },
         options: { ...shared, indexAxis: 'y', scales: { x: percentAxis, y: categoryAxis } },
-        plugins: [valueLabels],
+        plugins: multiSeries ? [evenBars, valueLabels] : [valueLabels],
       } as ChartConfiguration;
     case 'line':
       return {
@@ -449,8 +455,16 @@ function baseConfig(model: ViewModel, requested: ChartType, colours: string[], h
       return {
         type: 'bar',
         data: { labels: model.categories, datasets },
-        options: { ...shared, scales: { y: percentAxis, x: categoryAxis } },
-        plugins: many ? [] : [valueLabels],
+        options: {
+          ...shared,
+          // Room above the tallest bar for its label: upright on one series, and
+          // turned a quarter on a grouped chart, where four bars share a slot
+          // (see valueLabels). Without it a label over a bar near 100% left the
+          // canvas, and the chart had to draw none.
+          layout: { padding: { top: multiSeries ? 30 : 16 } },
+          scales: { y: percentAxis, x: categoryAxis },
+        },
+        plugins: [...(multiSeries ? [evenBars] : []), ...(many ? [] : [valueLabels])],
       } as ChartConfiguration;
   }
 }

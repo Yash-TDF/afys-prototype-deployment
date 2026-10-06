@@ -40,6 +40,37 @@ export function bodyFont(): string {
   return family;
 }
 
+/** A value label's box on the canvas, in CSS pixels. */
+interface LabelBox { x0: number; x1: number; y0: number; y1: number }
+
+const LABEL_PX = 11;
+/** Clear space a label keeps from its neighbour, and from its bar's end. */
+const LABEL_GAP_PX = 2;
+
+const overlaps = (a: LabelBox, b: LabelBox): boolean =>
+  a.x0 < b.x1 + LABEL_GAP_PX && b.x0 < a.x1 + LABEL_GAP_PX
+  && a.y0 < b.y1 + LABEL_GAP_PX && b.y0 < a.y1 + LABEL_GAP_PX;
+
+/** Whether every box stays on the canvas and clear of every other. */
+function clear(boxes: LabelBox[], width: number): boolean {
+  if (boxes.some((b) => b.x0 < 0 || b.y0 < 0 || b.x1 > width)) return false;
+  return boxes.every((a, i) => boxes.slice(i + 1).every((b) => !overlaps(a, b)));
+}
+
+/**
+ * Each bar's percentage, drawn so no two labels touch.
+ *
+ * A grouped chart (a bar per wave, or per gender, in each category) can put four
+ * bars where one label fits, and every label used to be drawn regardless: "68%63%"
+ * running together on the influence charts, on every "compare by waves" chart in
+ * Explore, and on more theme-page charts at phone width. So one rule per chart:
+ * upright as before when every label fits; on a vertical chart, turned a quarter
+ * when they fit that way; otherwise none. Every figure is still in the tooltip and
+ * the table under the chart. A chart either labels every bar or none, so no bar
+ * reads as unlabelled for a reason the reader has to guess.
+ *
+ * Inside a stacked segment a label is drawn as before, and only from 6%.
+ */
 export const valueLabels: Plugin<'bar'> = {
   id: 'valueLabels',
   afterDatasetsDraw(chart) {
@@ -47,7 +78,9 @@ export const valueLabels: Plugin<'bar'> = {
     const horizontal = chart.options.indexAxis === 'y';
     const stacked = chart.options.scales?.['x']?.stacked === true;
     ctx.save();
-    ctx.font = `600 11px ${bodyFont()}`;
+    ctx.font = `600 ${LABEL_PX}px ${bodyFont()}`;
+
+    const labels: { text: string; x: number; y: number; base: number; width: number; fill: unknown }[] = [];
     chart.data.datasets.forEach((dataset, i) => {
       const meta = chart.getDatasetMeta(i);
       if (meta.hidden) return;
@@ -57,8 +90,6 @@ export const valueLabels: Plugin<'bar'> = {
         if (stacked && value < 6) return;            // no room inside a thin segment
         const { x, y } = element.getProps(['x', 'y'], true);
         const base = (element as unknown as { base?: number }).base ?? 0;
-        ctx.textAlign = horizontal ? (stacked ? 'center' : 'left') : 'center';
-        ctx.textBaseline = horizontal ? 'middle' : 'bottom';
         // Outside the bar the label sits on the card, where the ink is right. Inside
         // a segment it has to answer to whatever that segment is painted, which is
         // the theme's colour now and can be a pale gold. Per element, not per chart:
@@ -66,12 +97,70 @@ export const valueLabels: Plugin<'bar'> = {
         // wants white.
         const fill = (element as unknown as { options?: { backgroundColor?: unknown } }).options?.backgroundColor
           ?? (Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[j] : dataset.backgroundColor);
-        ctx.fillStyle = stacked ? labelInk(fill) : INK;
-        const cx = horizontal ? (stacked ? (x + base) / 2 : x + 6) : x;
-        ctx.fillText(fmtPct(value), cx, horizontal ? y : y - 4);
+        const text = fmtPct(value);
+        labels.push({ text, x, y, base, width: ctx.measureText(text).width, fill });
       });
     });
+
+    if (stacked) {
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      for (const l of labels) {
+        ctx.fillStyle = labelInk(l.fill);
+        ctx.fillText(l.text, (l.x + l.base) / 2, l.y);
+      }
+      ctx.restore();
+      return;
+    }
+
+    const half = LABEL_PX / 2;
+    const upright: LabelBox[] = labels.map((l) => horizontal
+      ? { x0: l.x + 6, x1: l.x + 6 + l.width, y0: l.y - half, y1: l.y + half }
+      : { x0: l.x - l.width / 2, x1: l.x + l.width / 2, y0: l.y - 4 - LABEL_PX, y1: l.y - 4 });
+    const turned: LabelBox[] = labels.map((l) =>
+      ({ x0: l.x - half, x1: l.x + half, y0: l.y - 4 - l.width, y1: l.y - 4 }));
+
+    ctx.fillStyle = INK;
+    if (clear(upright, chart.width)) {
+      ctx.textAlign = horizontal ? 'left' : 'center';
+      ctx.textBaseline = horizontal ? 'middle' : 'bottom';
+      for (const l of labels) ctx.fillText(l.text, horizontal ? l.x + 6 : l.x, horizontal ? l.y : l.y - 4);
+    } else if (!horizontal && clear(turned, chart.width)) {
+      // Read bottom to top, starting just above the bar.
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      for (const l of labels) {
+        ctx.save();
+        ctx.translate(l.x, l.y - 4);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText(l.text, 0, 0);
+        ctx.restore();
+      }
+    }
     ctx.restore();
+  },
+};
+
+/**
+ * Every bar of a grouped chart as wide as a full group's bars.
+ *
+ * `skipNull` centres a category's bars on its label when some series have no
+ * value there (render.ts), but Chart.js then spreads the bars it has across the
+ * whole slot: Germany's one 2026 bar came out four bars wide, and read as
+ * weightier than its neighbours. Worked out after layout, from Chart.js's own
+ * defaults (categoryPercentage 0.8, barPercentage 0.9), before the bars are placed.
+ */
+export const evenBars: Plugin<'bar'> = {
+  id: 'evenBars',
+  beforeDatasetsUpdate(chart) {
+    const shown = chart.data.datasets.filter((_, i) => chart.isDatasetVisible(i)).length;
+    const categories = chart.data.labels?.length ?? 0;
+    if (shown < 2 || categories === 0 || !chart.chartArea) return;
+    const span = chart.options.indexAxis === 'y' ? chart.chartArea.height : chart.chartArea.width;
+    const thickness = (span / categories) * 0.8 / shown * 0.9;
+    for (const dataset of chart.data.datasets) {
+      (dataset as { maxBarThickness?: number }).maxBarThickness = thickness;
+    }
   },
 };
 
