@@ -8,9 +8,9 @@
 // The approved prototype derives these from `Math.sin(idx * 17 + 3)` against a
 // hardcoded array of twelve numbers, unrelated to any question, and returns three
 // waves where we have four. None of that survives.
-import { type Theme, latestWave } from '../content';
+import { type ChartSpec, type Theme, latestWave, question, rowName } from '../content';
 import { combine } from '../aggregate';
-import { buildViewModel, DEFAULT_FILTERS, partsFor } from '../model';
+import { type ViewModel, buildViewModel, DEFAULT_FILTERS, partsFor } from '../model';
 
 export interface ThemeCardFigures {
   /** Null when the theme has nothing we can put a number on. */
@@ -39,7 +39,8 @@ const NOTHING: ThemeCardFigures = {
  * other eleven follow it and are confirmed at sign-off.
  *
  * Each sentence describes one answer, named in `of`: the first series of the
- * theme's first tracked chart, as the answer lists stand today. A caption is
+ * theme's first tracked chart, as the answer lists stand today, or for a grid
+ * chart the row the card reads (see gridRowTrend). A caption is
  * only true while the card reads that answer, and the answer lists move (the
  * deck's, and then the survey files': THE-347 found the first band differs on
  * six tiles once real data loads). So the sentence is used only when the card
@@ -50,7 +51,10 @@ const NOTHING: ThemeCardFigures = {
 const CAPTIONS: Record<string, { of: string; caption: string }> = {
   'afro-optimism': { of: 'Right direction', caption: 'African Continent is going in the right direction' },
   'foreign-relations': { of: 'Very concerned', caption: 'Very concerned about influence from foreign powers' },
-  'the-multilateral-order': { of: 'United States', caption: 'Say the United States has influence in Africa' },
+  // Sign-off item (THE-379): the ticket's suggested wording, not yet confirmed by
+  // the client. The question asks about influence "on your country", not "in
+  // Africa", and the card now reads the African Union, slide 12's first row.
+  'the-multilateral-order': { of: 'African Union', caption: 'Say the African Union has influence on their country' },
   'democracy-and-governance': { of: 'Democracy is always preferable', caption: 'Say democracy is always preferable' },
   'safety-security-and-extremism': { of: 'Very concerned', caption: 'Very concerned about asylum and immigration' },
   'identity-and-emigration': { of: 'Very likely', caption: 'Very likely to emigrate' },
@@ -73,6 +77,60 @@ function captionFor(theme: Theme, of: string | null): string | null {
   return null;
 }
 
+/**
+ * One row of a tracked grid chart, as a trend across the waves the chart draws.
+ *
+ * A grid chart (THE-315) puts its rows on the axis, with one series per wave, so
+ * its categories are organisations or countries rather than years and the
+ * years rule below never takes it. Slide 12 is the case: tile 3's only tracked
+ * charts are grids, so without this the card read "Not tracked across waves"
+ * once slide 12 was drawn from its own rows (THE-379).
+ *
+ * The card reads the chart's first listed row, which is the deck's first row
+ * (slide 12 lists the African Union first). Not the tallest bar: the chart ranks
+ * its rows by their latest figure, and in the prototype those figures are
+ * illustrative, so whichever is tallest is an accident of the seed.
+ *
+ * A row not yet asked in the early waves starts its trend at its first wave. A
+ * gap after that cannot be a point on the card's line, so such a row is not read.
+ */
+function gridRowTrend(chart: ChartSpec, model: ViewModel):
+  { label: string; years: number[]; values: number[] } | null {
+  if (model.categoryKind !== 'rows' || model.seriesKind !== 'waves') return null;
+  const first = question(chart.questions[0] ?? '');
+  if (!first) return null;
+  const label = rowName(first);
+  const at = model.categories.indexOf(label);
+  if (at < 0) return null;
+  const points = model.series.map((s) => ({ year: Number(s.label), value: s.values[at] ?? null }));
+  const start = points.findIndex((p) => p.value !== null);
+  const kept = start < 0 ? [] : points.slice(start);
+  if (kept.length < 2 || kept.some((p) => p.value === null)) return null;
+  if (!kept.every((p) => Number.isFinite(p.year))) return null;
+  return { label, years: kept.map((p) => p.year), values: kept.map((p) => p.value as number) };
+}
+
+/** A trend's figures for the card: the latest value, and the change since the first. */
+function trendFigures(theme: Theme, of: string, years: number[], values: number[]): ThemeCardFigures {
+  const last = values.length - 1;
+  return {
+    headline: values[last]!,
+    of,
+    caption: captionFor(theme, of),
+    // Named years, not "since the baseline". A question not asked in 2020
+    // starts at 2022, and calling that the baseline would be wrong on the
+    // one card most likely to be read without opening anything.
+    delta: {
+      points: Math.round((values[last]! - values[0]!) * 10) / 10,
+      from: years[0]!,
+      to: years[last]!,
+    },
+    spark: values,
+    activeIndex: last,
+    note: null,
+  };
+}
+
 export function themeCardFigures(theme: Theme): ThemeCardFigures {
   // Tracked first: it is the only shape that carries a trend, which is what the
   // card's delta and sparkline are for.
@@ -88,8 +146,14 @@ export function themeCardFigures(theme: Theme): ThemeCardFigures {
   // So take the first tracked chart whose categories really are years, rather
   // than the first tracked chart. Theme 9 then reads its trend off "Encountering
   // fake news", which is genuinely 2020 to 2026.
+  //
+  // A tracked grid chart is read as one of its rows, in the same order: a theme
+  // whose first trend is a grid (tile 3, slide 12) takes that row; one with an
+  // earlier years chart keeps it. See gridRowTrend.
   for (const chart of theme.charts.filter((c) => c.comparison === 'tracked')) {
     const model = buildViewModel(chart, theme, DEFAULT_FILTERS);
+    const row = gridRowTrend(chart, model);
+    if (row) return trendFigures(theme, row.label, row.years, row.values);
     const series = model.series[0];
     const years = model.categories.map(Number);
     const raw = series?.values ?? [];
@@ -99,23 +163,7 @@ export function themeCardFigures(theme: Theme): ThemeCardFigures {
     // Every category has to parse, not just the first: a half-numeric axis would
     // put a real year on the card and still be reading options as time.
     if (!years.every((y) => Number.isFinite(y))) continue;
-    const last = values.length - 1;
-    return {
-      headline: values[last]!,
-      of: series.label,
-      caption: captionFor(theme, series.label),
-      // Named years, not "since the baseline". A question not asked in 2020
-      // starts at 2022, and calling that the baseline would be wrong on the
-      // one card most likely to be read without opening anything.
-      delta: {
-        points: Math.round((values[last]! - values[0]!) * 10) / 10,
-        from: years[0]!,
-        to: years[last]!,
-      },
-      spark: values,
-      activeIndex: last,
-      note: null,
-    };
+    return trendFigures(theme, series.label, years, values);
   }
 
   // Otherwise a single wave across countries. Countries are separate samples, so
