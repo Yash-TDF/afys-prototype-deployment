@@ -357,7 +357,21 @@
    "questions": [
     "T02_Q1",
     "T02_Q2",
-    "T02_Q3"
+    "T02_Q3",
+    "T02_Q3_US",
+    "T02_Q3_CN",
+    "T02_Q3_UK",
+    "T02_Q3_RU",
+    "T02_Q3_DE",
+    "T02_Q3_FR",
+    "T02_Q3_IN",
+    "T02_Q3_BR",
+    "T02_Q3_AU",
+    "T02_Q3_UN",
+    "T02_Q3_WTO",
+    "T02_Q3_IMF",
+    "T02_Q3_EU",
+    "T02_Q3_G20"
    ],
    "charts": [
     {
@@ -392,7 +406,14 @@
      "title": "Influence of Foreign Countries",
      "type": "bar",
      "questions": [
-      "T02_Q3"
+      "T02_Q3_US",
+      "T02_Q3_CN",
+      "T02_Q3_UK",
+      "T02_Q3_RU",
+      "T02_Q3_DE",
+      "T02_Q3_FR",
+      "T02_Q3_IN",
+      "T02_Q3_BR"
      ],
      "comparison": "tracked",
      "slide": 10,
@@ -423,7 +444,12 @@
      "title": "Influence of Foreign Organisations",
      "type": "bar",
      "questions": [
-      "T02_Q3"
+      "T02_Q3_AU",
+      "T02_Q3_UN",
+      "T02_Q3_WTO",
+      "T02_Q3_IMF",
+      "T02_Q3_EU",
+      "T02_Q3_G20"
      ],
      "comparison": "tracked",
      "slide": 12,
@@ -1126,6 +1152,270 @@
    "slide": "Deck slide 10",
    "parent": null,
    "waves": null
+  },
+  {
+   "code": "T02_Q3_US",
+   "theme": 2,
+   "text": "How much influence, if any at all, do you think each of the following countries or organisations have on your country? [United States]",
+   "label": "Influence of Foreign Countries: United States",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 10",
+   "parent": "T02_Q3",
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
+  },
+  {
+   "code": "T02_Q3_CN",
+   "theme": 2,
+   "text": "How much influence, if any at all, do you think each of the following countries or organisations have on your country? [China]",
+   "label": "Influence of Foreign Countries: China",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 10",
+   "parent": "T02_Q3",
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
+  },
+  {
+   "code": "T02_Q3_UK",
+   "theme": 2,
+   "text": "How much influence, if any at all, do you think each of the following countries or organisations have on your country? [United Kingdom]",
+   "label": "Influence of Foreign Countries: United Kingdom",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 10",
+   "parent": "T02_Q3",
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
+  },
+  {
+   "code": "T02_Q3_RU",
+   "theme": 2,
+   "text": "How much influence, if any at all, do you think each of the following countries or organisations have on your country? [Russia]",
+   "label": "Influence of Foreign Countries: Russia",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 10",
+   "parent": "T02_Q3",
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
+  },
+  {
+   "code": "T02_Q3_DE",
+   "theme": 2,
+   "text": "How much influence, if any at all, do you think each of the following countries or organisations have on your country? [Germany]",
+   "label": "Influence of Foreign Countries: Germany",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 10",
+   "parent": "T02_Q3",
+   "waves": [
+    2026
+   ]
+  },
+  {
+   "code": "T02_Q3_FR",
+   "theme": 2,
+   "text": "How much influence, if any at all, do you think each of the following countries or organisations have on your country? [France]",
+   "label": "Influence of Foreign Countries: France",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 10",
+   "parent": "T02_Q3",
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
+  },
+  {
+   "code": "T02_Q3_IN",
+   "theme": 2,
+   "text": "How much influence, if any at all, do you think each of the following countries or organisations have on your country? [India]",
+   "label": "Influence of Foreign Countries: India",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 10",
+   "parent": "T02_Q3",
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
+  },
+  {
+   "code": "T02_Q3_BR",
+   "theme": 2,
+   "text": "How much influence, if any at all, do you think each of the following countries or organisations have on your country? [Brazil]",
+   "label": "Influence of Foreign Countries: Brazil",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 10",
+   "parent": "T02_Q3",
+   "waves": [
+    2026
+   ]
+  },
+  {
+   "code": "T02_Q3_AU",
+   "theme": 2,
+   "text": "How much influence, if any at all, do you think each of the following countries or organisations have on your country? [The African Union]",
+   "label": "Influence of Foreign Countries: African Union",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 12",
+   "parent": "T02_Q3",
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
+  },
+  {
+   "code": "T02_Q3_UN",
+   "theme": 2,
+   "text": "How much influence, if any at all, do you think each of the following countries or organisations have on your country? [United Nations]",
+   "label": "Influence of Foreign Countries: United Nations",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 12",
+   "parent": "T02_Q3",
+   "waves": [
+    2026
+   ]
+  },
+  {
+   "code": "T02_Q3_WTO",
+   "theme": 2,
+   "text": "How much influence, if any at all, do you think each of the following countries or organisations have on your country? [World Trade Organisation]",
+   "label": "Influence of Foreign Countries: World Trade Organisation",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 12",
+   "parent": "T02_Q3",
+   "waves": [
+    2022,
+    2024,
+    2026
+   ]
+  },
+  {
+   "code": "T02_Q3_IMF",
+   "theme": 2,
+   "text": "How much influence, if any at all, do you think each of the following countries or organisations have on your country? [International Monetary Fund (IMF)]",
+   "label": "Influence of Foreign Countries: International Monetary Fund",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 12",
+   "parent": "T02_Q3",
+   "waves": [
+    2026
+   ]
+  },
+  {
+   "code": "T02_Q3_EU",
+   "theme": 2,
+   "text": "How much influence, if any at all, do you think each of the following countries or organisations have on your country? [The European Union]",
+   "label": "Influence of Foreign Countries: European Union",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 12",
+   "parent": "T02_Q3",
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
+  },
+  {
+   "code": "T02_Q3_G20",
+   "theme": 2,
+   "text": "How much influence, if any at all, do you think each of the following countries or organisations have on your country? [G20]",
+   "label": "Influence of Foreign Countries: G20",
+   "order": 3,
+   "responseType": "battery_item",
+   "baseType": "all",
+   "baseText": null,
+   "tracked": true,
+   "surfaced": true,
+   "slide": "Deck slide 12",
+   "parent": "T02_Q3",
+   "waves": [
+    2026
+   ]
   },
   {
    "code": "T03_Q1",
@@ -2234,7 +2524,14 @@
    "title": "Influence of Foreign Countries",
    "type": "bar",
    "questions": [
-    "T02_Q3"
+    "T02_Q3_US",
+    "T02_Q3_CN",
+    "T02_Q3_UK",
+    "T02_Q3_RU",
+    "T02_Q3_DE",
+    "T02_Q3_FR",
+    "T02_Q3_IN",
+    "T02_Q3_BR"
    ],
    "comparison": "tracked",
    "slide": 10,
@@ -2247,7 +2544,12 @@
    "title": "Influence of Foreign Organisations",
    "type": "bar",
    "questions": [
-    "T02_Q3"
+    "T02_Q3_AU",
+    "T02_Q3_UN",
+    "T02_Q3_WTO",
+    "T02_Q3_IMF",
+    "T02_Q3_EU",
+    "T02_Q3_G20"
    ],
    "comparison": "tracked",
    "slide": 12,
