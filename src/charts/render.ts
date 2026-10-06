@@ -833,7 +833,12 @@ function drawFigure(
   const chartHead = document.createElement('div');
   chartHead.className = 'chart-head';
   chartHead.append(head);
-  const readings = insightRow(model);
+  // A distribution's chips read the question, every answer, hidden or not: built
+  // from the visible ones, hiding "Right direction" (45%) on T01_Q1's pie made
+  // the chip read "Wrong direction 34% highest", which is false for the question
+  // (review of #19). A trend's chips name the line they read, so they follow the
+  // lines on screen.
+  const readings = insightRow(model.categoryKind === 'waves' ? model : full);
   if (readings) chartHead.append(readings);
   figure.append(chartHead);
 

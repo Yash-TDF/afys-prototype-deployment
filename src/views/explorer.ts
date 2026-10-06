@@ -402,6 +402,12 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
       const shown = state.hidden.length > 0 ? answers.filter((a) => !state.hidden.includes(a)) : [];
       const field = multiField('Answers', answers, shown, (ticked) => {
         hide(ticked.length === 0 ? [] : answers.filter((a) => !ticked.includes(a)));
+        // The redraw replaced the field, and with it the trigger the list had
+        // just handed focus back to, so focus fell to the page and a keyboard
+        // or screen reader user lost their place. The new field's trigger takes
+        // it (review of #19).
+        content.querySelector('#field-answers')?.parentElement
+          ?.querySelector<HTMLElement>('.picker-trigger')?.focus();
       }, 'All answers', 'answers');
       bar.insertBefore(field, switcher);
     }
