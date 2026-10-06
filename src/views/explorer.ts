@@ -392,12 +392,15 @@ export function explorerView(host: HTMLElement, params: URLSearchParams): View {
     content.append(holder);
     figure = renderFigure(holder, model, state.kind, parent.accent);
 
-    const downloads = exports(model, found, state.filters, () => record('replace'));
-    const caption = holder.querySelector('figcaption');
-    // On the title's row. `.showing` takes a full row of its own, so going in
-    // ahead of it keeps the buttons level with the title.
-    if (caption) caption.insertBefore(downloads, caption.querySelector('.showing'));
-    else content.append(downloads);
+    // A wave the row was not asked in has no figures, so nothing to download.
+    if (!model.notAsked) {
+      const downloads = exports(model, found, state.filters, () => record('replace'));
+      const caption = holder.querySelector('figcaption');
+      // On the title's row. `.showing` takes a full row of its own, so going in
+      // ahead of it keeps the buttons level with the title.
+      if (caption) caption.insertBefore(downloads, caption.querySelector('.showing'));
+      else content.append(downloads);
+    }
 
     renderList();
     syncNav();

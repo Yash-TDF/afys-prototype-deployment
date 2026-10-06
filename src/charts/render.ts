@@ -705,12 +705,27 @@ export function renderFigure(
   const chartHead = document.createElement('div');
   chartHead.className = 'chart-head';
   chartHead.append(head);
-  const readings = insightRow(model);
-  if (readings) chartHead.append(readings);
-  figure.append(chartHead);
 
   const chartBody = document.createElement('div');
   chartBody.className = 'chart-body';
+
+  // A wave the rows were not asked in: the sentence in place of the chart, and
+  // nothing that reads as a figure. No chips, no table of "Not asked" cells,
+  // no "ranging from — to —" for a screen reader (review of #20).
+  if (model.notAsked) {
+    const notice = document.createElement('p');
+    notice.className = 'not-asked';
+    notice.setAttribute('role', 'status');
+    notice.textContent = model.notAsked;
+    chartBody.append(notice);
+    figure.append(chartHead, chartBody);
+    host.append(figure);
+    return { destroy: () => {} };
+  }
+
+  const readings = insightRow(model);
+  if (readings) chartHead.append(readings);
+  figure.append(chartHead);
   figure.append(chartBody);
 
   let chart: Chart | undefined;

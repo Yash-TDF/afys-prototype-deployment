@@ -216,6 +216,88 @@ const lastWave = model.plainSeries[model.plainSeries.length - 1];
 check('slide 13\'s chips read the latest wave', model.chips.some((c) => c.endsWith(`highest in ${lastWave}`))
   && model.chips.some((c) => c.includes('each row is a separate question')), model.chips.join(' | '));
 
+// 7. A grid row opened on its own draws only the waves it was asked in, and a
+//    wave it was not asked in is a sentence, not a chart (review of #20). The
+//    waves come from content.json here, not from the app.
+const wavesOf = (code) => byCode.get(code).waves ?? content.waves.map((w) => w.year);
+async function explorerAt(query) {
+  await page.goto(`${BASE}/#/explore?${query}`, { waitUntil: 'load' });
+  await page.waitForTimeout(1200);
+  return page.evaluate(async () => {
+    const { Chart } = await import('/src/charts/setup.ts');
+    const fig = document.querySelector('.explorer-figure');
+    const canvas = fig?.querySelector('canvas');
+    const chart = canvas ? Chart.getChart(canvas) : null;
+    return {
+      canvas: Boolean(canvas),
+      labels: (chart?.data?.labels ?? []).map((l) => [].concat(l).join(' ')),
+      series: (chart?.data?.datasets ?? []).map((d) => d.label),
+      notice: fig?.querySelector('.not-asked')?.textContent ?? null,
+      notes: [...(fig?.querySelectorAll('.note') ?? [])].map((n) => n.textContent),
+      downloads: document.querySelectorAll('.explorer-figure .exports button').length,
+    };
+  });
+}
+for (const code of ['T02_Q3_DE', 'T03_Q1_UN']) {
+  const asked = wavesOf(code);
+  const unasked = content.waves.map((w) => w.year).filter((y) => !asked.includes(y));
+  const line = await explorerAt(`q=${code}&chart=line`);
+  check(`explorer ${code} over time draws only its waves`,
+    unasked.length > 0 && same(line.labels, asked.map(String)) && line.notes.some((n) => n.includes(`Not asked in ${unasked[0]}`)),
+    `drawn ${JSON.stringify(line.labels)}, asked ${JSON.stringify(asked)}; notes ${JSON.stringify(line.notes)}`);
+  const bar = await explorerAt(`q=${code}&chart=bar&wave=${unasked[0]}`);
+  check(`explorer ${code} at ${unasked[0]} says it was not asked, and draws nothing`,
+    !bar.canvas && (bar.notice ?? '').includes(`not asked in ${unasked[0]}`) && bar.downloads === 0,
+    `canvas ${bar.canvas}, notice ${JSON.stringify(bar.notice)}, downloads ${bar.downloads}`);
+}
+// The controls: a row asked in every wave still draws every wave, and a row
+// still draws a chart in the wave it was asked in.
+const allWaves = await explorerAt('q=T02_Q3_AU&chart=line');
+check('control: explorer T02_Q3_AU over time draws all its waves', same(allWaves.labels, wavesOf('T02_Q3_AU').map(String)),
+  `drawn ${JSON.stringify(allWaves.labels)}, asked ${JSON.stringify(wavesOf('T02_Q3_AU'))}`);
+const ownWave = await explorerAt(`q=T02_Q3_DE&chart=bar&wave=${wavesOf('T02_Q3_DE')[0]}`);
+const surveyed = content.countries.filter((c) => c.waves.includes(wavesOf('T02_Q3_DE')[0])).length;
+check(`control: explorer T02_Q3_DE at ${wavesOf('T02_Q3_DE')[0]} draws a bar per country`,
+  ownWave.canvas && !ownWave.notice && ownWave.labels.length === surveyed && ownWave.downloads > 0,
+  `canvas ${ownWave.canvas}, ${ownWave.labels.length} bars of ${surveyed} countries, ${ownWave.downloads} download button(s)`);
+
+// 8. A single-wave grid at a wave none of its rows was asked in, and the same
+//    grid compared by wave (review of #20, the low items). Slide 39's statements
+//    are 2022 onwards, so 2020 has nothing; built and drawn by the page's own code.
+const flatGrids = gridCharts.filter((c) => c.comparison !== 'tracked');
+const askedBySome = (chart) => content.waves.map((w) => w.year).filter((y) => chart.questions.some((code) => wavesOf(code).includes(y)));
+await page.goto(`${BASE}/#/`, { waitUntil: 'load' });
+const flat = await page.evaluate(async (specs) => {
+  const { themes } = await import('/src/content.ts');
+  const { buildViewModel, DEFAULT_FILTERS } = await import('/src/model.ts');
+  const { renderFigure } = await import('/src/charts/render.ts');
+  return specs.map(({ slide, empty }) => {
+    const theme = themes.find((t) => t.charts.some((c) => c.slide === slide));
+    const spec = theme.charts.find((c) => c.slide === slide);
+    const byWave = buildViewModel(spec, theme, { ...DEFAULT_FILTERS, compare: 'wave' });
+    if (empty === null) return { slide, byWave: byWave.series.map((s) => s.label) };
+    const model = buildViewModel(spec, theme, { ...DEFAULT_FILTERS, wave: empty });
+    const host = document.createElement('div');
+    document.body.append(host);
+    renderFigure(host, model, spec.type, '#000');
+    const out = { slide, empty, note: model.notAsked, canvas: Boolean(host.querySelector('canvas')),
+      shown: host.querySelector('.not-asked')?.textContent ?? null, byWave: byWave.series.map((s) => s.label) };
+    host.remove();
+    return out;
+  });
+}, flatGrids.map((c) => ({ slide: c.slide, empty: content.waves.map((w) => w.year).find((y) => !askedBySome(c).includes(y)) ?? null })));
+for (const r of flat) {
+  const chart = flatGrids.find((c) => c.slide === r.slide);
+  check(`slide ${r.slide} compared by wave draws only the waves its rows were asked in`,
+    same(r.byWave, askedBySome(chart).map(String)), `${JSON.stringify(r.byWave)}, expected ${JSON.stringify(askedBySome(chart).map(String))}`);
+  if (r.empty === undefined) continue;
+  check(`slide ${r.slide} at ${r.empty} says none of its rows was asked`,
+    !r.canvas && (r.shown ?? '').startsWith(`None of these items was asked in ${r.empty}`),
+    `canvas ${r.canvas}, said ${JSON.stringify(r.shown)}`);
+}
+check('slide 39 is among the grids checked at a wave none of its rows was asked in',
+  flat.some((r) => r.slide === 39 && r.empty !== undefined), JSON.stringify(flat.map((r) => [r.slide, r.empty ?? null])));
+
 check('no page errors', errors.length === 0, errors.join(' | ') || 'none');
 await browser.close();
 

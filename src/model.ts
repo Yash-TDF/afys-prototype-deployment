@@ -79,6 +79,13 @@ export interface ViewModel {
    * position, so "Neither" is never red and "Strongly oppose" never green.
    */
   roles: Record<string, ColourRole> | null;
+  /**
+   * Said in place of the chart when the view asks for a wave its rows were not
+   * asked in, and null otherwise. A grid row asked only in 2026 has no 2022
+   * figure, and drawing one, or a country bar chart of one, was a chart of
+   * something the survey never measured (review of #20).
+   */
+  notAsked: string | null;
 }
 
 export interface Filters {
@@ -121,11 +128,55 @@ export function buildViewModel(spec: ChartSpec, theme: Theme, filters: Filters):
   const f = coherent(filters);
   if (f.compare === 'none') return single(spec, theme, f);
 
+  // A gender split of a wave the rows were not asked in is two halves of
+  // nothing: say so once, as the single view does.
+  if (f.compare === 'gender' && spec.comparison !== 'tracked' && !askedInView(spec, f.wave)) {
+    return single(spec, theme, { ...f, compare: 'none' });
+  }
+
   const refusal = refuse(spec, f);
   if (refusal) return { ...single(spec, theme, { ...f, compare: 'none' }), compareNote: refusal };
 
   const parts = cuts(spec, f);
+  if (parts.length === 0) return single(spec, theme, { ...f, compare: 'none' });
   return merge(parts.map((p) => single(spec, theme, p.filters)), parts.map((p) => p.label), f);
+}
+
+/**
+ * The questions whose own wave lists decide which waves a view may show.
+ *
+ * Grid rows only. A row carries the waves the portal's crosswave.csv maps it in
+ * (THE-315): Germany's influence was asked in 2026 alone, and the file holds
+ * nothing for it in any other wave. Every other question keeps the prototype's
+ * four illustrative waves, by decision (THE-347, finding 3: tiles 4, 6 and 9
+ * will read "since 2022" once real data loads, and the prototype does not
+ * pretend otherwise). A grid chart answers for all its rows; any other chart
+ * for its first question, which is the one it draws.
+ */
+function rowsOf(spec: ChartSpec): Question[] {
+  const codes = gridOf(spec.questions) ? spec.questions : spec.questions.slice(0, 1);
+  return codes.map((code) => question(code)).filter((q): q is Question => Boolean(q?.parent));
+}
+
+/** Whether a view of this chart has anything to show for this wave. */
+function askedInView(spec: ChartSpec, year: number): boolean {
+  const rows = rowsOf(spec);
+  return rows.length === 0 || rows.some((row) => askedIn(row, year));
+}
+
+/** "2026", "2024 and 2026", "2020, 2022 and 2024", with `last` as the final join. */
+function listYears(years: number[], last = 'and'): string {
+  return years.length < 2 ? years.join('') : `${years.slice(0, -1).join(', ')} ${last} ${years[years.length - 1]}`;
+}
+
+/** What is said in place of a chart of a wave the rows were not asked in. */
+function notAskedNote(spec: ChartSpec, year: number): string {
+  const rows = rowsOf(spec);
+  const asked = waves.map((w) => w.year).filter((y) => askedInView(spec, y));
+  const when = asked.length > 0 ? ` ${rows.length > 1 ? 'They were' : 'It was'} asked in ${listYears(asked)}.` : '';
+  return rows.length > 1
+    ? `None of these items was asked in ${year}.${when}`
+    : `${rowName(rows[0]!)} was not asked in ${year}.${when}`;
 }
 
 /**
@@ -162,9 +213,11 @@ function cuts(spec: ChartSpec, filters: Filters): { label: string; filters: Filt
   }
   const caveats = (spec.caveat ?? '').split('|').map((c) => c.trim()).filter(Boolean);
   const skip = notAsked(caveats);
+  // Only the waves some row was asked in: comparing slide 39's statements by
+  // wave added a 2020 series of nothing but gaps (review of #20).
   return waves
     .map((w) => w.year)
-    .filter((year) => !skip.has(year))
+    .filter((year) => !skip.has(year) && askedInView(spec, year))
     .map((year) => ({ label: String(year), filters: { ...filters, wave: year, compare: 'none' as const } }));
 }
 
@@ -250,7 +303,23 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
     seriesKind: 'single' as SeriesKind,
     compare: 'none' as CompareBy,
     compareNote: null,
+    notAsked: null,
   };
+
+  // One wave that the chart's rows were not asked in: no figure, and a sentence
+  // saying so in place of the chart. Slide 39's statements at 2020 drew six
+  // "Not asked" rows, no chips, and "ranging from — to —"; Germany at 2022 drew
+  // a bar per country and "46% combined" (review of #20).
+  if (spec.comparison !== 'tracked' && !askedInView(spec, filters.wave)) {
+    return {
+      ...common,
+      categories: [],
+      series: [],
+      likeForLike: null,
+      categoryKind: gridOf(spec.questions) ? 'rows' : 'options',
+      notAsked: notAskedNote(spec, filters.wave),
+    };
+  }
 
   // A grid's chart plots its rows, and each row is a question of its own with its
   // own base (THE-315): one bar per row, each an independent share in the
@@ -335,7 +404,20 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
   // Tracked over waves: one line per option, restricted to the countries present
   // in every wave being compared — the restriction the real portal applies.
   if (spec.comparison === 'tracked') {
-    const years = waves.map((w) => w.year).filter((y) => !notAsked(caveats).has(y));
+    // A grid row opened on its own draws only the waves it was asked in, as it
+    // does on its grid's chart: Germany's line was 65, 65 and 71% across three
+    // waves Germany was never asked in (review of #20). The waves left out are
+    // named on the chart, in the deck's own phrasing.
+    const every = waves.map((w) => w.year).filter((y) => !notAsked(caveats).has(y));
+    const years = every.filter((y) => askedInView(spec, y));
+    const unasked = every.filter((y) => !years.includes(y));
+    if (years.length === 0) {
+      return {
+        ...common, categories: [], series: [], likeForLike: null, categoryKind: 'waves',
+        notAsked: `${q ? rowName(q) : spec.title} was not asked in any wave.`,
+      };
+    }
+    if (unasked.length > 0) caveats.push(`Not asked in ${listYears(unasked, 'or')}.`);
     const shared = likeForLike(years);
     const labels = options.labels.slice(0, 3);
     // One base per wave, shared by every series: the options are cuts of the same
@@ -362,7 +444,8 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
       seriesKind: 'options' as SeriesKind,
       // The deck already carries this restriction in its own words on most of
       // these charts. Saying it twice makes both copies look like boilerplate.
-      likeForLike: caveats.some((c) => c.toLowerCase().includes('comparing only'))
+      // One wave compares nothing, so there is no restriction to state.
+      likeForLike: years.length < 2 || caveats.some((c) => c.toLowerCase().includes('comparing only'))
         ? null
         : `Comparing only the ${shared.length} countries surveyed in ${years.join(', ')}, `
           + 'so figures differ from the single-wave totals.',
