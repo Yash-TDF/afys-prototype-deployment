@@ -423,9 +423,6 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
     // One base per wave, shared by every series: the options are cuts of the same
     // interviews, so the denominator belongs to the year, not to the answer.
     const waveBases = years.map((year) => base(key([seed, 'n', year])));
-    const series = labels.map((label) => ({
-      label, values: trend(key([seed, label]), years), bases: waveBases,
-    }));
     // A stacked bar is a distribution: the segments of one bar are shares of the
     // same respondents and have to total 100. Drawing three independent trends and
     // stacking them produces bars that run past the axis — which is exactly the
@@ -433,7 +430,19 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
     // So is a pie: its slices are shares of the one wave it shows, and three
     // independent trends summed to 157% of it, the slices drawn as shares of that
     // while the tooltip and the table said the raw figures (review, 29 Sep).
-    if (spec.type === 'stacked' || spec.type === 'pie') normalise(series, years.length);
+    // So are the lines, and the bars per wave: three answers of one question are
+    // shares of the same people too, and as independent trends slide 3's came to
+    // 215% of everyone asked (THE-383). Each wave is shared out across every
+    // answer the question has, and the first three drawn, so they total 100 less
+    // whatever the others take. Sharing out only the three drawn would make them
+    // total exactly 100, wrong for a question with more answers. A stacked bar and
+    // a pie still share out the answers they draw, as they did.
+    const stacks = spec.type === 'stacked' || spec.type === 'pie';
+    const shares = (stacks ? labels : options.labels).map((label) => ({
+      label, values: trend(key([seed, label]), years), bases: waveBases,
+    }));
+    normalise(shares, years.length);
+    const series = shares.slice(0, 3);
     return {
       ...common,
       categories: years.map(String),

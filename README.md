@@ -31,6 +31,7 @@ Other scripts:
 | `node tools/verify-the-315.mjs` | in a browser: every grid chart draws its own rows, with a gap where a row was not asked, and a grid is never drawn as one question |
 | `node tools/verify-map.mjs` | in a browser: each of the 28 countries fills, names and opens on the map, in every wave |
 | `node tools/verify-the-349.mjs` | in a browser: hiding answers is display only, and every view says what is hidden |
+| `node tools/verify-the-383.mjs` | in a browser: on every tracked chart of a single-answer question, the answers drawn in each wave total 100% or less |
 
 `pnpm content` reads `../afys-portal/db/seeds/*.sql` and the portal's
 `pipeline/mappings/crosswave.csv`, so the two directories have to sit side by
@@ -47,6 +48,11 @@ repo too.
 of the prototype: start it with `pnpm exec vite` (not `pnpm dev`, which
 regenerates `content.json` first), then run it. It exits 1 on any failure and
 writes its results to `node_modules/.cache/`.
+
+`verify-the-383.mjs` runs the same way, against every theme page and every
+question in Explore drawn over time. It prints one line per chart and exits 1 on
+any wave whose answers total over 100%, or if a chart it must check was never
+drawn.
 
 ## What is real and what is not
 
@@ -263,6 +269,7 @@ tools/audit-options.ts    what is still open with PSB → NEEDED_FROM_PSB.md
 tools/verify-the-315.mjs  browser check: grid charts draw their own rows
 tools/verify-map.mjs      browser check: the 28 countries on the map, every wave
 tools/verify-the-349.mjs  browser check: hiding answers never rebases
+tools/verify-the-383.mjs  browser check: no tracked chart's answers total over 100%
 src/content.ts            the deck, typed
 src/illustrative.ts       the generated figures — deleted when the API is wired up
 src/model.ts              chart spec + filters → view model (shaped like the API response)
