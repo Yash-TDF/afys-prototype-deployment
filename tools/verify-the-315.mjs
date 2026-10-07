@@ -337,6 +337,87 @@ if (twelve) {
     'not applicable: this content has slide 12 as a single question (before THE-363)');
 }
 
+// 10. A figure of a wave nobody was asked in carries no base, and a CSV says what
+//     its chart says (THE-382). The badge read "Base of 1,042, generated for
+//     layout" over "Germany was not asked in 2022"; the CSV of Germany over time
+//     said "Waves: 2026" and nothing about the three waves it was not asked in.
+const listed = (years) => (years.length < 2 ? years.join('') : `${years.slice(0, -1).join(', ')} or ${years[years.length - 1]}`);
+const explorerBadges = async (query) => {
+  await page.goto(`${BASE}/#/explore?${query}`, { waitUntil: 'load' });
+  await page.waitForTimeout(600);
+  return page.evaluate(() => {
+    const fig = document.querySelector('.explorer-figure');
+    return { badges: fig?.querySelectorAll('.qbadge').length ?? -1, notice: fig?.querySelector('.not-asked')?.textContent ?? null };
+  });
+};
+const deAsked = wavesOf('T02_Q3_DE');
+const deUnasked = content.waves.map((w) => w.year).filter((y) => !deAsked.includes(y));
+for (const [how, query] of [['as a bar', ''], ['as a map', '&chart=map'], ['split by men and women', '&cmp=gender']]) {
+  const r = await explorerBadges(`q=T02_Q3_DE&wave=${deUnasked[0]}${query}`);
+  check(`explorer T02_Q3_DE at ${deUnasked[0]} ${how} shows no base badge`, r.notice !== null && r.badges === 0,
+    `notice ${JSON.stringify(r.notice)}, ${r.badges} badge(s)`);
+}
+const deOwn = await explorerBadges(`q=T02_Q3_DE&wave=${deAsked[0]}`);
+check(`control: explorer T02_Q3_DE at ${deAsked[0]} shows its base badge`, deOwn.notice === null && deOwn.badges === 1,
+  `notice ${JSON.stringify(deOwn.notice)}, ${deOwn.badges} badge(s)`);
+
+// On the theme page, with the page's own Wave control, as a reader would.
+const themeBadges = async (slide, wave) => {
+  const theme = content.themes.find((t) => t.charts.some((c) => c.slide === slide));
+  await page.goto(`${BASE}/#/theme/${theme.slug}`, { waitUntil: 'load' });
+  await page.waitForTimeout(1200);
+  if (wave !== null) {
+    const set = await page.evaluate((wave) => {
+      const field = [...document.querySelectorAll('label.field')].find((l) => l.querySelector('span')?.textContent === 'Wave');
+      const select = field?.querySelector('select');
+      if (!select || ![...select.options].some((o) => o.value === String(wave))) return false;
+      select.value = String(wave);
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    }, wave);
+    if (!set) return { set: false };
+    await page.waitForTimeout(1200);
+  }
+  return page.evaluate((slide) => {
+    const cell = [...document.querySelectorAll('.chart-cell')]
+      .find((c) => (c.querySelector('.slide-ref')?.textContent ?? '').match(/slide (\d+)/)?.[1] === String(slide));
+    return { set: true, found: Boolean(cell), badges: cell?.querySelectorAll('.qbadge').length ?? -1,
+      notice: cell?.querySelector('.not-asked')?.textContent ?? null };
+  }, slide);
+};
+const badgeSlides = [];
+for (const chart of flatGrids.filter((c) => c.slide === 39 || c.slide === 43)) {
+  const empty = content.waves.map((w) => w.year).find((y) => !askedBySome(chart).includes(y));
+  if (empty === undefined) continue;
+  const r = await themeBadges(chart.slide, empty);
+  badgeSlides.push(chart.slide);
+  check(`slide ${chart.slide} at ${empty}, on its theme page, shows no base badge`,
+    r.set && r.found && r.notice !== null && r.badges === 0, JSON.stringify(r));
+}
+check('slide 39 is among the theme-page figures checked for a badge', badgeSlides.includes(39), JSON.stringify(badgeSlides));
+const ownTheme = await themeBadges(39, null);
+check('control: slide 39 at the default wave shows its base badge',
+  ownTheme.found && ownTheme.notice === null && ownTheme.badges === 1, JSON.stringify(ownTheme));
+
+// The CSV as a reader gets it: the button clicked, the downloaded file read.
+const csvLines = async (query) => {
+  await page.goto(`${BASE}/#/explore?${query}`, { waitUntil: 'load' });
+  await page.waitForTimeout(600);
+  const [download] = await Promise.all([
+    page.waitForEvent('download', { timeout: 10000 }),
+    page.click('.explorer-figure .exports button[aria-label="Download CSV"]'),
+  ]);
+  const unquote = (line) => (line.startsWith('"') && line.endsWith('"') ? line.slice(1, -1).replace(/""/g, '"') : line);
+  return readFileSync(await download.path(), 'utf8').replace(/^﻿/, '').split(/\r?\n/).map(unquote);
+};
+const notAskedLine = `# Not asked in ${listed(deUnasked)}.`;
+const deCsv = await csvLines('q=T02_Q3_DE&chart=line');
+check(`the CSV of T02_Q3_DE over time says "${notAskedLine.slice(2)}"`, deCsv.includes(notAskedLine),
+  JSON.stringify(deCsv.filter((l) => l.startsWith('#')).slice(3, 12)));
+const auCsv = await csvLines('q=T02_Q3_AU&chart=line');
+check('control: the CSV of T02_Q3_AU over time, asked in every wave, has no "Not asked" line',
+  auCsv.length > 0 && !auCsv.some((l) => l.startsWith('# Not asked')), JSON.stringify(auCsv.filter((l) => l.startsWith('# Not asked'))));
+
 check('no page errors', errors.length === 0, errors.join(' | ') || 'none');
 await browser.close();
 
