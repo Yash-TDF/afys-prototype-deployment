@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-06",
+ "generatedAt": "2026-10-07",
  "source": "afys-portal/db/seeds — structure only, no survey results",
  "waves": [
   {
@@ -689,7 +689,7 @@
      "theme": 7,
      "order": 2,
      "title": "Respectful Treatment by Police and Security Services",
-     "type": "bar",
+     "type": "stacked",
      "questions": [
       "T07_Q2"
      ],
@@ -2735,7 +2735,7 @@
    "theme": 7,
    "order": 2,
    "title": "Respectful Treatment by Police and Security Services",
-   "type": "bar",
+   "type": "stacked",
    "questions": [
     "T07_Q2"
    ],
