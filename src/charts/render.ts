@@ -848,8 +848,10 @@ function drawFigure(
   // Every figure here is generated, so the badge never grades the base — see
   // ui/quality.ts for why putting a margin of error on a hashed number would be
   // the most confident sentence on the page attached to the least real figure.
-  const badge = badgeElement(sampleBadge(model.base, { illustrative: true }));
-  head.append(title, chip, badge);
+  // A wave nobody was asked in has no base: the badge read "Base of 1,042" over a
+  // sentence saying Germany was not asked (THE-382).
+  head.append(title, chip);
+  if (!model.notAsked) head.append(badgeElement(sampleBadge(model.base, { illustrative: true })));
   if (model.showing) {
     const showing = document.createElement('p');
     showing.className = 'showing';
