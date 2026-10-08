@@ -31,6 +31,7 @@ Other scripts:
 | `node tools/verify-the-315.mjs` | in a browser: every grid chart draws its own rows, with a gap where a row was not asked, and a grid is never drawn as one question |
 | `node tools/verify-map.mjs` | in a browser: each of the 28 countries fills, names and opens on the map, in every wave |
 | `node tools/verify-the-349.mjs` | in a browser: hiding answers is display only, and every view says what is hidden |
+| `node tools/verify-the-386.mjs` | in a browser: lists drawn as bars rank largest first, with Don't know, Other and None last; answer scales keep their order |
 
 `pnpm content` reads `../afys-portal/db/seeds/*.sql` and the portal's
 `pipeline/mappings/crosswave.csv`, so the two directories have to sit side by
@@ -263,6 +264,7 @@ tools/audit-options.ts    what is still open with PSB → NEEDED_FROM_PSB.md
 tools/verify-the-315.mjs  browser check: grid charts draw their own rows
 tools/verify-map.mjs      browser check: the 28 countries on the map, every wave
 tools/verify-the-349.mjs  browser check: hiding answers never rebases
+tools/verify-the-386.mjs  browser check: lists rank largest first, scales keep their order
 src/content.ts            the deck, typed
 src/illustrative.ts       the generated figures — deleted when the API is wired up
 src/model.ts              chart spec + filters → view model (shaped like the API response)

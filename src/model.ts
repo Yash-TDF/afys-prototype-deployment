@@ -7,7 +7,7 @@
 // a cross-wave comparison was restricted).
 import {
   type ChartSpec, type Question, type Theme, askedIn, gridOf, inWave, latestWave, likeForLike,
-  question, rowName, waves,
+  question, rowName, themes, waves,
 } from './content';
 import { base, distribution, headline, multi, optionsFor, trend } from './illustrative';
 import type { ColourRole } from './charts/palette';
@@ -139,7 +139,56 @@ export function buildViewModel(spec: ChartSpec, theme: Theme, filters: Filters):
 
   const parts = cuts(spec, f);
   if (parts.length === 0) return single(spec, theme, { ...f, compare: 'none' });
-  return merge(parts.map((p) => single(spec, theme, p.filters)), parts.map((p) => p.label), f);
+  return merge(parts.map((p) => single(spec, theme, p.filters)), parts.map((p) => p.label), f, rankedList(spec));
+}
+
+/** Don't know, Other and None of these: always last on a ranked list (THE-386). */
+const TRAILING = /^(don'?t know|dk\b|other\b|none of (these|the above))/i;
+
+/**
+ * The order a list of answers draws in, as indexes into `labels`: answers with a
+ * figure largest first, then answers with no figure in the wave ranked by, then
+ * Don't know, Other and None of these. Within each group, and between equal
+ * figures, the original order stands. The rule promised to the client on 28 and
+ * 29 Sep, with Ishwar's answers on THE-386.
+ */
+function rankOrder(labels: string[], values: (number | null | undefined)[]): number[] {
+  const group = (i: number) => (TRAILING.test(labels[i]!) ? 2 : typeof values[i] === 'number' ? 0 : 1);
+  return labels.map((_, i) => i).sort((a, b) => group(a) - group(b)
+    || (group(a) === 0 ? (values[b] as number) - (values[a] as number) : 0)
+    || a - b);
+}
+
+/**
+ * Whether a single-answer question's answers are a list rather than a scale:
+ * three or more, none of them positive or negative, and drawn by the deck as bars
+ * or horizontal bars. T01_Q3, the most impactful events, is; "Strongly agree /
+ * Somewhat agree / Disagree / DK" (T05_Q1) carries no role either, but the deck
+ * draws it as a pie, and an Explore view of it as bars must not rank a scale.
+ * Asked of the question, not of whatever chart Explore draws, so the theme pages
+ * and Explore rank the same questions.
+ */
+const listCache = new Map<string, boolean>();
+function isList(code: string): boolean {
+  const cached = listCache.get(code);
+  if (cached !== undefined) return cached;
+  const q = question(code);
+  const deck = themes.flatMap((t) => t.charts).find((c) => c.questions[0] === code && !gridOf(c.questions));
+  let list = false;
+  if (q && q.responseType !== 'multi' && deck && (deck.type === 'bar' || deck.type === 'hbar')) {
+    const options = optionsFor(code, q.text, deck.showing);
+    const roles = options.roles ? Object.values(options.roles) : [];
+    list = options.labels.length >= 3 && !roles.some((role) => role === 'positive' || role === 'negative');
+  }
+  listCache.set(code, list);
+  return list;
+}
+
+/** A chart that ranks its answers: a list or a multi-select, drawn as bars. */
+function rankedList(spec: ChartSpec): boolean {
+  if ((spec.type !== 'bar' && spec.type !== 'hbar') || gridOf(spec.questions)) return false;
+  const code = spec.questions[0] ?? '';
+  return question(code)?.responseType === 'multi' || isList(code);
 }
 
 /**
@@ -236,12 +285,25 @@ function cuts(spec: ChartSpec, filters: Filters): { label: string; filters: Filt
  * would put the Men and Women bars against different countries while looking
  * entirely reasonable.
  */
-function merge(built: ViewModel[], labels: string[], filters: Filters): ViewModel {
+function merge(built: ViewModel[], labels: string[], filters: Filters, ranked = false): ViewModel {
   const first = built[0]!;
 
   const others = built.slice(1).map((model) => new Set(model.categories));
-  const categories = first.categories.filter((name) => others.every((set) => set.has(name)));
-  const dropped = first.categories.length - categories.length;
+  const kept = first.categories.filter((name) => others.every((set) => set.has(name)));
+  const dropped = first.categories.length - kept.length;
+
+  // A ranked list keeps the first cut's order unless told otherwise, and the first
+  // cut is 2020, or Men. So it ranks again here: by the latest wave when the cuts
+  // are waves (Ishwar on THE-386), and by men and women together when they are
+  // the two sexes, so the order is the question's and not one sex's.
+  let categories = kept;
+  if (ranked && first.categoryKind === 'options') {
+    const value = (model: ViewModel, name: string) => model.series[0]!.values[model.categories.indexOf(name)];
+    const by = filters.compare === 'wave'
+      ? kept.map((name) => value(built[built.length - 1]!, name))
+      : kept.map((name) => built.reduce((total, model) => total + (value(model, name) ?? 0), 0));
+    categories = rankOrder(kept, by).map((i) => kept[i]!);
+  }
 
   const series: Series[] = built.map((model, i) => {
     const at = new Map(model.categories.map((name, index) => [name, index]));
@@ -384,7 +446,11 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
     // test the list's length instead, so "Key Reasons to Emigrate", whose real
     // list is four grouped reasons, was drawn as "Healthcare" and "Agriculture
     // and food" with no note at all.
-    const cells = multi(seed, options.illustrative ? MULTI_PLACEHOLDER : options.labels).slice(0, 10);
+    // The top ten are the largest ten, as before; on bars, Don't know, Other and
+    // None of these then go to the end of them (THE-386). Slide 37's "Don't know"
+    // sat ninth of ten.
+    const top = multi(seed, options.illustrative ? MULTI_PLACEHOLDER : options.labels).slice(0, 10);
+    const cells = rankedList(spec) ? rankOrder(top.map((c) => c.label), top.map((c) => c.pct)).map((i) => top[i]!) : top;
     return {
       ...common,
       categories: cells.map((c) => c.label),
@@ -480,10 +546,12 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
     };
   }
 
-  // A single distribution across the response options.
-  const cells = q?.responseType === 'multi'
+  // A single distribution across the response options. A list drawn as bars ranks
+  // largest first; a scale keeps its own order (THE-386).
+  const drawn = q?.responseType === 'multi'
     ? multi(seed, options.labels).slice(0, 10)
     : distribution(seed, options.labels);
+  const cells = rankedList(spec) ? rankOrder(drawn.map((c) => c.label), drawn.map((c) => c.pct)).map((i) => drawn[i]!) : drawn;
   return {
     ...common,
     categories: cells.map((c) => c.label),
