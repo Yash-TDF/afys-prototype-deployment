@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-07",
+ "generatedAt": "2026-10-08",
  "source": "afys-portal/db/seeds — structure only, no survey results",
  "waves": [
   {
@@ -696,7 +696,7 @@
      "comparison": "tracked",
      "slide": 30,
      "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
-     "showing": "Showing % selecting ‘Strongly agree’"
+     "showing": null
     },
     {
      "theme": 7,
@@ -1744,7 +1744,11 @@
    "surfaced": true,
    "slide": "Deck slide 27",
    "parent": null,
-   "waves": null
+   "waves": [
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T07_Q1",
@@ -1908,7 +1912,12 @@
    "surfaced": true,
    "slide": "Deck slide 37",
    "parent": null,
-   "waves": null
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T09_Q2",
@@ -2742,7 +2751,7 @@
    "comparison": "tracked",
    "slide": 30,
    "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2026 overall figures which contains ten countries",
-   "showing": "Showing % selecting ‘Strongly agree’"
+   "showing": null
   },
   {
    "theme": 7,
