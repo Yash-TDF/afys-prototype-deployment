@@ -131,6 +131,31 @@ const l37 = await explore('q=T09_Q1&chart=line');
 check('Explore T09_Q1 Over time, drawn as bars, puts Don\'t know last and ranks the rest', Boolean(l37) && l37.type === 'bar'
   && l37.labels.some((l) => TRAILING.test(l)) && ranked(l37.labels, l37.sets[0].data), show(l37));
 
+// A list over time draws its largest answers in the latest wave, largest first
+// (Ishwar's third answer on THE-386; review of #27). Cut by sex, it draws
+// everyone's, so a split's Men and Women lines are the same answer.
+const datasets = (c) => (c ? c.sets.map((s) => `${s.label.slice(0, 18)} ${s.data[s.data.length - 1]}`).join(' | ') : 'no chart');
+const t3 = await explore('q=T01_Q3&chart=line');
+check('Explore T01_Q3 Over time draws its lines ranked by the latest wave', Boolean(t3) && t3.sets.length === 3
+  && ranked(t3.sets.map((s) => s.label), t3.sets.map((s) => s.data[s.data.length - 1])), datasets(t3));
+const t3w = await explore('q=T01_Q3&chart=line&gender=female');
+check('Explore T01_Q3 Over time for women draws everyone\'s lines, in everyone\'s order', Boolean(t3w) && Boolean(t3)
+  && JSON.stringify(t3w.sets.map((s) => s.label)) === JSON.stringify(t3.sets.map((s) => s.label)), `${datasets(t3w)} || everyone ${datasets(t3)}`);
+const t3m = await explore('q=T01_Q3&chart=line&gender=male');
+const t3s = await explore('q=T01_Q3&chart=line&cmp=gender');
+check('Explore T01_Q3 Over time split by sex draws one answer for both: the men-only and women-only first lines',
+  Boolean(t3s && t3m && t3w && t3) && t3s.sets.length === 2
+  && t3m.sets[0].label === t3.sets[0].label && t3w.sets[0].label === t3.sets[0].label
+  && JSON.stringify(t3s.sets[0].data) === JSON.stringify(t3m.sets[0].data)
+  && JSON.stringify(t3s.sets[1].data) === JSON.stringify(t3w.sets[0].data),
+  `Men ${JSON.stringify(t3s?.sets[0]?.data)} vs ${t3m?.sets[0]?.label.slice(0, 18)} ${JSON.stringify(t3m?.sets[0]?.data)}; `
+  + `Women ${JSON.stringify(t3s?.sets[1]?.data)} vs ${JSON.stringify(t3w?.sets[0]?.data)}`);
+const t4 = await explore('q=T04_Q1&chart=line');
+const t4want = await original('T04_Q1');
+check('control: Explore T04_Q1 Over time, a scale, keeps its answers\' order', Boolean(t4) && t4.sets.length > 1
+  && JSON.stringify(t4.sets.map((s) => s.label)) === JSON.stringify(t4want.slice(0, t4.sets.length)),
+  `${t4?.sets.map((s) => s.label).join(' / ')} | original ${t4want.join(' / ')}`);
+
 // Multi-selects already ranked: still ranked.
 for (const [slug, slide] of [['afro-optimism', 6], ['the-multilateral-order', 14], ['democracy-and-governance', 18],
   ['identity-and-emigration', 27], ['climate-change', 47]]) {

@@ -543,7 +543,18 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
       label, values: trend(key([seed, label]), years), bases: waveBases,
     }));
     normalise(shares, years.length);
-    const series = shares.slice(0, labels.length);
+    // A list over time draws its largest answers in the latest wave, largest first,
+    // with Don't know, Other and None of these last; a scale keeps its own order
+    // (Ishwar's third answer on THE-386, review of #27). Explore's T01_Q3 drew the
+    // deck's first three events, whatever their size. Cut by sex it draws
+    // everyone's, as a split's Men and Women lines are one answer's.
+    let order = answers.map((_, i) => i);
+    if (!stacks && isList(code ?? '')) {
+      order = filters.gender === 'all'
+        ? rankOrder(answers, answers.map((_, i) => shares[i]!.values[years.length - 1]))
+        : single(spec, theme, { ...filters, gender: 'all' }).series.map((s) => answers.indexOf(s.label));
+    }
+    const series = order.slice(0, labels.length).map((i) => shares[i]!);
     return {
       ...common,
       categories: years.map(String),
