@@ -3,7 +3,8 @@
 // answers on THE-386 (8 Oct): single-answer lists and multi-selects drawn as bars
 // or horizontal bars rank; Don't know, Other and None of these always go last;
 // a split by waves ranks by the latest wave; Explore follows the same rule. A
-// split by men and women ranks by the two together.
+// split by men and women ranks by everyone's figure, so it keeps the unsplit
+// chart's order (review of #27).
 //
 // Read-only for the repo. Run with the prototype served (`pnpm exec vite`), then
 //   node tools/verify-the-386.mjs [--url http://localhost:5173]
@@ -23,7 +24,7 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 1000 }, re
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.message));
 
-const TRAILING = /^(don'?t know|dk|other\b|none of (these|the above))/i;
+const TRAILING = /^(don'?t know|dk\b|other\b|none of (these|the above)|all other answers)/i;
 
 // One chart as drawn: its categories, each dataset's label, values and colours,
 // and the first column of the table under it.
@@ -80,7 +81,17 @@ function ranked(labels, values) {
   const desc = nums.every((v, i) => i === 0 || nums[i - 1] >= v);
   return kindOrder && desc;
 }
-const sumAt = (sets, i) => sets.reduce((t, s) => t + (s.data[i] ?? 0), 0);
+// Split by men and women: the answers the unsplit chart draws come first, in its
+// order, and Don't know, Other and None of these stay last.
+function follows(drawn, unsplit) {
+  const known = drawn.filter((l) => unsplit.includes(l) && !TRAILING.test(l));
+  const head = drawn.slice(0, known.length);
+  const tail = drawn.slice(drawn.findIndex((l) => TRAILING.test(l)));
+  return known.length > 1
+    && JSON.stringify(known) === JSON.stringify(unsplit.filter((l) => known.includes(l)))
+    && JSON.stringify(head) === JSON.stringify(known)
+    && (!drawn.some((l) => TRAILING.test(l)) || tail.every((l) => TRAILING.test(l)));
+}
 
 const results = [];
 const check = (name, pass, detail) => {
@@ -102,13 +113,23 @@ const latest = w5?.sets[w5.sets.length - 1];
 check('slide 5 compared by wave ranks by the latest wave', Boolean(w5) && w5.sets.length > 1 && ranked(w5.labels, latest.data),
   `${latest?.label}: ${w5?.labels.map((l, i) => `${l.slice(0, 18)} ${latest.data[i]}`).join(' | ')}`);
 const g5 = await theme('afro-optimism', 5, 'gender');
-check('slide 5 compared by men and women ranks by the two together', Boolean(g5) && g5.sets.length === 2
-  && ranked(g5.labels, g5.labels.map((_, i) => sumAt(g5.sets, i))), g5?.labels.map((l, i) => `${l.slice(0, 18)} ${Math.round(sumAt(g5.sets, i) * 10) / 10}`).join(' | '));
+check('slide 5 split by men and women keeps the unsplit chart\'s order', Boolean(g5) && Boolean(s5) && g5.sets.length === 2
+  && JSON.stringify(g5.labels) === JSON.stringify(s5.labels),
+  `${g5?.labels.map((l) => l.slice(0, 18)).join(' | ')} || unsplit ${s5?.labels.map((l) => l.slice(0, 18)).join(' | ')}`);
 const s37 = await theme('news-trust-and-the-fake-news-crisis', 37);
 check('slide 37 (T09_Q1) puts Don\'t know last and ranks the rest', Boolean(s37) && s37.labels.some((l) => TRAILING.test(l))
   && ranked(s37.labels, s37.sets[0].data), show(s37));
+const g37 = await theme('news-trust-and-the-fake-news-crisis', 37, 'gender');
+check('slide 37 split by men and women keeps the unsplit chart\'s order', Boolean(g37) && Boolean(s37) && g37.sets.length === 2
+  && follows(g37.labels, s37.labels),
+  `${g37?.labels.map((l) => l.slice(0, 14)).join(' | ')} || unsplit ${s37?.labels.map((l) => l.slice(0, 14)).join(' | ')}`);
 const e37 = await explore('q=T09_Q1&chart=hbar');
 check('Explore T09_Q1 on Horizontal bars puts Don\'t know last and ranks the rest', Boolean(e37) && ranked(e37.labels, e37.sets[0].data), show(e37));
+// "Over time" on a multi-select draws bars, because its categories are answers,
+// not waves (render.ts), so it is a ranked list like any other (review of #27).
+const l37 = await explore('q=T09_Q1&chart=line');
+check('Explore T09_Q1 Over time, drawn as bars, puts Don\'t know last and ranks the rest', Boolean(l37) && l37.type === 'bar'
+  && l37.labels.some((l) => TRAILING.test(l)) && ranked(l37.labels, l37.sets[0].data), show(l37));
 
 // Multi-selects already ranked: still ranked.
 for (const [slug, slide] of [['afro-optimism', 6], ['the-multilateral-order', 14], ['democracy-and-governance', 18],

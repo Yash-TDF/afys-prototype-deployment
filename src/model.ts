@@ -139,18 +139,31 @@ export function buildViewModel(spec: ChartSpec, theme: Theme, filters: Filters):
 
   const parts = cuts(spec, f);
   if (parts.length === 0) return single(spec, theme, { ...f, compare: 'none' });
-  return merge(parts.map((p) => single(spec, theme, p.filters)), parts.map((p) => p.label), f, rankedList(spec));
+  // Men and women rank by everyone's figure, so splitting a list by sex keeps the
+  // order of the same list unsplit (review of #27).
+  const ranked = rankedList(spec);
+  const everyone = ranked && f.compare === 'gender' ? single(spec, theme, { ...f, compare: 'none' }) : null;
+  return merge(parts.map((p) => single(spec, theme, p.filters)), parts.map((p) => p.label), f, ranked, everyone);
 }
 
-/** Don't know, Other and None of these: always last on a ranked list (THE-386). */
-const TRAILING = /^(don'?t know|dk\b|other\b|none of (these|the above))/i;
+/**
+ * Don't know, Other, None of these and All other answers: always last on a ranked
+ * list (THE-386). `optionsFor` adds "All other answers" to a quoted option list.
+ */
+const TRAILING = /^(don'?t know|dk\b|other\b|none of (these|the above)|all other answers)/i;
 
 /**
  * The order a list of answers draws in, as indexes into `labels`: answers with a
- * figure largest first, then answers with no figure in the wave ranked by, then
- * Don't know, Other and None of these. Within each group, and between equal
- * figures, the original order stands. The rule promised to the client on 28 and
- * 29 Sep, with Ishwar's answers on THE-386.
+ * figure largest first, then answers with no figure, then Don't know, Other, None
+ * of these and All other answers. Within each group, and between equal figures,
+ * the original order stands. The rule promised to the client on 28 and 29 Sep,
+ * with Ishwar's answers on THE-386.
+ *
+ * Here an answer has no figure only on a split by men and women, when it is in
+ * both halves' top ten but not in everyone's. Ishwar's other no-figure case, an
+ * option the latest wave did not ask, cannot happen in the prototype: every option
+ * has a figure in every wave, and `merge` leaves out an answer a cut did not
+ * measure. The portal knows each option's waves, so its API carries that rule.
  */
 function rankOrder(labels: string[], values: (number | null | undefined)[]): number[] {
   const group = (i: number) => (TRAILING.test(labels[i]!) ? 2 : typeof values[i] === 'number' ? 0 : 1);
@@ -184,11 +197,19 @@ function isList(code: string): boolean {
   return list;
 }
 
-/** A chart that ranks its answers: a list or a multi-select, drawn as bars. */
+/**
+ * A chart that ranks its answers: a list or a multi-select, drawn as bars. A
+ * multi-select's "Over time" is drawn as bars too, because its categories are
+ * answers, not waves (`render.ts`), so it ranks as well: Explore's T09_Q1 over
+ * time had Don't know ninth of ten (review of #27).
+ */
 function rankedList(spec: ChartSpec): boolean {
-  if ((spec.type !== 'bar' && spec.type !== 'hbar') || gridOf(spec.questions)) return false;
+  if (gridOf(spec.questions)) return false;
   const code = spec.questions[0] ?? '';
-  return question(code)?.responseType === 'multi' || isList(code);
+  const multi = question(code)?.responseType === 'multi';
+  if (spec.type === 'line') return multi;
+  if (spec.type !== 'bar' && spec.type !== 'hbar') return false;
+  return multi || isList(code);
 }
 
 /**
@@ -285,7 +306,9 @@ function cuts(spec: ChartSpec, filters: Filters): { label: string; filters: Filt
  * would put the Men and Women bars against different countries while looking
  * entirely reasonable.
  */
-function merge(built: ViewModel[], labels: string[], filters: Filters, ranked = false): ViewModel {
+function merge(
+  built: ViewModel[], labels: string[], filters: Filters, ranked = false, everyone: ViewModel | null = null,
+): ViewModel {
   const first = built[0]!;
 
   const others = built.slice(1).map((model) => new Set(model.categories));
@@ -294,14 +317,17 @@ function merge(built: ViewModel[], labels: string[], filters: Filters, ranked = 
 
   // A ranked list keeps the first cut's order unless told otherwise, and the first
   // cut is 2020, or Men. So it ranks again here: by the latest wave when the cuts
-  // are waves (Ishwar on THE-386), and by men and women together when they are
-  // the two sexes, so the order is the question's and not one sex's.
+  // are waves (Ishwar on THE-386), and by everyone's figure when they are the two
+  // sexes, so the order is the question's own and not one sex's (review of #27).
+  // Adding the two halves was an unweighted average, and could put the split
+  // chart in another order from the same chart unsplit.
   let categories = kept;
   if (ranked && first.categoryKind === 'options') {
-    const value = (model: ViewModel, name: string) => model.series[0]!.values[model.categories.indexOf(name)];
-    const by = filters.compare === 'wave'
-      ? kept.map((name) => value(built[built.length - 1]!, name))
-      : kept.map((name) => built.reduce((total, model) => total + (value(model, name) ?? 0), 0));
+    const value = (model: ViewModel, name: string) => {
+      const at = model.categories.indexOf(name);
+      return at < 0 ? null : model.series[0]!.values[at];
+    };
+    const by = kept.map((name) => value(everyone ?? built[built.length - 1]!, name));
     categories = rankOrder(kept, by).map((i) => kept[i]!);
   }
 
