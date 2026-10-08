@@ -9,6 +9,15 @@
 // respondents and for women. Reads what Chart.js paints: for a line or a bar per
 // wave, the answers in each wave; for a pie, its slices (the latest wave). Exits
 // 1 on any total over 100, or when a chart it must reach was never checked.
+//
+// A question whose answer list stops short must also total under 100: slide 31
+// (T07_Q3) holds only "Strongly agree" and "Somewhat agree", and two answers that
+// make up the whole of every wave read as "nobody disagreed" (review of #24).
+//
+// Slides 22, 33, 41 and 45 chart several questions, and the prototype draws the
+// first question's answers only. Their lines are marked "first question only":
+// once those charts draw one line per question, lines from different questions
+// may rightly total over 100, and this check must stop adding them up.
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
@@ -70,7 +79,7 @@ const { tracked, explore } = await page.evaluate(async () => {
   return {
     tracked: c.themes.flatMap((t) => t.charts
       .filter((s) => s.comparison === 'tracked' && !grid(s.questions) && single(s.questions[0] ?? ''))
-      .map((s) => ({ theme: t.slug, slide: String(s.slide) }))),
+      .map((s) => ({ theme: t.slug, slide: String(s.slide), several: s.questions.length > 1 }))),
     explore: c.questions.filter((q) => q.responseType !== 'multi' && !parents.has(q.code)).map((q) => q.code),
   };
 });
@@ -84,7 +93,7 @@ for (const theme of [...new Set(tracked.map((t) => t.theme))]) {
   const charts = await painted(page, '.chart-cell');
   for (const want of tracked.filter((t) => t.theme === theme)) {
     const found = charts.find((ch) => ch.slide === want.slide && ch.waves);
-    results.push({ where: `theme/${theme} slide ${want.slide}`, found: Boolean(found), ...(found ?? {}) });
+    results.push({ where: `theme/${theme} slide ${want.slide}`, several: want.several, found: Boolean(found), ...(found ?? {}) });
   }
 }
 
@@ -110,7 +119,7 @@ for (const r of results) {
   }
   const bad = over(r);
   if (bad.length) failed += 1;
-  console.log(`${bad.length ? 'FAIL' : 'PASS'}  ${r.where} (${r.type}): `
+  console.log(`${bad.length ? 'FAIL' : 'PASS'}  ${r.where} (${r.type}${r.several ? ', first question only' : ''}): `
     + r.waves.map((w) => `${w.wave} ${Math.round(w.total * 10) / 10}`).join(', ')
     + (bad.length ? ` | over 100 in ${bad.map((w) => `${w.wave} (${w.parts.join(' + ')})`).join('; ')}` : ''));
 }
@@ -123,9 +132,17 @@ const guards = [
   ['Explore T02_Q1 over time was checked', reached('explore T02_Q1')],
   ['every tracked single-answer chart on a theme page was reached', results.filter((r) => r.where.startsWith('theme/')).every((r) => r.found)],
 ];
-for (const [what, ok] of guards) {
+// The questions whose answer lists hold only the agree side total under 100 in
+// every wave, for all respondents and for women.
+for (const where of ['theme/identity-and-social-justice slide 31', 'explore T12_Q2', 'explore T12_Q3']) {
+  const runs = results.filter((r) => r.found && (r.where === where || r.where === `${where}&gender=female`));
+  const full = runs.flatMap((r) => r.waves.filter((w) => w.total >= 99.95).map((w) => `${r.where} ${w.wave}`));
+  guards.push([`${where} totals under 100 in every wave, as its list stops short`, runs.length > 0 && full.length === 0,
+    full.length ? `100 in ${full.join(', ')}` : '']);
+}
+for (const [what, ok, detail] of guards) {
   if (!ok) failed += 1;
-  console.log(`${ok ? 'PASS' : 'FAIL'}  guard: ${what}`);
+  console.log(`${ok ? 'PASS' : 'FAIL'}  guard: ${what}${detail ? ` (${detail})` : ''}`);
 }
 if (errors.length) console.log(`page errors: ${[...new Set(errors)].slice(0, 5).join(' | ')}`);
 const checked = results.filter((r) => r.found).length;

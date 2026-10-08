@@ -437,12 +437,21 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
     // whatever the others take. Sharing out only the three drawn would make them
     // total exactly 100, wrong for a question with more answers. A stacked bar and
     // a pie still share out the answers they draw, as they did.
+    // The answer list we hold can itself stop short: slide 31's T07_Q3 has only
+    // "Strongly agree" and "Somewhat agree", which shared out alone made the whole
+    // of every wave and read as "nobody disagreed". So a list from the deck with
+    // no Don't know and no "All other answers" gets one more share for the
+    // answers it leaves out, never drawn (review of #24). A placeholder scale is
+    // whole by design, and already says on the chart that it is invented.
     const stacks = spec.type === 'stacked' || spec.type === 'pie';
-    const shares = (stacks ? labels : options.labels).map((label) => ({
+    const answers = stacks ? labels : options.labels;
+    const whole = stacks || options.illustrative || answers.some((label) => THE_REST.test(label));
+    const rest = whole ? [] : ['All other answers'];
+    const shares = [...answers, ...rest].map((label) => ({
       label, values: trend(key([seed, label]), years), bases: waveBases,
     }));
     normalise(shares, years.length);
-    const series = shares.slice(0, 3);
+    const series = shares.slice(0, labels.length);
     return {
       ...common,
       categories: years.map(String),
@@ -571,6 +580,13 @@ function notAsked(caveats: string[]): Set<number> {
   }
   return out;
 }
+
+/**
+ * An answer that takes in everyone the others leave: a Don't know, on its own or
+ * joined to another answer ("Not confident / DK"), or the "All other answers"
+ * `optionsFor` adds to a quoted list.
+ */
+const THE_REST = /don['’]?t know|\bdk\b|all other answers/i;
 
 /** Rescale each category so the series drawn on top of each other total 100. */
 function normalise(series: Series[], categories: number): void {
