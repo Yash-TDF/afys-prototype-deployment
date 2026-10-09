@@ -81,17 +81,27 @@ function ranked(labels, values) {
   const desc = nums.every((v, i) => i === 0 || nums[i - 1] >= v);
   return kindOrder && desc;
 }
-// Split by men and women: the answers the unsplit chart draws come first, in its
-// order, and Don't know, Other and None of these stay last.
-function follows(drawn, unsplit) {
-  const known = drawn.filter((l) => unsplit.includes(l) && !TRAILING.test(l));
-  const head = drawn.slice(0, known.length);
-  const tail = drawn.slice(drawn.findIndex((l) => TRAILING.test(l)));
-  return known.length > 1
-    && JSON.stringify(known) === JSON.stringify(unsplit.filter((l) => known.includes(l)))
-    && JSON.stringify(head) === JSON.stringify(known)
-    && (!drawn.some((l) => TRAILING.test(l)) || tail.every((l) => TRAILING.test(l)));
+// Everyone's figure for every answer of a theme-page chart, not only the ten it
+// draws, from the model's own everyoneOf: what a split by men and women ranks by.
+const everyone = (slug, slide) => page.evaluate(async ({ slug, slide }) => {
+  const { theme } = await import('/src/content.ts');
+  const { everyoneOf, DEFAULT_FILTERS } = await import('/src/model.ts');
+  const t = theme(slug);
+  const m = everyoneOf(t.charts.find((c) => c.slide === slide), t, DEFAULT_FILTERS);
+  return Object.fromEntries(m.categories.map((c, i) => [c, m.series[0].values[i]]));
+}, { slug, slide });
+// Split by men and women: every bar but Don't know, Other and None of these has
+// an everyone figure, and the bars run in descending order of it, with those
+// three last (second review of #27). An answer outside everyone's top ten was
+// still asked, so it has a figure and ranks by it.
+function byEveryone(drawn, figures) {
+  const body = drawn.filter((l) => !TRAILING.test(l));
+  const values = body.map((l) => figures[l]);
+  return body.length > 1 && values.every((v) => typeof v === 'number')
+    && values.every((v, i) => i === 0 || values[i - 1] >= v)
+    && drawn.slice(body.length).every((l) => TRAILING.test(l));
 }
+const withEveryone = (c, figures) => (c ? c.labels.map((l) => `${l.slice(0, 14)} ${figures[l] ?? 'none'}`).join(' | ') : 'no chart');
 
 const results = [];
 const check = (name, pass, detail) => {
@@ -119,10 +129,15 @@ check('slide 5 split by men and women keeps the unsplit chart\'s order', Boolean
 const s37 = await theme('news-trust-and-the-fake-news-crisis', 37);
 check('slide 37 (T09_Q1) puts Don\'t know last and ranks the rest', Boolean(s37) && s37.labels.some((l) => TRAILING.test(l))
   && ranked(s37.labels, s37.sets[0].data), show(s37));
-const g37 = await theme('news-trust-and-the-fake-news-crisis', 37, 'gender');
-check('slide 37 split by men and women keeps the unsplit chart\'s order', Boolean(g37) && Boolean(s37) && g37.sets.length === 2
-  && follows(g37.labels, s37.labels),
-  `${g37?.labels.map((l) => l.slice(0, 14)).join(' | ')} || unsplit ${s37?.labels.map((l) => l.slice(0, 14)).join(' | ')}`);
+// Every multi-select on the theme pages, split by men and women, against
+// everyone's figure for each bar it draws.
+for (const [slug, slide] of [['news-trust-and-the-fake-news-crisis', 37], ['afro-optimism', 6], ['the-multilateral-order', 14],
+  ['democracy-and-governance', 18], ['identity-and-emigration', 27], ['climate-change', 47]]) {
+  const g = await theme(slug, slide, 'gender');
+  const figures = await everyone(slug, slide);
+  check(`slide ${slide} split by men and women ranks every bar by everyone's figure`, Boolean(g) && g.sets.length === 2
+    && byEveryone(g.labels, figures), withEveryone(g, figures));
+}
 const e37 = await explore('q=T09_Q1&chart=hbar');
 check('Explore T09_Q1 on Horizontal bars puts Don\'t know last and ranks the rest', Boolean(e37) && ranked(e37.labels, e37.sets[0].data), show(e37));
 // "Over time" on a multi-select draws bars, because its categories are answers,

@@ -140,10 +140,21 @@ export function buildViewModel(spec: ChartSpec, theme: Theme, filters: Filters):
   const parts = cuts(spec, f);
   if (parts.length === 0) return single(spec, theme, { ...f, compare: 'none' });
   // Men and women rank by everyone's figure, so splitting a list by sex keeps the
-  // order of the same list unsplit (review of #27).
+  // order of the same list unsplit (review of #27). Everyone's whole list, not its
+  // top ten: an answer in both halves' ten but outside everyone's was asked, so it
+  // has a figure to rank by (second review of #27).
   const ranked = rankedList(spec);
-  const everyone = ranked && f.compare === 'gender' ? single(spec, theme, { ...f, compare: 'none' }) : null;
+  const everyone = ranked && f.compare === 'gender' ? everyoneOf(spec, theme, f) : null;
   return merge(parts.map((p) => single(spec, theme, p.filters)), parts.map((p) => p.label), f, ranked, everyone);
+}
+
+/**
+ * Everyone's figure for every answer, not only the ten a chart draws: what a split
+ * by men and women ranks by. Exported for tools/verify-the-386.mjs, which checks
+ * the split's bars against it.
+ */
+export function everyoneOf(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
+  return single(spec, theme, { ...coherent(filters), compare: 'none' }, Infinity);
 }
 
 /**
@@ -159,11 +170,10 @@ const TRAILING = /^(don'?t know|dk\b|other\b|none of (these|the above)|all other
  * the original order stands. The rule promised to the client on 28 and 29 Sep,
  * with Ishwar's answers on THE-386.
  *
- * Here an answer has no figure only on a split by men and women, when it is in
- * both halves' top ten but not in everyone's. Ishwar's other no-figure case, an
- * option the latest wave did not ask, cannot happen in the prototype: every option
- * has a figure in every wave, and `merge` leaves out an answer a cut did not
- * measure. The portal knows each option's waves, so its API carries that rule.
+ * The no-figure group is for an option the latest wave did not ask (Ishwar's
+ * answer 3 on THE-386). It cannot happen in the prototype: every option has a
+ * figure in every wave, and `merge` leaves out an answer a cut did not measure.
+ * The portal knows each option's waves, so the rule goes to its API (THE-226).
  */
 function rankOrder(labels: string[], values: (number | null | undefined)[]): number[] {
   const group = (i: number) => (TRAILING.test(labels[i]!) ? 2 : typeof values[i] === 'number' ? 0 : 1);
@@ -362,7 +372,8 @@ function merge(
   };
 }
 
-function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
+/** `limit` is how many answers of a multi-select a chart draws: its top ten. */
+function single(spec: ChartSpec, theme: Theme, filters: Filters, limit = 10): ViewModel {
   // A grid's chart lists one child per row; it is drawn from the grid itself,
   // whose deck options are those rows. Reading the first child instead drew one
   // organisation's answers where the slide plots six organisations.
@@ -475,7 +486,7 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
     // The top ten are the largest ten, as before; on bars, Don't know, Other and
     // None of these then go to the end of them (THE-386). Slide 37's "Don't know"
     // sat ninth of ten.
-    const top = multi(seed, options.illustrative ? MULTI_PLACEHOLDER : options.labels).slice(0, 10);
+    const top = multi(seed, options.illustrative ? MULTI_PLACEHOLDER : options.labels).slice(0, limit);
     const cells = rankedList(spec) ? rankOrder(top.map((c) => c.label), top.map((c) => c.pct)).map((i) => top[i]!) : top;
     return {
       ...common,
@@ -593,7 +604,7 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
   // A single distribution across the response options. A list drawn as bars ranks
   // largest first; a scale keeps its own order (THE-386).
   const drawn = q?.responseType === 'multi'
-    ? multi(seed, options.labels).slice(0, 10)
+    ? multi(seed, options.labels).slice(0, limit)
     : distribution(seed, options.labels);
   const cells = rankedList(spec) ? rankOrder(drawn.map((c) => c.label), drawn.map((c) => c.pct)).map((i) => drawn[i]!) : drawn;
   return {
