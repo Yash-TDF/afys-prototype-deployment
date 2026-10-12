@@ -33,6 +33,7 @@ Other scripts:
 | `node tools/verify-the-349.mjs` | in a browser: hiding answers is display only, and every view says what is hidden |
 | `node tools/verify-the-383.mjs` | in a browser: on every tracked chart of a single-answer question, the answers drawn in each wave total 100% or less |
 | `node tools/verify-the-386.mjs` | in a browser: lists drawn as bars rank largest first, with Don't know, Other and None last; answer scales keep their order |
+| `node tools/verify-the-398.mjs` | in a browser: slides 41 and 45 draw one line per question, refuse a split by sex, share no base, and their tiles read their first line; at phone width no table runs off the screen |
 
 `pnpm content` reads `../afys-portal/db/seeds/*.sql` and the portal's
 `pipeline/mappings/crosswave.csv`, so the two directories have to sit side by
@@ -274,6 +275,7 @@ tools/verify-map.mjs      browser check: the 28 countries on the map, every wave
 tools/verify-the-349.mjs  browser check: hiding answers never rebases
 tools/verify-the-383.mjs  browser check: no tracked chart's answers total over 100%
 tools/verify-the-386.mjs  browser check: lists rank largest first, scales keep their order
+tools/verify-the-398.mjs  browser check: one line per question on slides 41 and 45; tables fit a phone
 src/content.ts            the deck, typed
 src/illustrative.ts       the generated figures — deleted when the API is wired up
 src/model.ts              chart spec + filters → view model (shaped like the API response)

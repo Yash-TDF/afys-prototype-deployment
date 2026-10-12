@@ -79,7 +79,14 @@ const { tracked, explore } = await page.evaluate(async () => {
   return {
     tracked: c.themes.flatMap((t) => t.charts
       .filter((s) => s.comparison === 'tracked' && !grid(s.questions) && single(s.questions[0] ?? ''))
-      .map((s) => ({ theme: t.slug, slide: String(s.slide), several: s.questions.length > 1 }))),
+      // One line per question exactly when the model draws one (questionLines in
+      // src/model.ts): several questions, not a grid, one note per question. A chart
+      // of several questions without one note each still shares out its answers, so
+      // it gets the stronger, summed test (review of #31).
+      .map((s) => ({
+        theme: t.slug, slide: String(s.slide),
+        several: s.questions.length > 1 && !grid(s.questions) && (s.showing ?? '').split(' | ').length === s.questions.length,
+      }))),
     explore: c.questions.filter((q) => q.responseType !== 'multi' && !parents.has(q.code)).map((q) => q.code),
   };
 });

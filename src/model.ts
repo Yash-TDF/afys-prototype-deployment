@@ -280,6 +280,12 @@ function refuse(spec: ChartSpec, filters: Filters): string | null {
   if (filters.compare === 'gender' && gridOf(spec.questions) && spec.comparison === 'tracked') {
     return 'This chart already draws each wave as a series, so it cannot also split by gender.';
   }
+  // A chart of one line per question would take each cut's first line, so slide 45
+  // split by sex drew only the concerned line, as Men and Women, while its caption
+  // still named both (review of #31).
+  if (filters.compare === 'gender' && questionLines(spec)) {
+    return 'This chart draws one line per question, so it cannot also split by gender.';
+  }
   return null;
 }
 
@@ -563,7 +569,13 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters, limit = 10): Vi
     // point, and the chart says so. Lines of different questions are separate
     // people's answers to separate questions, so they are not shared out together,
     // and the colours are by position: one question's answer roles say nothing
-    // about another's line. On real data the API sums the named answers.
+    // about another's line. Nor do they share a base: one n per wave across the
+    // lines would claim a base for a wave a question wasn't asked, so, as grid
+    // rows, the lines carry none (review of #31).
+    // On real data each note matches one band the portal already stores (T11_Q1
+    // "Concerned", T10_Q4_CLIMATE "Satisfied", T10_Q1 "Very good or good", T10_Q2
+    // "Get better", T10_Q3 "Better than my parents"). The API only passes the notes
+    // through, so mapping each note to its band is still to do (THE-228).
     const perQuestion = questionLines(spec);
     if (perQuestion) {
       for (const line of perQuestion) {
@@ -581,10 +593,9 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters, limit = 10): Vi
           return {
             label: line.name,
             values: years.map((year, i) => (askedIn(question(line.code), year) ? values[i]! : null)),
-            bases: waveBases,
+            bases: null,
           };
         }),
-        base: sum(waveBases),
         categoryKind: 'waves',
         seriesKind: 'options' as SeriesKind,
         likeForLike: restriction,
