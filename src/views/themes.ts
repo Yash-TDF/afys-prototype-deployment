@@ -254,6 +254,7 @@ function fill(
     // 2% of the box and every line looked flat. Rosie's 8 Oct deck asked for "more
     // variance", and Ishwar's 9 Oct note promised her this range. Don't put the
     // shared scale back: the "since" badge beside each line keeps the real scale.
+    // So a line is read within its tile, never against another tile's.
     const low = Math.min(...figures.spark);
     const high = Math.max(...figures.spark);
     const line = sparkline(figures.spark, {

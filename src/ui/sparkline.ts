@@ -29,9 +29,8 @@ export interface SparkOptions {
   label?: string;
   /**
    * Fixed bounds for the vertical axis, in place of the series' own min and max.
-   * Lines meant to be compared with each other need the same scale: on their
-   * own ranges every one fills its box, and a 15-point rise looks like a 5-point
-   * fall.
+   * A value outside them is held at the edge. The landing tiles pass their own
+   * range; why is in views/themes.ts.
    */
   domain?: [number, number];
 }
