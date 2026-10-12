@@ -29,6 +29,23 @@
   .map-legend { gap: 4px 14px; }
   /* Five columns need more room than a phone's card has: scroll the table sideways instead of squashing it. */
   .coverage { overflow-x: auto; }
+  /* A chart's "View as a table" scrolls inside its card the same way. It had no rule, so at 390px a
+     five-column table ran past its 296px card, the page scrolled sideways and the last column was
+     cut off (THE-398, Yash's check). Narrower cell padding lets the smaller tables fit outright. */
+  .chart-table { overflow-x: auto; }
+  .chart-table th, .chart-table td { padding-left: 6px; padding-right: 6px; }
+  /* A table cut off at the card's edge looked broken, with nothing to say it scrolls. A soft shadow
+     shows on whichever side has more: card-coloured covers scroll with the table and hide the
+     shadow at either end. (Methodology's 1.8s mint highlight of the section it opened at replaces
+     this background while it lasts; the cue is back when it fades.) */
+  .chart-table, .coverage {
+    background:
+      linear-gradient(to right, var(--card) 30%, transparent) left center / 28px 100% no-repeat local,
+      linear-gradient(to left, var(--card) 30%, transparent) right center / 28px 100% no-repeat local,
+      radial-gradient(farthest-side at 0 50%, rgb(0 0 0 / 0.16), transparent) left center / 12px 100% no-repeat scroll,
+      radial-gradient(farthest-side at 100% 50%, rgb(0 0 0 / 0.16), transparent) right center / 12px 100% no-repeat scroll,
+      var(--card);
+  }
   .coverage th, .coverage td { white-space: nowrap; }
   /* The text tables (languages and locations, the overview) read better wrapped
      than scrolled: their cells are sentences, not figures. */
