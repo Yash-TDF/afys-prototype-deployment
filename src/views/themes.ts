@@ -45,35 +45,31 @@ export function themesView(host: HTMLElement): void {
   const stats = document.createElement('div');
   stats.className = 'stat-row';
 
-  // The countries-per-wave line is a real series out of the seeds, so it carries
-  // no illustrative marking. The other three cards have no series behind them and
-  // get no line rather than an invented one.
-  const perWave = waves.map((w) => inWave(w.year).length);
+  // No card draws a line. The Countries card had the one real series, countries
+  // per wave, and Rosie's 8 Oct deck asked for it to go (THE-401); the other three
+  // never had a series behind them. The card wording below is hers too.
   const n = (value: number): string => value.toLocaleString('en-GB');
   const publishedTotal = Object.values(fieldwork.waves).reduce((sum, w) => sum + (w.published ?? 0), 0);
   const latestCount = fieldwork.waves[String(latestWave)]?.interviews ?? 0;
   // Each card goes to the part of the Methodology page that backs it up, as the
   // approved prototype's cards opened a drawer. `section` is a section id on that
   // page, not a heading; the Themes card points down this page instead.
-  const facts: {
-    label: string; value: string; sub: string; section: string | null; opens: string;
-    spark?: number[]; sparkLabel?: string;
-  }[] = [
+  const facts: { label: string; value: string; sub: string; section: string | null; opens: string }[] = [
     {
       label: 'Countries',
       value: String(countries.length),
-      sub: `Sub-Saharan Africa · ${inWave(latestWave).length} surveyed in ${latestWave}`,
+      sub: `Across Sub-Saharan Africa · ${inWave(latestWave).length} countries included in ${latestWave}`,
       section: 'coverage',
       opens: 'View the countries surveyed, wave by wave',
-      spark: perWave,
-      sparkLabel: `Countries surveyed per wave: ${waves.map((w, i) => `${w.year}, ${perWave[i]}`).join('; ')}`,
     },
     {
-      // PSB's published total for the waves they have published one for; the
-      // latest wave's count is ours from the file, and says so on the page.
+      // PSB's published total for the waves they have published one for, 2020 to
+      // 2024. The text under it is only the latest wave's count, ours from the
+      // file, as Rosie asked. Whether the headline should become the four-wave
+      // total is a question with her (9 Oct); it changes only if she says so.
       label: 'Respondents',
       value: n(publishedTotal),
-      sub: `Aged 18 to 24 · published, 2020 to 2024 · ${n(latestCount)} more in ${latestWave} (file count)`,
+      sub: `${n(latestCount)} respondents in ${latestWave}`,
       section: 'overview', opens: 'About the study',
     },
     {
@@ -81,7 +77,7 @@ export function themesView(host: HTMLElement): void {
       section: 'coverage', opens: 'View the waves',
     },
     {
-      label: 'Themes', value: String(themes.length), sub: 'From the Portal Content deck',
+      label: 'Key themes', value: String(themes.length), sub: `From hundreds of questions asked since ${waves[0]!.year}`,
       section: null, opens: 'Explore by theme',
     },
   ];
@@ -127,13 +123,6 @@ export function themesView(host: HTMLElement): void {
     left.append(label, value, sub);
     top.append(left);
 
-    if (fact.spark) {
-      const line = sparkline(fact.spark, {
-        width: 80, height: 40, className: 'sparkline', label: fact.sparkLabel,
-      });
-      if (line) top.append(line);
-    }
-
     card.append(top);
     stats.append(card);
   });
@@ -143,11 +132,8 @@ export function themesView(host: HTMLElement): void {
 
   const heading = document.createElement('h2');
   heading.className = 'section-heading an a5';
+  // No "12 themes" label beside it: Rosie's 8 Oct deck asked for it to go (THE-401).
   heading.textContent = 'Explore by Theme';
-  const count = document.createElement('span');
-  count.className = 'count';
-  count.textContent = `${themes.length} themes`;
-  heading.append(count);
   host.append(heading);
 
   const grid = document.createElement('section');
