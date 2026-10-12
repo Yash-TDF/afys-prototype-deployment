@@ -54,8 +54,8 @@ writes its results to `node_modules/.cache/`.
 question in Explore drawn over time. It prints one line per chart and exits 1 on
 any wave whose answers total over 100%, or if a chart it must check was never
 drawn. Slide 31, T12_Q2 and T12_Q3 hold only their agree answers, so they must
-total under 100%, never exactly 100%. Slides 22, 33, 41 and 45 chart several
-questions but draw the first one only, and say so in the output.
+total under 100%, never exactly 100%. Slides 41 and 45 chart several questions,
+one line per question, so each of their lines is checked alone.
 
 ## What is real and what is not
 

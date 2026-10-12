@@ -8,7 +8,7 @@
 // The approved prototype derives these from `Math.sin(idx * 17 + 3)` against a
 // hardcoded array of twelve numbers, unrelated to any question, and returns three
 // waves where we have four. None of that survives.
-import { type ChartSpec, type Theme, latestWave, question, rowName } from '../content';
+import { type ChartSpec, type Theme, gridOf, latestWave, question, rowName } from '../content';
 import { combine } from '../aggregate';
 import { type ViewModel, buildViewModel, DEFAULT_FILTERS, partsFor } from '../model';
 
@@ -150,8 +150,15 @@ export function themeCardFigures(theme: Theme): ThemeCardFigures {
   // A tracked grid chart is read as one of its rows, in the same order: a theme
   // whose first trend is a grid (tile 3, slide 12) takes that row; one with an
   // earlier years chart keeps it. See gridRowTrend.
+  //
+  // A chart of several questions draws one line per question from its notes
+  // (THE-398), but the card reads it without them: its first question's first
+  // answer, as before, so Government Satisfaction keeps "Very good or good" and
+  // Climate Change "Not at all concerned", each with its sign-off caption. Whether
+  // the climate card should read the "concerned" line instead is Ishwar's call.
   for (const chart of theme.charts.filter((c) => c.comparison === 'tracked')) {
-    const model = buildViewModel(chart, theme, DEFAULT_FILTERS);
+    const read = chart.questions.length > 1 && !gridOf(chart.questions) ? { ...chart, showing: null } : chart;
+    const model = buildViewModel(read, theme, DEFAULT_FILTERS);
     const row = gridRowTrend(chart, model);
     if (row) return trendFigures(theme, row.label, row.years, row.values);
     const series = model.series[0];

@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-08",
+ "generatedAt": "2026-10-12",
  "source": "afys-portal/db/seeds — structure only, no survey results",
  "waves": [
   {
@@ -586,8 +586,7 @@
      "title": "Concern about Asylum and Immigration",
      "type": "line",
      "questions": [
-      "T05_Q3",
-      "T05_Q4"
+      "T05_Q3"
      ],
      "comparison": "tracked",
      "slide": 22,
@@ -732,8 +731,7 @@
      "title": "Internet Access",
      "type": "line",
      "questions": [
-      "T08_Q1",
-      "T08_Q2"
+      "T08_Q1"
      ],
      "comparison": "tracked",
      "slide": 33,
@@ -923,7 +921,7 @@
      "comparison": "tracked",
      "slide": 45,
      "caveat": "Comparing only countries asked in 2020, 2022 and 2024, so figures will differ slightly to the 2024 overall figure which contains 6 additional countries",
-     "showing": null
+     "showing": "Showing % selecting ‘Very concerned’ + ‘Somewhat concerned’ | Showing % selecting ‘Very satisfied’ + ‘Somewhat satisfied’"
     },
     {
      "theme": 11,
@@ -1550,7 +1548,9 @@
    "surfaced": true,
    "slide": "Deck slide 14",
    "parent": null,
-   "waves": null
+   "waves": [
+    2026
+   ]
   },
   {
    "code": "T04_Q1",
@@ -2667,8 +2667,7 @@
    "title": "Concern about Asylum and Immigration",
    "type": "line",
    "questions": [
-    "T05_Q3",
-    "T05_Q4"
+    "T05_Q3"
    ],
    "comparison": "tracked",
    "slide": 22,
@@ -2772,8 +2771,7 @@
    "title": "Internet Access",
    "type": "line",
    "questions": [
-    "T08_Q1",
-    "T08_Q2"
+    "T08_Q1"
    ],
    "comparison": "tracked",
    "slide": 33,
@@ -2910,7 +2908,7 @@
    "comparison": "tracked",
    "slide": 45,
    "caveat": "Comparing only countries asked in 2020, 2022 and 2024, so figures will differ slightly to the 2024 overall figure which contains 6 additional countries",
-   "showing": null
+   "showing": "Showing % selecting ‘Very concerned’ + ‘Somewhat concerned’ | Showing % selecting ‘Very satisfied’ + ‘Somewhat satisfied’"
   },
   {
    "theme": 11,
