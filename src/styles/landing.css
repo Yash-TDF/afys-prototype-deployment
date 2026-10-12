@@ -51,7 +51,6 @@
   font: 700 22px/1.6 var(--body);
   color: var(--green);
 }
-.section-heading .count { font-size: 13px; color: var(--faint); font-weight: 500; }
 
 .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
 
@@ -149,9 +148,6 @@
 }
 .stat:hover .stat-arrow,
 .stat:focus-visible .stat-arrow { opacity: 1; transform: none; color: var(--green-mid); background: var(--wash); }
-/* The one card with a sparkline has it where the arrow lands. */
-.stat .sparkline { transition: opacity 0.3s var(--ease); }
-.stat:hover .sparkline, .stat:focus-visible .sparkline { opacity: 0.35; }
 .stat::before {
   content: '';
   position: absolute;

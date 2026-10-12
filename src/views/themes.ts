@@ -7,7 +7,6 @@
 //     "Corruption" — which are not in the deck at all.
 //   - The summary row carries only facts we can source: how many countries, how
 //     many waves, how many themes, and the respondent count the client publishes.
-//     Its sparkline is the real count of countries per wave, out of content.json.
 //     The live prototype's third card leads with "RIGHT DIRECTION 55%", which is
 //     the report's *wrong*-direction number — printed page 18 gives 37% right and
 //     55% wrong — and that card is not reproduced here at any figure.
