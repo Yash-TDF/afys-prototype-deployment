@@ -558,7 +558,12 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters, limit = 10): Vi
     // with Don't know, Other and None of these last; a scale keeps its own order
     // (Ishwar's third answer on THE-386, review of #27). Explore's T01_Q3 drew the
     // deck's first three events, whatever their size. Cut by sex it draws
-    // everyone's, as a split's Men and Women lines are one answer's.
+    // everyone's, as a split's Men and Women lines are one answer's. That includes
+    // a plain men-only or women-only filter, which draws everyone's three lines in
+    // everyone's order, where bars under the same filter rank by its own figures.
+    // A split's halves reach here as that same filter, so the two can't be told
+    // apart, and the split must not compare two different answers (second review
+    // of #27).
     let order = answers.map((_, i) => i);
     if (!stacks && isList(code ?? '')) {
       order = filters.gender === 'all'
