@@ -668,6 +668,10 @@ function provenance(model: ViewModel, question: Question, filters: Filters, hidd
     ...(model.likeForLike ? [model.likeForLike] : []),
     ...(model.compareNote ? [model.compareNote] : []),
     ...(model.optionsInvented ? ['The answer options on this chart are placeholders, not the questionnaire’s.'] : []),
+    // What the chart says under itself, the file says too: Germany over time was
+    // "Waves: 2026" here and nothing about the three waves it was not asked in
+    // (THE-382).
+    ...model.caveats,
     // The rows below leave these out, so a file that did not say so would pass
     // for the whole question. THE-349.
     ...(hidden.length > 0
