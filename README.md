@@ -32,7 +32,7 @@ Other scripts:
 | `node tools/verify-map.mjs` | in a browser: each of the 28 countries fills, names and opens on the map, in every wave |
 | `node tools/verify-the-349.mjs` | in a browser: hiding answers is display only, and every view says what is hidden |
 | `node tools/verify-the-383.mjs` | in a browser: on every tracked chart of a single-answer question, the answers drawn in each wave total 100% or less |
-| `node tools/verify-the-386.mjs` | in a browser: lists drawn as bars rank largest first, with Don't know, Other and None last, and a list over time draws its largest answers; answer scales keep their order |
+| `node tools/verify-the-386.mjs` | in a browser: lists drawn as bars rank largest first, with Don't know, Other and None last, and a list over time draws its three largest answers, checked against every answer it leaves out; answer scales keep their order |
 
 `pnpm content` reads `../afys-portal/db/seeds/*.sql` and the portal's
 `pipeline/mappings/crosswave.csv`, so the two directories have to sit side by
