@@ -76,8 +76,11 @@ function specFor(found: Question, kind: ChartType): ChartSpec {
       : kind === 'line' ? 'tracked' : 'none',
     slide: null,
     // Explore drops the deck's notes, except the one that says a question isn't
-    // drawn over time: the model then says so in place of a trend (THE-406).
-    caveat: kind === 'line' ? notTracked(found.code) : null,
+    // drawn over time: the model then says so in place of a trend (THE-406). A
+    // question asked in one wave has no trend to hide, so it draws that wave, as
+    // every other question new in 2026 does (review of #32). No recorded waves
+    // means all of them.
+    caveat: kind === 'line' && (found.waves?.length ?? 2) > 1 ? notTracked(found.code) : null,
     showing: null,
   };
 }

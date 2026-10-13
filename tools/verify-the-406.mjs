@@ -75,30 +75,42 @@ const sentence = saying(DECK);
 // more widely than the code reads it, so a note worded another way or a question
 // that isn't a chart's first can't slip past (review of #32): slide 39 says
 // "Tracked data not shown due to changes in statements in 2026" of all six of its
-// statements. Each must draw that note over time, not a trend.
+// statements. Each one asked in more than one wave must draw that note over time,
+// not a trend. One asked in a single wave has no trend to hide, and draws that wave,
+// as every other question new in 2026 does (second review of #32).
 const untracked = await (async () => {
   const page = await browser.newPage();
   await page.goto(`${BASE}/#/`, { waitUntil: 'load' });
   const found = await page.evaluate(async () => {
-    const { themes } = await import('/src/content.ts');
+    const { themes, question, waves } = await import('/src/content.ts');
     return themes.flatMap((t) => t.charts).flatMap((c) => {
       const note = (c.caveat ?? '').split('|').map((n) => n.trim()).find((n) => /tracked/i.test(n));
-      return note ? c.questions.map((code) => ({ code, slide: c.slide, note: note.replace(/\.$/, '') })) : [];
+      return note ? c.questions.map((code) => ({
+        code, slide: c.slide, note: note.replace(/\.$/, ''),
+        waves: (question(code)?.waves ?? waves.map((w) => w.year)).map(String),
+      })) : [];
     });
   });
   await page.close();
   return found;
 })();
 {
-  // T01_Q3 is the ticket's case; finding nothing would leave the sweep below proving nothing.
-  const pass = untracked.some((u) => u.code === 'T01_Q3') && untracked.some((u) => u.slide !== 5);
+  // T01_Q3 is the ticket's case, and a statement on slide 39 asked in several waves
+  // is the review's; without both the sweep below proves less than it says.
+  const pass = untracked.some((u) => u.code === 'T01_Q3')
+    && untracked.some((u) => u.slide !== 5 && u.waves.length > 1);
   results.push({ name: 'guard', pass });
   console.log(`${pass ? 'PASS' : 'FAIL'}  guard: the deck's notes on tracking name T01_Q3 and slide 39's statements: `
-    + untracked.map((u) => `${u.code} (slide ${u.slide})`).join(', '));
+    + untracked.map((u) => `${u.code} (slide ${u.slide}, ${u.waves.join('/')})`).join(', '));
 }
 for (const u of untracked) {
-  await check(`Explore ${u.code} (slide ${u.slide}) Over time says "${u.note}", not a trend`, 1280,
-    `#/explore?q=${u.code}&chart=line`, {}, saying(u.note));
+  if (u.waves.length > 1) {
+    await check(`Explore ${u.code} (slide ${u.slide}) Over time says "${u.note}", not a trend`, 1280,
+      `#/explore?q=${u.code}&chart=line`, {}, saying(u.note));
+  } else {
+    await check(`Explore ${u.code} (slide ${u.slide}), asked in ${u.waves[0]} only, still draws that one wave over time`, 1280,
+      `#/explore?q=${u.code}&chart=line`, {}, (got) => JSON.stringify(got.labels) === JSON.stringify(u.waves) && got.sentence === null);
+  }
 }
 await check('Explore T09_Q3_PROBLEM Over time split by sex draws no trend either', 1280,
   '#/explore?q=T09_Q3_PROBLEM&chart=line&cmp=gender', {}, saying('Tracked data not shown due to changes in statements in 2026'));
