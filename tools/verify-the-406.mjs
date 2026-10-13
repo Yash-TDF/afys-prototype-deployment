@@ -3,7 +3,8 @@
 // showing tracked data due to change in answer choices asked", and Explore drew it
 // over all four waves anyway: 2020's answer list was redesigned, and 2026 added "The
 // rising cost of living", which then led a line through three waves nobody was
-// asked it.
+// asked it. Slide 39's six statements carry the same note in other words (review
+// of #32).
 //
 // Read-only for the repo. Run with the prototype served (`pnpm exec vite`), then
 //   node tools/verify-the-406.mjs [--url http://localhost:5173]
@@ -67,24 +68,40 @@ async function check(name, width, path, scope, test) {
 }
 
 // No trend: no chart, no table, and the deck's own words in their place.
-const sentence = (got) => got.labels === null && !got.table && (got.sentence ?? '').includes(DECK);
+const saying = (note) => (got) => got.labels === null && !got.table && (got.sentence ?? '').includes(note);
+const sentence = saying(DECK);
 
-// The questions the deck says aren't tracked, from the content the page is built from.
-// Exactly T01_Q3 today; none found would leave every check below proving nothing.
-{
+// Every question on every chart whose deck note mentions tracking at all, read
+// more widely than the code reads it, so a note worded another way or a question
+// that isn't a chart's first can't slip past (review of #32): slide 39 says
+// "Tracked data not shown due to changes in statements in 2026" of all six of its
+// statements. Each must draw that note over time, not a trend.
+const untracked = await (async () => {
   const page = await browser.newPage();
   await page.goto(`${BASE}/#/`, { waitUntil: 'load' });
-  const codes = await page.evaluate(async () => {
+  const found = await page.evaluate(async () => {
     const { themes } = await import('/src/content.ts');
-    return themes.flatMap((t) => t.charts)
-      .filter((c) => /not showing tracked data/i.test(c.caveat ?? ''))
-      .map((c) => c.questions[0]);
+    return themes.flatMap((t) => t.charts).flatMap((c) => {
+      const note = (c.caveat ?? '').split('|').map((n) => n.trim()).find((n) => /tracked/i.test(n));
+      return note ? c.questions.map((code) => ({ code, slide: c.slide, note: note.replace(/\.$/, '') })) : [];
+    });
   });
   await page.close();
-  const pass = JSON.stringify(codes) === JSON.stringify(['T01_Q3']);
+  return found;
+})();
+{
+  // T01_Q3 is the ticket's case; finding nothing would leave the sweep below proving nothing.
+  const pass = untracked.some((u) => u.code === 'T01_Q3') && untracked.some((u) => u.slide !== 5);
   results.push({ name: 'guard', pass });
-  console.log(`${pass ? 'PASS' : 'FAIL'}  guard: the deck says exactly one question isn't tracked, T01_Q3: ${JSON.stringify(codes)}`);
+  console.log(`${pass ? 'PASS' : 'FAIL'}  guard: the deck's notes on tracking name T01_Q3 and slide 39's statements: `
+    + untracked.map((u) => `${u.code} (slide ${u.slide})`).join(', '));
 }
+for (const u of untracked) {
+  await check(`Explore ${u.code} (slide ${u.slide}) Over time says "${u.note}", not a trend`, 1280,
+    `#/explore?q=${u.code}&chart=line`, {}, saying(u.note));
+}
+await check('Explore T09_Q3_PROBLEM Over time split by sex draws no trend either', 1280,
+  '#/explore?q=T09_Q3_PROBLEM&chart=line&cmp=gender', {}, saying('Tracked data not shown due to changes in statements in 2026'));
 
 for (const width of [1280, 390]) {
   await check(`at ${width}px, Explore T01_Q3 Over time draws no trend and says why in the deck's words`, width,

@@ -153,7 +153,8 @@ check('Explore T09_Q1 Over time, drawn as bars, puts Don\'t know last and ranks 
 // T01_Q3 is the one list over time, and from THE-406 Explore draws it as a
 // sentence: slide 5 says it isn't tracked (tools/verify-the-406.mjs). The rule is
 // still the model's, so these read the model on the spec Explore drew before
-// THE-406, without the deck's note: the lines a list over time draws.
+// THE-406, without the deck's note: the lines a list over time draws. No view
+// reaches this spec now; it is here to keep #28's rule tested (review of #32).
 const datasets = (c) => (c ? c.sets.map((s) => `${s.label.slice(0, 18)} ${s.data[s.data.length - 1]}`).join(' | ') : 'no chart');
 const listOverTime = (filters) => page.evaluate(async (filters) => {
   const { question, themeOf } = await import('/src/content.ts');

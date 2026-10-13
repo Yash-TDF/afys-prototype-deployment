@@ -83,13 +83,15 @@ function specFor(found: Question, kind: ChartType): ChartSpec {
 }
 
 /**
- * The deck's note that a question isn't drawn over time, if its slide has one.
- * Slide 5 says T01_Q3 is "Not showing tracked data due to change in answer choices
- * asked": the answer list was redesigned after 2020, and 2026 added a new answer.
+ * The deck's note that a question isn't drawn over time, if a slide drawing it has
+ * one. Slide 5 says T01_Q3 is "Not showing tracked data due to change in answer
+ * choices asked": the answer list was redesigned after 2020, and 2026 added a new
+ * answer. Slide 39's note covers all six of its statements, not only its first
+ * (review of #32).
  */
 function notTracked(code: string): string | null {
   const notes = themes.flatMap((t) => t.charts)
-    .filter((c) => c.questions[0] === code)
+    .filter((c) => c.questions.includes(code))
     .flatMap((c) => (c.caveat ?? '').split('|').map((note) => note.trim()));
   return notes.find((note) => NOT_TRACKED.test(note)) ?? null;
 }
