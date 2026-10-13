@@ -151,7 +151,8 @@ export function buildViewModel(spec: ChartSpec, theme: Theme, filters: Filters):
 /**
  * Everyone's figure for every answer, not only the ten a chart draws: what a split
  * by men and women ranks by. Exported for tools/verify-the-386.mjs, which checks
- * the split's bars against it.
+ * the split's bars against it, and a tracked list's three lines against the
+ * answers it leaves out.
  */
 export function everyoneOf(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
   return single(spec, theme, { ...coherent(filters), compare: 'none' }, Infinity);
@@ -372,7 +373,10 @@ function merge(
   };
 }
 
-/** `limit` is how many answers of a multi-select a chart draws: its top ten. */
+/**
+ * `limit` is how many answers of a multi-select a chart draws: its top ten.
+ * Infinity, from everyoneOf, draws every answer, a tracked list's too.
+ */
 function single(spec: ChartSpec, theme: Theme, filters: Filters, limit = 10): ViewModel {
   // A grid's chart lists one child per row; it is drawn from the grid itself,
   // whose deck options are those rows. Reading the first child instead drew one
@@ -554,7 +558,21 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters, limit = 10): Vi
       label, values: trend(key([seed, label]), years), bases: waveBases,
     }));
     normalise(shares, years.length);
-    const series = shares.slice(0, labels.length);
+    // A list over time draws its three largest answers in the latest wave, with
+    // Don't know, Other and None of these last; a scale keeps its order (THE-386).
+    // Any cut by sex takes everyone's order, because a split's halves arrive as
+    // plain filters and its Men and Women lines must be one answer. So a men-only
+    // or women-only filter differs from bars, which rank by the filter's own
+    // figures (reviews of #27 and #28).
+    let order = answers.map((_, i) => i);
+    if (!stacks && isList(code ?? '')) {
+      order = filters.gender === 'all'
+        ? rankOrder(answers, answers.map((_, i) => shares[i]!.values[years.length - 1]))
+        : single(spec, theme, { ...filters, gender: 'all' }, limit).series.map((s) => answers.indexOf(s.label));
+    }
+    // everyoneOf asks for every answer (limit Infinity), so the check can see the
+    // ones left out; a chart draws three.
+    const series = order.slice(0, limit === Infinity ? order.length : labels.length).map((i) => shares[i]!);
     return {
       ...common,
       categories: years.map(String),
