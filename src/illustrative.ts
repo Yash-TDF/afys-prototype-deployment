@@ -32,7 +32,24 @@ const DECK = recovered as {
   roles?: Record<string, Record<string, ColourRole>>;
 };
 const DECK_OPTIONS = DECK.options;
-const DECK_ROLES: Record<string, Record<string, ColourRole>> = DECK.roles ?? {};
+
+/**
+ * What a deck answer means where bands.yaml has no band for its label, so
+ * options.json leaves it unassigned and its chart would colour by position.
+ * Slide 20's chart data says "Strongly agree / Somewhat agree / Disagree / DK",
+ * but T05_Q1's bands are the safety scale, so "Somewhat agree" drew red: the
+ * opposite of the client's rule (28 Sep: green positive, red negative, grey
+ * Don't know). "Disagree / DK" is negative, as slide 23's "Not confident / DK"
+ * is. Real data draws the safety bands, which carry their own roles. T12_Q2 and
+ * T12_Q3 list only the agree side, and Explore drew their "Somewhat agree" red
+ * or gold the same way. A role the generated file does give wins.
+ */
+const ROLES_NOT_IN_BANDS: Record<string, Record<string, ColourRole>> = {
+  T05_Q1: { 'Strongly agree': 'positive', 'Somewhat agree': 'positive', 'Disagree / DK': 'negative' },
+  T12_Q2: { 'Strongly agree': 'positive', 'Somewhat agree': 'positive' },
+  T12_Q3: { 'Strongly agree': 'positive', 'Somewhat agree': 'positive' },
+};
+const DECK_ROLES: Record<string, Record<string, ColourRole>> = { ...ROLES_NOT_IN_BANDS, ...(DECK.roles ?? {}) };
 
 /** cyrb53 — small, fast, well-distributed. Any stable hash would do. */
 function hash(text: string): number {
