@@ -20,7 +20,8 @@ const BASE = (urlAt >= 0 ? argv[urlAt + 1] : (process.env.BASE_URL ?? 'http://lo
 
 // Rosie's wording, from her deck, as the ticket records it.
 const WANT = {
-  countriesSub: 'Across Sub-Saharan Africa · 16 countries included in 2026',
+  // Two lines, as in her deck (Ishwar's decision on THE-401).
+  countriesSub: 'Across Sub-Saharan Africa\n16 countries included in 2026',
   respondentsSub: '4,901 respondents in 2026',
   respondentsValue: '14,311',
   themesLabel: 'KEY THEMES',
@@ -50,10 +51,28 @@ const landing = (page) => page.evaluate(() => {
       range.selectNodeContents(sub);
       fits = [...range.getClientRects()].every((r) => r.left >= box.left - 0.5 && r.right <= box.right + 0.5);
     }
+    // Where a count of countries is painted: on one line with its noun, and below
+    // the text before it.
+    let count = null;
+    const text = sub?.firstChild;
+    const at = text?.textContent?.search(/\d+ countries/) ?? -1;
+    if (at > 0) {
+      const top = (from, to) => {
+        const r = document.createRange();
+        r.setStart(text, from);
+        r.setEnd(text, to);
+        return [...r.getClientRects()].filter((x) => x.width > 0).map((x) => Math.round(x.top));
+      };
+      const number = top(at, at + text.textContent.slice(at).indexOf('countries') + 'countries'.length);
+      // The words before the count, without the space, dot or break between them.
+      const before = top(0, text.textContent.slice(0, at).replace(/[\s·]+$/, '').length);
+      count = { withNoun: new Set(number).size === 1, ownLine: number.length > 0 && before.length > 0 && Math.min(...number) > Math.max(...before) };
+    }
     return {
       label: card.querySelector('.label')?.innerText?.trim() ?? null,
       value: card.querySelector('.value')?.innerText?.trim() ?? null,
       sub: sub?.innerText?.trim() ?? null,
+      count,
       lines: card.querySelectorAll('svg polyline').length,
       fits,
       overflow: card.scrollWidth > card.clientWidth + 1,
@@ -94,11 +113,12 @@ for (const width of [1280, 390]) {
     return { pass: cards.length === 4 && cards.every((c) => c.lines === 0),
       detail: cards.map((c) => `${c.label} ${c.lines}`).join(' | ') };
   });
-  await check(`at ${width}px, the Countries card reads "${WANT.countriesSub}", inside its card`, width, async (page) => {
+  await check(`at ${width}px, the Countries card reads "${WANT.countriesSub.replace('\n', '" / "')}" on two lines, inside its card`, width, async (page) => {
     await open(page, '#/');
     const card = (await landing(page)).cards.find((c) => c.label === 'COUNTRIES');
-    return { pass: Boolean(card) && card.sub === WANT.countriesSub && card.fits === true && !card.overflow,
-      detail: JSON.stringify({ sub: card?.sub ?? null, fits: card?.fits ?? null }) };
+    return { pass: Boolean(card) && card.sub === WANT.countriesSub && card.fits === true && !card.overflow
+      && card.count?.withNoun === true && card.count?.ownLine === true,
+    detail: JSON.stringify({ sub: card?.sub ?? null, fits: card?.fits ?? null, count: card?.count ?? null }) };
   });
   await check(`at ${width}px, the Respondents card reads ${WANT.respondentsValue} and only "${WANT.respondentsSub}"`, width, async (page) => {
     await open(page, '#/');

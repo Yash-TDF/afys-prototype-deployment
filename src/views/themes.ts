@@ -57,7 +57,9 @@ export function themesView(host: HTMLElement): void {
     {
       label: 'Countries',
       value: String(countries.length),
-      sub: `Across Sub-Saharan Africa · ${inWave(latestWave).length} countries included in ${latestWave}`,
+      // Two lines, as in Rosie's deck, so the number stays with "countries"
+      // (Ishwar, THE-401). `.stat .sub` keeps the line break.
+      sub: `Across Sub-Saharan Africa\n${inWave(latestWave).length} countries included in ${latestWave}`,
       section: 'coverage',
       opens: 'View the countries surveyed, wave by wave',
     },
