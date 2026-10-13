@@ -37,7 +37,7 @@
   margin-bottom: 10px;
 }
 .stat .value { display: block; font-size: 36px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; color: var(--green); }
-.stat .sub { display: block; color: var(--muted); font-size: 13px; line-height: 1.4; margin-top: 12px; }
+.stat .sub { display: block; color: var(--muted); font-size: 13px; line-height: 1.4; margin-top: 12px; white-space: pre-line; }
 .stat .chip { margin-top: 10px; display: inline-block; }
 
 /* A section title is the sans at 22px, not the display serif: the serif is for
@@ -51,7 +51,6 @@
   font: 700 22px/1.6 var(--body);
   color: var(--green);
 }
-.section-heading .count { font-size: 13px; color: var(--faint); font-weight: 500; }
 
 .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
 
@@ -149,9 +148,6 @@
 }
 .stat:hover .stat-arrow,
 .stat:focus-visible .stat-arrow { opacity: 1; transform: none; color: var(--green-mid); background: var(--wash); }
-/* The one card with a sparkline has it where the arrow lands. */
-.stat .sparkline { transition: opacity 0.3s var(--ease); }
-.stat:hover .sparkline, .stat:focus-visible .sparkline { opacity: 0.35; }
 .stat::before {
   content: '';
   position: absolute;
