@@ -102,7 +102,8 @@ for (const code of explore) {
     await page.goto(`${BASE}/#/explore?q=${code}&chart=line${extra}`);
     await page.waitForTimeout(400);
     const [found] = (await painted(page, '.explorer-figure')).filter((ch) => ch.waves);
-    // A row asked in no wave draws a sentence, not a chart: nothing to add up.
+    // A row asked in no wave, or a question the deck says is not tracked (THE-406),
+    // draws a sentence, not a chart: nothing to add up.
     const sentence = await page.evaluate(() => Boolean(document.querySelector('.explorer-figure .not-asked')));
     results.push({ where: `explore ${code}${extra}`, found: Boolean(found), sentence, ...(found ?? {}) });
   }
@@ -112,7 +113,7 @@ await browser.close();
 let failed = 0;
 for (const r of results) {
   if (!r.found) {
-    if (r.sentence) { console.log(`SKIP  ${r.where}: not asked in any wave, so no chart`); continue; }
+    if (r.sentence) { console.log(`SKIP  ${r.where}: draws a sentence, not a chart`); continue; }
     failed += 1;
     console.log(`FAIL  ${r.where}: no chart with a wave per category was drawn`);
     continue;
