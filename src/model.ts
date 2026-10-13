@@ -128,6 +128,12 @@ export function buildViewModel(spec: ChartSpec, theme: Theme, filters: Filters):
   const f = coherent(filters);
   if (f.compare === 'none') return single(spec, theme, f);
 
+  // A question the deck says isn't drawn over time has no trend to split or
+  // compare: say so once, as the single view does (THE-406).
+  if (spec.comparison === 'tracked' && untrackedNote(spec)) {
+    return single(spec, theme, { ...f, compare: 'none' });
+  }
+
   // A gender split of a wave the rows were not asked in is two halves of
   // nothing: say so once, as the single view does.
   if (f.compare === 'gender' && spec.comparison !== 'tracked' && !askedInView(spec, f.wave)) {
@@ -151,7 +157,8 @@ export function buildViewModel(spec: ChartSpec, theme: Theme, filters: Filters):
 /**
  * Everyone's figure for every answer, not only the ten a chart draws: what a split
  * by men and women ranks by. Exported for tools/verify-the-386.mjs, which checks
- * the split's bars against it.
+ * the split's bars against it, and a tracked list's three lines against the
+ * answers it leaves out.
  */
 export function everyoneOf(spec: ChartSpec, theme: Theme, filters: Filters): ViewModel {
   return single(spec, theme, { ...coherent(filters), compare: 'none' }, Infinity);
@@ -398,7 +405,10 @@ function questionLines(spec: ChartSpec): { code: string; note: string; name: str
   }));
 }
 
-/** `limit` is how many answers of a multi-select a chart draws: its top ten. */
+/**
+ * `limit` is how many answers of a multi-select a chart draws: its top ten.
+ * Infinity, from everyoneOf, draws every answer, a tracked list's too.
+ */
 function single(spec: ChartSpec, theme: Theme, filters: Filters, limit = 10): ViewModel {
   // A grid's chart lists one child per row; it is drawn from the grid itself,
   // whose deck options are those rows. Reading the first child instead drew one
@@ -537,6 +547,18 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters, limit = 10): Vi
     // does on its grid's chart: Germany's line was 65, 65 and 71% across three
     // waves Germany was never asked in (review of #20). The waves left out are
     // named on the chart, in the deck's own phrasing.
+    //
+    // A question the deck says isn't drawn over time gets that sentence in place of
+    // a trend: slide 5's T01_Q3 drew 2020's redesigned list and 2026's new answer
+    // as one line, and slide 39's statements ran through 2026's changed wording
+    // (THE-406).
+    const untracked = untrackedNote(spec);
+    if (untracked) {
+      return {
+        ...common, categories: [], series: [], likeForLike: null, categoryKind: 'waves',
+        notAsked: `Not shown over time. The deck notes: “${untracked.replace(/\.$/, '')}.”`,
+      };
+    }
     const every = waves.map((w) => w.year).filter((y) => !notAsked(caveats).has(y));
     const years = every.filter((y) => askedInView(spec, y));
     const unasked = every.filter((y) => !years.includes(y));
@@ -629,7 +651,21 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters, limit = 10): Vi
       label, values: trend(key([seed, label]), years), bases: waveBases,
     }));
     normalise(shares, years.length);
-    const series = shares.slice(0, labels.length);
+    // A list over time draws its three largest answers in the latest wave, with
+    // Don't know, Other and None of these last; a scale keeps its order (THE-386).
+    // Any cut by sex takes everyone's order, because a split's halves arrive as
+    // plain filters and its Men and Women lines must be one answer. So a men-only
+    // or women-only filter differs from bars, which rank by the filter's own
+    // figures (reviews of #27 and #28).
+    let order = answers.map((_, i) => i);
+    if (!stacks && isList(code ?? '')) {
+      order = filters.gender === 'all'
+        ? rankOrder(answers, answers.map((_, i) => shares[i]!.values[years.length - 1]))
+        : single(spec, theme, { ...filters, gender: 'all' }, limit).series.map((s) => answers.indexOf(s.label));
+    }
+    // everyoneOf asks for every answer (limit Infinity), so the check can see the
+    // ones left out; a chart draws three.
+    const series = order.slice(0, limit === Infinity ? order.length : labels.length).map((i) => shares[i]!);
     return {
       ...common,
       categories: years.map(String),
@@ -735,6 +771,20 @@ export function sharedBases(model: ViewModel): number[] | null {
     && s.bases.length === first.length
     && s.bases.every((v, i) => v === first[i]));
   return same ? first : null;
+}
+
+/**
+ * The deck's note that a question isn't drawn over time (THE-406), in either of its
+ * wordings: slide 5's "Not showing tracked data due to change in answer choices
+ * asked", and slide 39's "Tracked data not shown due to changes in statements in
+ * 2026". Explore carries it onto its "Over time" chart, and the tracked view says
+ * it in place of a trend.
+ */
+export const NOT_TRACKED = /not showing tracked data|tracked data not shown/i;
+
+/** That note on a chart, if it has one: one place reads it, so two can't drift. */
+function untrackedNote(spec: ChartSpec): string | null {
+  return (spec.caveat ?? '').split('|').map((c) => c.trim()).find((c) => NOT_TRACKED.test(c)) ?? null;
 }
 
 /**

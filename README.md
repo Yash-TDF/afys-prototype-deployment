@@ -28,11 +28,13 @@ Other scripts:
 | `pnpm content` | regenerate `src/data/content.json` and `public/africa.geo.json` from the portal's seeds |
 | `pnpm audit:options` | list what is still open with PSB; add `--write` to regenerate `NEEDED_FROM_PSB.md` |
 | `pnpm typecheck` | `tsc --noEmit` |
+| `node tools/verify-the-406.mjs` | in a browser: Explore's "Over time" for a question the deck says isn't tracked (T01_Q3) shows the deck's note, not a trend; tracked questions keep their waves |
 | `node tools/verify-the-315.mjs` | in a browser: every grid chart draws its own rows, with a gap where a row was not asked, and a grid is never drawn as one question |
 | `node tools/verify-map.mjs` | in a browser: each of the 28 countries fills, names and opens on the map, in every wave |
 | `node tools/verify-the-349.mjs` | in a browser: hiding answers is display only, and every view says what is hidden |
 | `node tools/verify-the-383.mjs` | in a browser: on every tracked chart of a single-answer question, the answers drawn in each wave total 100% or less |
-| `node tools/verify-the-386.mjs` | in a browser: lists drawn as bars rank largest first, with Don't know, Other and None last; answer scales keep their order |
+| `node tools/verify-the-386.mjs` | in a browser: lists drawn as bars rank largest first, with Don't know, Other and None last, and a list over time draws its three largest answers, checked against every answer it leaves out; answer scales keep their order |
+| `node tools/verify-the-401.mjs` | in a browser: the landing page's four cards read as Rosie's 8 Oct deck asks, and no stat card draws a line, at 1280 and 390px |
 | `node tools/verify-the-398.mjs` | in a browser: slides 41 and 45 draw one line per question, refuse a split by sex, share no base, and their tiles read their first line; at phone width no table runs off the screen |
 
 `pnpm content` reads `../afys-portal/db/seeds/*.sql` and the portal's
@@ -270,11 +272,13 @@ tools/build-content.mjs   seeds → src/data/content.json
 tools/make-africa.mjs     world-atlas → public/africa.geo.json (Africa only, 110m)
 tools/report-size.mjs     what loads, when, gzipped
 tools/audit-options.ts    what is still open with PSB → NEEDED_FROM_PSB.md
+tools/verify-the-406.mjs  browser check: no trend for a question the deck says isn't tracked
 tools/verify-the-315.mjs  browser check: grid charts draw their own rows
 tools/verify-map.mjs      browser check: the 28 countries on the map, every wave
 tools/verify-the-349.mjs  browser check: hiding answers never rebases
 tools/verify-the-383.mjs  browser check: no tracked chart's answers total over 100%
 tools/verify-the-386.mjs  browser check: lists rank largest first, scales keep their order
+tools/verify-the-401.mjs  browser check: the landing cards' wording, and no line on a stat card
 tools/verify-the-398.mjs  browser check: one line per question on slides 41 and 45; tables fit a phone
 src/content.ts            the deck, typed
 src/illustrative.ts       the generated figures — deleted when the API is wired up
