@@ -22,7 +22,7 @@ import {
 import { renderFigure, type Figure } from '../charts/render';
 import { answersOf, hiddenOn, LAST_ANSWER, toggled, withHidden } from '../charts/hidden';
 import {
-  buildViewModel, DEFAULT_FILTERS, type CompareBy, type Filters, type ViewModel,
+  buildViewModel, DEFAULT_FILTERS, NOT_TRACKED, type CompareBy, type Filters, type ViewModel,
 } from '../model';
 import type { View } from '../main';
 import { csvEscape, copyText, downloadBlob, saveAs, slug } from '../ui/download';
@@ -75,9 +75,23 @@ function specFor(found: Question, kind: ChartType): ChartSpec {
     comparison: kind === 'map' || kind === 'bar' ? 'country'
       : kind === 'line' ? 'tracked' : 'none',
     slide: null,
-    caveat: null,
+    // Explore drops the deck's notes, except the one that says a question isn't
+    // drawn over time: the model then says so in place of a trend (THE-406).
+    caveat: kind === 'line' ? notTracked(found.code) : null,
     showing: null,
   };
+}
+
+/**
+ * The deck's note that a question isn't drawn over time, if its slide has one.
+ * Slide 5 says T01_Q3 is "Not showing tracked data due to change in answer choices
+ * asked": the answer list was redesigned after 2020, and 2026 added a new answer.
+ */
+function notTracked(code: string): string | null {
+  const notes = themes.flatMap((t) => t.charts)
+    .filter((c) => c.questions[0] === code)
+    .flatMap((c) => (c.caveat ?? '').split('|').map((note) => note.trim()));
+  return notes.find((note) => NOT_TRACKED.test(note)) ?? null;
 }
 
 function modelFor(found: Question, kind: ChartType, filters: Filters): ViewModel {
