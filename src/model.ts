@@ -287,6 +287,12 @@ function refuse(spec: ChartSpec, filters: Filters): string | null {
   if (filters.compare === 'gender' && gridOf(spec.questions) && spec.comparison === 'tracked') {
     return 'This chart already draws each wave as a series, so it cannot also split by gender.';
   }
+  // A chart of one line per question would take each cut's first line, so slide 45
+  // split by sex drew only the concerned line, as Men and Women, while its caption
+  // still named both (review of #31).
+  if (filters.compare === 'gender' && questionLines(spec)) {
+    return 'This chart draws one line per question, so it cannot also split by gender.';
+  }
   return null;
 }
 
@@ -377,6 +383,26 @@ function merge(
     compareNote: null,
     likeForLike: restriction,
   };
+}
+
+/**
+ * A chart's lines when it draws one per question (THE-398): several questions,
+ * not a grid, and one "Showing % selecting …" note per question, in the same
+ * order, split on " | " as the portal's tile_charts row stores them. Each line is
+ * named by what its note names, as the note words it: "Very good or Good",
+ * "Very concerned + Somewhat concerned". Null for any other chart, which draws as
+ * before.
+ */
+function questionLines(spec: ChartSpec): { code: string; note: string; name: string }[] | null {
+  if (spec.questions.length < 2 || gridOf(spec.questions) || !spec.showing) return null;
+  const notes = spec.showing.split(' | ').map((n) => n.trim());
+  if (notes.length !== spec.questions.length) return null;
+  return spec.questions.map((code, i) => ({
+    code,
+    note: notes[i]!,
+    // Only the quotes around each answer go, so an apostrophe inside one stays.
+    name: notes[i]!.replace(/^Showing % selecting\s*/i, '').replace(/[‘“"]([^’”"]+)[’”"]/g, '$1').trim(),
+  }));
 }
 
 /**
@@ -548,6 +574,55 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters, limit = 10): Vi
     // One base per wave, shared by every series: the options are cuts of the same
     // interviews, so the denominator belongs to the year, not to the answer.
     const waveBases = years.map((year) => base(key([seed, 'n', year])));
+    // The deck says the same, comparing only the countries in every wave, on most
+    // of these charts; saying it twice makes both copies look like boilerplate.
+    // One wave compares nothing, so there is no restriction to state.
+    const restriction = years.length < 2 || caveats.some((c) => c.toLowerCase().includes('comparing only'))
+      ? null
+      : `Comparing only the ${shared.length} countries surveyed in ${years.join(', ')}, `
+        + 'so figures differ from the single-wave totals.';
+
+    // A chart of several questions, each with its own note, draws one line per
+    // question (THE-398): slide 41's three and slide 45's two, as the deck asks
+    // ("as three lines on a line chart"). Before, it drew the first question's
+    // first three answers and nothing of the others. Each line is the share
+    // selecting what its question's note names, illustrative like every figure
+    // here, over the waves that question was asked; a wave it wasn't asked has no
+    // point, and the chart says so. Lines of different questions are separate
+    // people's answers to separate questions, so they are not shared out together,
+    // and the colours are by position: one question's answer roles say nothing
+    // about another's line. Nor do they share a base: one n per wave across the
+    // lines would claim a base for a wave a question wasn't asked, so, as grid
+    // rows, the lines carry none (review of #31).
+    // On real data each note matches one band the portal already stores (T11_Q1
+    // "Concerned", T10_Q4_CLIMATE "Satisfied", T10_Q1 "Very good or good", T10_Q2
+    // "Get better", T10_Q3 "Better than my parents"). The API only passes the notes
+    // through, so mapping each note to its band is still to do (THE-228).
+    const perQuestion = questionLines(spec);
+    if (perQuestion) {
+      for (const line of perQuestion) {
+        const missing = years.filter((year) => !askedIn(question(line.code), year));
+        if (missing.length > 0) {
+          caveats.push(`No figure for “${line.name}” in ${listYears(missing, 'or')}: its question was not asked that year.`);
+        }
+      }
+      return {
+        ...common,
+        roles: null,
+        categories: years.map(String),
+        series: perQuestion.map((line) => {
+          const values = trend(key([seed, line.code, line.note]), years);
+          return {
+            label: line.name,
+            values: years.map((year, i) => (askedIn(question(line.code), year) ? values[i]! : null)),
+            bases: null,
+          };
+        }),
+        categoryKind: 'waves',
+        seriesKind: 'options' as SeriesKind,
+        likeForLike: restriction,
+      };
+    }
     // A stacked bar is a distribution: the segments of one bar are shares of the
     // same respondents and have to total 100. Drawing three independent trends and
     // stacking them produces bars that run past the axis — which is exactly the
@@ -599,13 +674,7 @@ function single(spec: ChartSpec, theme: Theme, filters: Filters, limit = 10): Vi
       categoryKind: 'waves',
       // One line per answer option, so that is what the series are.
       seriesKind: 'options' as SeriesKind,
-      // The deck already carries this restriction in its own words on most of
-      // these charts. Saying it twice makes both copies look like boilerplate.
-      // One wave compares nothing, so there is no restriction to state.
-      likeForLike: years.length < 2 || caveats.some((c) => c.toLowerCase().includes('comparing only'))
-        ? null
-        : `Comparing only the ${shared.length} countries surveyed in ${years.join(', ')}, `
-          + 'so figures differ from the single-wave totals.',
+      likeForLike: restriction,
     };
   }
 

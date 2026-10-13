@@ -14,10 +14,10 @@
 // (T07_Q3) holds only "Strongly agree" and "Somewhat agree", and two answers that
 // make up the whole of every wave read as "nobody disagreed" (review of #24).
 //
-// Slides 22, 33, 41 and 45 chart several questions, and the prototype draws the
-// first question's answers only. Their lines are marked "first question only":
-// once those charts draw one line per question, lines from different questions
-// may rightly total over 100, and this check must stop adding them up.
+// Slides 41 and 45 chart several questions, one line per question (THE-398).
+// Lines from different questions are separate people's answers to separate
+// questions and may rightly total over 100, so on those charts each line is
+// checked alone: no wave over 100.
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
@@ -79,13 +79,21 @@ const { tracked, explore } = await page.evaluate(async () => {
   return {
     tracked: c.themes.flatMap((t) => t.charts
       .filter((s) => s.comparison === 'tracked' && !grid(s.questions) && single(s.questions[0] ?? ''))
-      .map((s) => ({ theme: t.slug, slide: String(s.slide), several: s.questions.length > 1 }))),
+      // One line per question exactly when the model draws one (questionLines in
+      // src/model.ts): several questions, not a grid, one note per question. A chart
+      // of several questions without one note each still shares out its answers, so
+      // it gets the stronger, summed test (review of #31).
+      .map((s) => ({
+        theme: t.slug, slide: String(s.slide),
+        several: s.questions.length > 1 && !grid(s.questions) && (s.showing ?? '').split(' | ').length === s.questions.length,
+      }))),
     explore: c.questions.filter((q) => q.responseType !== 'multi' && !parents.has(q.code)).map((q) => q.code),
   };
 });
 
 const results = [];
-const over = (r) => r.waves.filter((w) => w.total > 100 + 1e-9);
+// A chart of several questions: each line alone. Any other: the answers together.
+const over = (r) => r.waves.filter((w) => (r.several ? Math.max(...w.parts) : w.total) > 100 + 1e-9);
 
 for (const theme of [...new Set(tracked.map((t) => t.theme))]) {
   await page.goto(`${BASE}/#/theme/${theme}`);
@@ -120,8 +128,8 @@ for (const r of results) {
   }
   const bad = over(r);
   if (bad.length) failed += 1;
-  console.log(`${bad.length ? 'FAIL' : 'PASS'}  ${r.where} (${r.type}${r.several ? ', first question only' : ''}): `
-    + r.waves.map((w) => `${w.wave} ${Math.round(w.total * 10) / 10}`).join(', ')
+  console.log(`${bad.length ? 'FAIL' : 'PASS'}  ${r.where} (${r.type}${r.several ? ', one line per question, each checked alone' : ''}): `
+    + r.waves.map((w) => `${w.wave} ${Math.round((r.several ? Math.max(...w.parts) : w.total) * 10) / 10}`).join(', ')
     + (bad.length ? ` | over 100 in ${bad.map((w) => `${w.wave} (${w.parts.join(' + ')})`).join('; ')}` : ''));
 }
 

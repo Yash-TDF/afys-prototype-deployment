@@ -61,8 +61,11 @@ const CAPTIONS: Record<string, { of: string; caption: string }> = {
   'identity-and-social-justice': { of: 'Strongly disagree', caption: 'Strongly disagree that everyone is equal before the law' },
   'connected-africa': { of: 'Yes', caption: 'Have internet access' },
   'news-trust-and-the-fake-news-crisis': { of: 'At least once every day', caption: 'Encounter fake news at least once every day' },
-  'government-satisfaction': { of: 'Very good or good', caption: 'Expect a very good or good quality of life' },
-  'climate-change': { of: 'Not at all concerned', caption: 'Not at all concerned about climate change' },
+  // Tiles 10 and 11 read their chart's first line, named by its note (THE-398), so
+  // `of` is the line's name. Tile 11's caption is reworded for its concerned line
+  // (Ishwar, review of #31); like the others it is confirmed at sign-off.
+  'government-satisfaction': { of: 'Very good or Good', caption: 'Expect a very good or good quality of life' },
+  'climate-change': { of: 'Very concerned + Somewhat concerned', caption: 'Very or somewhat concerned about climate change' },
   'environmental-realities': { of: 'Strongly agree', caption: 'Strongly agree they are satisfied with recycling' },
 };
 
@@ -150,6 +153,11 @@ export function themeCardFigures(theme: Theme): ThemeCardFigures {
   // A tracked grid chart is read as one of its rows, in the same order: a theme
   // whose first trend is a grid (tile 3, slide 12) takes that row; one with an
   // earlier years chart keeps it. See gridRowTrend.
+  //
+  // A chart of several questions draws one line per question (THE-398), and the
+  // card reads its first line like any other chart's, so a card always agrees with
+  // the chart it opens (Ishwar, review of #31). If a first line isn't the right
+  // headline, that goes to the client, not into a figure the chart doesn't show.
   for (const chart of theme.charts.filter((c) => c.comparison === 'tracked')) {
     const model = buildViewModel(chart, theme, DEFAULT_FILTERS);
     const row = gridRowTrend(chart, model);

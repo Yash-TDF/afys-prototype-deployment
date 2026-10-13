@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-08",
+ "generatedAt": "2026-10-12",
  "source": "afys-portal/db/seeds — structure only, no survey results",
  "waves": [
   {
@@ -471,7 +471,7 @@
      ],
      "comparison": "tracked",
      "slide": 13,
-     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries; organisations ranked by percentage of influence | Organisation added in 2026",
+     "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries; organisations ranked by percentage of influence | Organisation added in 2026 | Asked of those who said the organisation has a lot, some or a little influence on their country. Who was asked changed before 2024, so the chart starts in 2024. In 2026 each person was asked about 9 of the 14 or 15 countries and organisations on their list.",
      "showing": "Showing % selecting ‘Very positive’ + ‘Somewhat positive’"
     },
     {
@@ -586,8 +586,7 @@
      "title": "Concern about Asylum and Immigration",
      "type": "line",
      "questions": [
-      "T05_Q3",
-      "T05_Q4"
+      "T05_Q3"
      ],
      "comparison": "tracked",
      "slide": 22,
@@ -732,8 +731,7 @@
      "title": "Internet Access",
      "type": "line",
      "questions": [
-      "T08_Q1",
-      "T08_Q2"
+      "T08_Q1"
      ],
      "comparison": "tracked",
      "slide": 33,
@@ -923,7 +921,7 @@
      "comparison": "tracked",
      "slide": 45,
      "caveat": "Comparing only countries asked in 2020, 2022 and 2024, so figures will differ slightly to the 2024 overall figure which contains 6 additional countries",
-     "showing": null
+     "showing": "Showing % selecting ‘Very concerned’ + ‘Somewhat concerned’ | Showing % selecting ‘Very satisfied’ + ‘Somewhat satisfied’"
     },
     {
      "theme": 11,
@@ -1440,7 +1438,7 @@
    "order": 1,
    "responseType": "battery_item",
    "baseType": "filtered",
-   "baseText": "Among those who said the African Union has influence",
+   "baseText": "Among those who said the African Union has influence. Who was asked changed before 2024, so the chart starts in 2024. In 2026 each person was asked about 9 of the 14 or 15 countries and organisations on their list.",
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 13",
@@ -1458,7 +1456,7 @@
    "order": 1,
    "responseType": "battery_item",
    "baseType": "filtered",
-   "baseText": "Among those who said the United Nations has influence",
+   "baseText": "Among those who said the United Nations has influence. Who was asked changed before 2024, so the chart starts in 2024. In 2026 each person was asked about 9 of the 14 or 15 countries and organisations on their list.",
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 13",
@@ -1475,7 +1473,7 @@
    "order": 1,
    "responseType": "battery_item",
    "baseType": "filtered",
-   "baseText": "Among those who said the World Trade Organisation has influence",
+   "baseText": "Among those who said the World Trade Organisation has influence. Who was asked changed before 2024, so the chart starts in 2024. In 2026 each person was asked about 9 of the 14 or 15 countries and organisations on their list.",
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 13",
@@ -1493,7 +1491,7 @@
    "order": 1,
    "responseType": "battery_item",
    "baseType": "filtered",
-   "baseText": "Among those who said the International Monetary Fund has influence",
+   "baseText": "Among those who said the International Monetary Fund has influence. Who was asked changed before 2024, so the chart starts in 2024. In 2026 each person was asked about 9 of the 14 or 15 countries and organisations on their list.",
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 13",
@@ -1510,7 +1508,7 @@
    "order": 1,
    "responseType": "battery_item",
    "baseType": "filtered",
-   "baseText": "Among those who said the European Union has influence",
+   "baseText": "Among those who said the European Union has influence. Who was asked changed before 2024, so the chart starts in 2024. In 2026 each person was asked about 9 of the 14 or 15 countries and organisations on their list.",
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 13",
@@ -1528,7 +1526,7 @@
    "order": 1,
    "responseType": "battery_item",
    "baseType": "filtered",
-   "baseText": "Among those who said the G20 has influence",
+   "baseText": "Among those who said the G20 has influence. Who was asked changed before 2024, so the chart starts in 2024. In 2026 each person was asked about 9 of the 14 or 15 countries and organisations on their list.",
    "tracked": true,
    "surfaced": true,
    "slide": "Deck slide 13",
@@ -1550,7 +1548,9 @@
    "surfaced": true,
    "slide": "Deck slide 14",
    "parent": null,
-   "waves": null
+   "waves": [
+    2026
+   ]
   },
   {
    "code": "T04_Q1",
@@ -2318,7 +2318,9 @@
    "surfaced": true,
    "slide": "Deck slide 47",
    "parent": null,
-   "waves": null
+   "waves": [
+    2026
+   ]
   },
   {
    "code": "T12_Q1",
@@ -2580,7 +2582,7 @@
    ],
    "comparison": "tracked",
    "slide": 13,
-   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries; organisations ranked by percentage of influence | Organisation added in 2026",
+   "caveat": "Comparing only the eight countries asked in 2020, 2022, 2024, and 2026 so figures will differ slightly to the 2024 overall figures which contains ten countries; organisations ranked by percentage of influence | Organisation added in 2026 | Asked of those who said the organisation has a lot, some or a little influence on their country. Who was asked changed before 2024, so the chart starts in 2024. In 2026 each person was asked about 9 of the 14 or 15 countries and organisations on their list.",
    "showing": "Showing % selecting ‘Very positive’ + ‘Somewhat positive’"
   },
   {
@@ -2667,8 +2669,7 @@
    "title": "Concern about Asylum and Immigration",
    "type": "line",
    "questions": [
-    "T05_Q3",
-    "T05_Q4"
+    "T05_Q3"
    ],
    "comparison": "tracked",
    "slide": 22,
@@ -2772,8 +2773,7 @@
    "title": "Internet Access",
    "type": "line",
    "questions": [
-    "T08_Q1",
-    "T08_Q2"
+    "T08_Q1"
    ],
    "comparison": "tracked",
    "slide": 33,
@@ -2910,7 +2910,7 @@
    "comparison": "tracked",
    "slide": 45,
    "caveat": "Comparing only countries asked in 2020, 2022 and 2024, so figures will differ slightly to the 2024 overall figure which contains 6 additional countries",
-   "showing": null
+   "showing": "Showing % selecting ‘Very concerned’ + ‘Somewhat concerned’ | Showing % selecting ‘Very satisfied’ + ‘Somewhat satisfied’"
   },
   {
    "theme": 11,

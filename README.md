@@ -35,6 +35,7 @@ Other scripts:
 | `node tools/verify-the-383.mjs` | in a browser: on every tracked chart of a single-answer question, the answers drawn in each wave total 100% or less |
 | `node tools/verify-the-386.mjs` | in a browser: lists drawn as bars rank largest first, with Don't know, Other and None last, and a list over time draws its three largest answers, checked against every answer it leaves out; answer scales keep their order |
 | `node tools/verify-the-401.mjs` | in a browser: the landing page's four cards read as Rosie's 8 Oct deck asks, and no stat card draws a line, at 1280 and 390px |
+| `node tools/verify-the-398.mjs` | in a browser: slides 41 and 45 draw one line per question, refuse a split by sex, share no base, and their tiles read their first line; at phone width no table runs off the screen |
 
 `pnpm content` reads `../afys-portal/db/seeds/*.sql` and the portal's
 `pipeline/mappings/crosswave.csv`, so the two directories have to sit side by
@@ -56,8 +57,8 @@ writes its results to `node_modules/.cache/`.
 question in Explore drawn over time. It prints one line per chart and exits 1 on
 any wave whose answers total over 100%, or if a chart it must check was never
 drawn. Slide 31, T12_Q2 and T12_Q3 hold only their agree answers, so they must
-total under 100%, never exactly 100%. Slides 22, 33, 41 and 45 chart several
-questions but draw the first one only, and say so in the output.
+total under 100%, never exactly 100%. Slides 41 and 45 chart several questions,
+one line per question, so each of their lines is checked alone.
 
 ## What is real and what is not
 
@@ -278,6 +279,7 @@ tools/verify-the-349.mjs  browser check: hiding answers never rebases
 tools/verify-the-383.mjs  browser check: no tracked chart's answers total over 100%
 tools/verify-the-386.mjs  browser check: lists rank largest first, scales keep their order
 tools/verify-the-401.mjs  browser check: the landing cards' wording, and no line on a stat card
+tools/verify-the-398.mjs  browser check: one line per question on slides 41 and 45; tables fit a phone
 src/content.ts            the deck, typed
 src/illustrative.ts       the generated figures — deleted when the API is wired up
 src/model.ts              chart spec + filters → view model (shaped like the API response)
