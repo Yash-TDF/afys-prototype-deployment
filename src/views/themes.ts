@@ -248,10 +248,18 @@ function fill(
   slot.append(left);
 
   if (figures.spark.length >= 2) {
-    // One scale for all twelve: on its own range every line filled the box, so a
-    // 15-point rise and a 5-point fall looked the same size.
+    // Each tile on its own range, from 20% below its lowest value to 20% above its
+    // highest, kept within 0 to 100 (THE-402). This replaces THE-359's one 0-100
+    // scale for all twelve, from the 28 Sep feedback: on it a 2-point move filled
+    // 2% of the box and every line looked flat. Rosie's 8 Oct deck asked for "more
+    // variance", and Ishwar's 9 Oct note promised her this range. Don't put the
+    // shared scale back: the "since" badge beside each line keeps the real scale.
+    // So a line is read within its tile, never against another tile's.
+    const low = Math.min(...figures.spark);
+    const high = Math.max(...figures.spark);
     const line = sparkline(figures.spark, {
-      width: 78, height: 36, className: 'tspark', activeIndex: figures.activeIndex, domain: [0, 100],
+      width: 78, height: 36, className: 'tspark', activeIndex: figures.activeIndex,
+      domain: [Math.max(0, 0.8 * low), Math.min(100, 1.2 * high)],
     });
     if (line) slot.append(line);
   }
