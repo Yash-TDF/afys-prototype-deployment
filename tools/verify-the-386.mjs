@@ -149,15 +149,30 @@ check('Explore T09_Q1 Over time, drawn as bars, puts Don\'t know last and ranks 
 // A list over time draws its largest answers in the latest wave, largest first
 // (Ishwar's third answer on THE-386; review of #27). Cut by sex, it draws
 // everyone's, so a split's Men and Women lines are the same answer.
+//
+// T01_Q3 is the one list over time, and from THE-406 Explore draws it as a
+// sentence: slide 5 says it isn't tracked (tools/verify-the-406.mjs). The rule is
+// still the model's, so these read the model on the spec Explore drew before
+// THE-406, without the deck's note: the lines a list over time draws. No view
+// reaches this spec now; it is here to keep #28's rule tested (review of #32).
 const datasets = (c) => (c ? c.sets.map((s) => `${s.label.slice(0, 18)} ${s.data[s.data.length - 1]}`).join(' | ') : 'no chart');
-const t3 = await explore('q=T01_Q3&chart=line');
-check('Explore T01_Q3 Over time draws its lines ranked by the latest wave', Boolean(t3) && t3.sets.length === 3
+const listOverTime = (filters) => page.evaluate(async (filters) => {
+  const { question, themeOf } = await import('/src/content.ts');
+  const { buildViewModel, DEFAULT_FILTERS } = await import('/src/model.ts');
+  const q = question('T01_Q3');
+  const spec = { theme: q.theme, order: 1, title: q.label, type: 'line', questions: [q.code],
+    comparison: 'tracked', slide: null, caveat: null, showing: null };
+  const m = buildViewModel(spec, themeOf(q), { ...DEFAULT_FILTERS, ...filters });
+  return m.series.length ? { sets: m.series.map((s) => ({ label: s.label, data: s.values })) } : null;
+}, filters);
+const t3 = await listOverTime({});
+check('T01_Q3 over time draws its lines ranked by the latest wave', Boolean(t3) && t3.sets.length === 3
   && ranked(t3.sets.map((s) => s.label), t3.sets.map((s) => s.data[s.data.length - 1])), datasets(t3));
 // The three lines are the three largest, not only in order: the check above
 // passed with the three smallest (review of #28). Every answer's latest share
-// comes from the model's everyoneOf, on the spec Explore draws the question with
-// (specFor in src/views/explorer.ts); each line drawn must be at least as large
-// as every answer left out, Don't know, Other and None of these aside.
+// comes from the model's everyoneOf, on the same spec; each line drawn must be at
+// least as large as every answer left out, Don't know, Other and None of these
+// aside.
 const t3every = await page.evaluate(async () => {
   const { question, themeOf } = await import('/src/content.ts');
   const { everyoneOf, DEFAULT_FILTERS } = await import('/src/model.ts');
@@ -172,20 +187,20 @@ const t3drawn = t3 ? t3.sets.map((s) => ({ label: s.label, latest: s.data[s.data
 const t3figure = new Map(t3every.map((a) => [a.label, a.latest]));
 const t3left = t3every.filter((a) => !TRAILING.test(a.label) && !t3drawn.some((d) => d.label === a.label));
 const t3smallest = Math.min(...t3drawn.map((d) => d.latest));
-check('Explore T01_Q3 Over time draws its three largest answers in the latest wave', t3drawn.length === 3
+check('T01_Q3 over time draws its three largest answers in the latest wave', t3drawn.length === 3
   // Every answer has a figure, so none escapes the comparison...
   && t3every.length === t3answers.length && t3answers.every((l) => t3figure.has(l))
-  // ...and they are the figures the chart drew.
+  // ...and they are the figures the lines carry.
   && t3drawn.every((d) => Math.abs((t3figure.get(d.label) ?? NaN) - d.latest) < 1e-9)
   && t3left.length > 0 && t3left.every((a) => a.latest <= t3smallest),
   `drawn ${t3drawn.map((d) => `${d.label.slice(0, 18)} ${d.latest}`).join(' | ')}`
   + ` || left out ${t3left.map((a) => `${a.label.slice(0, 18)} ${a.latest}`).join(' | ')}`);
-const t3w = await explore('q=T01_Q3&chart=line&gender=female');
-check('Explore T01_Q3 Over time for women draws everyone\'s lines, in everyone\'s order', Boolean(t3w) && Boolean(t3)
+const t3w = await listOverTime({ gender: 'female' });
+check('T01_Q3 over time for women draws everyone\'s lines, in everyone\'s order', Boolean(t3w) && Boolean(t3)
   && JSON.stringify(t3w.sets.map((s) => s.label)) === JSON.stringify(t3.sets.map((s) => s.label)), `${datasets(t3w)} || everyone ${datasets(t3)}`);
-const t3m = await explore('q=T01_Q3&chart=line&gender=male');
-const t3s = await explore('q=T01_Q3&chart=line&cmp=gender');
-check('Explore T01_Q3 Over time split by sex draws one answer for both: the men-only and women-only first lines',
+const t3m = await listOverTime({ gender: 'male' });
+const t3s = await listOverTime({ compare: 'gender' });
+check('T01_Q3 over time split by sex draws one answer for both: the men-only and women-only first lines',
   Boolean(t3s && t3m && t3w && t3) && t3s.sets.length === 2
   && t3m.sets[0].label === t3.sets[0].label && t3w.sets[0].label === t3.sets[0].label
   && JSON.stringify(t3s.sets[0].data) === JSON.stringify(t3m.sets[0].data)
