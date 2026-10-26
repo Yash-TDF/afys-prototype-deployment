@@ -32,3 +32,7 @@ export function fmtPts(n: number): string {
   const whole = roundHalfAway(n);
   return `${whole > 0 ? '+' : ''}${whole}pt${Math.abs(whole) === 1 ? '' : 's'}`;
 }
+
+const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+/** A count in words, as PSB writes it ("four waves"); more than ten, in figures. As the portal's stats.ts. */
+export const inWords = (n: number): string => (Number.isInteger(n) && n >= 0 && n <= 10 ? WORDS[n]! : String(n));

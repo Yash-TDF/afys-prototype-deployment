@@ -20,12 +20,13 @@ import { countries, fieldwork, inWave, latestWave, waves, type Country } from '.
 import { Chart, registerGeo } from '../charts/setup';
 import { BRAND, mix, NO_DATA } from '../charts/palette';
 import { REGION_SOURCE, REGIONS } from '../regions';
+import { inWords } from '../ui/format';
 import { showWave } from '../wave-badge';
 
 type FeatureLike = { properties: { name: string; surveyName: string | null; waves: number[] } };
 
+// Every country has its languages and locations since PSB's sheet of 30 Sep; kept for one without.
 const AWAITED = 'Awaited from PSB';
-const CHECKING = 'Being checked with PSB';
 // Every seeded country has a region today; the portal's words for one without.
 const UNGROUPED = 'To be added';
 const n = (value: number): string => value.toLocaleString('en-GB');
@@ -117,17 +118,14 @@ export function methodologyView(host: HTMLElement, params?: URLSearchParams): { 
       if (!value) dd.className = 'awaited';
       dl.append(dt, dd);
     };
-    // A supplied detail that is being queried with PSB is not shown as fact,
-    // here any more than in the table below: both cells say it is being checked.
-    const queried = Boolean(facts?.query);
     row('Region', country.region, UNGROUPED);
-    row('Languages', queried ? null : facts?.languages, queried ? CHECKING : AWAITED);
-    row('Locations', queried ? null : facts?.locations, queried ? CHECKING : AWAITED);
+    row('Languages', facts?.languages, AWAITED);
+    row('Locations', facts?.locations, AWAITED);
     detail.append(dl);
     const note = document.createElement('p');
     note.className = 'note';
-    note.textContent = (facts?.query ? `${facts.query} ` : '')
-      + 'Interviews are unweighted counts from the delivered survey file. Languages and locations are as supplied by PSB.';
+    note.textContent =
+      'Interviews are unweighted counts from the delivered survey file. Languages and locations are as supplied by PSB.';
     detail.append(note);
   };
 
@@ -425,7 +423,10 @@ function regions(): HTMLElement {
   return wrap;
 }
 
-/** Languages and locations per country, exactly as PSB supplied them; gaps are said, not filled. */
+/**
+ * Languages and locations per country, as PSB supplied them on 30 Sep with the spellings they
+ * corrected on 22 Oct (tools/build-fieldwork.py); a gap is said, not filled.
+ */
 function fieldworkTable(): HTMLElement {
   const wrap = document.createElement('div');
   const table = document.createElement('table');
@@ -441,13 +442,10 @@ function fieldworkTable(): HTMLElement {
     const tdWaves = document.createElement('td');
     tdWaves.className = 'waves';
     tdWaves.textContent = country.waves.join(', ');
-    // A row PSB is being asked about shows neither cell as fact.
-    const queried = Boolean(facts?.query);
     const cell = (value: string | null | undefined): HTMLTableCellElement => {
       const td = document.createElement('td');
-      const shown = queried ? null : value;
-      td.textContent = shown ?? (queried ? CHECKING : AWAITED);
-      if (!shown) td.className = 'awaited';
+      td.textContent = value ?? AWAITED;
+      if (!value) td.className = 'awaited';
       return td;
     };
     tr.append(th, tdWaves, cell(facts?.languages), cell(facts?.locations));
@@ -455,14 +453,11 @@ function fieldworkTable(): HTMLElement {
   }
   table.append(thead, tbody);
   wrap.append(table);
+  // PSB's answer of 22 Oct, in place of the note that asked: "All interviews face to face in all
+  // waves. … Please update and remove comment."
   const note = document.createElement('p');
   note.className = 'note';
-  const queried = Object.entries(fieldwork.countries).filter(([, c]) => c.query).map(([name, c]) => `${name}: ${c.query}`);
-  note.textContent =
-    'As supplied by PSB on 28 September 2026, spellings included; those we would ask PSB to confirm are Kibi, '
-    + "N'jamena, Sahr, KiyarRwanda, Mombassa and Khatoum North. The method used in each wave (face to face or "
-    + 'telephone) and whether coverage was national or urban are awaited. '
-    + queried.join(' ');
+  note.textContent = `All interviews were face to face, in all ${inWords(waves.length)} waves.`;
   wrap.append(note);
   return wrap;
 }

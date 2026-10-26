@@ -1,4 +1,4 @@
-"""Build src/data/fieldwork.json from the three sources THE-348 names.
+"""Build src/data/fieldwork.json from the two sources THE-348 and THE-417 name.
 
 Read-only on every source; writes one file. Needs pyreadstat (the portal's pipeline
 environment has it):
@@ -6,19 +6,26 @@ environment has it):
     PYTHONUTF8=1 python tools/build-fieldwork.py --sav PATH --workbook PATH
 
 Both inputs are outside this repository, so on any machine but the one this was
-written on `--sav` and `--workbook` are needed: the defaults only point at a
-`docs/adr` folder beside the checkout, where the delivered file and PSB's
-workbook happen to live here.
+written on `--sav` and `--workbook` are needed: the defaults only point at the
+`docs` folders beside the checkout, where the delivered file and PSB's workbook
+happen to live here.
 
 Sources
   1. Interviews per country and wave: the delivered four-wave SPSS file, unweighted rows,
      `job` (1 = 2020, 2 = 2022, 3 = 2024, 4 = 2026, per PSB 23 Sep 2026) by `QCOUNTRY` value
      label.
-  2. Languages and locations: PSB's workbook of 28 Sep 2026, cell text as supplied with
-     whitespace collapsed. Tanzania's two columns are as PSB supplied them; the row carries a
-     query rather than a correction, and the page shows both cells as being checked.
-  3. Regions: PSB's four 2026 groups from their 23 Sep reply. The twelve earlier-wave markets
-     have no agreed region (THE-217) and are left ungrouped.
+  2. Languages and locations: PSB's updated workbook of 30 Sep 2026 ("Languages and
+     Locations-updt.xlsx"), cell text as supplied with whitespace collapsed, except in two
+     ways, both said in `source`:
+     - Mali's and Senegal's two cells are read the other way round: that sheet has their
+       places under Languages and their languages under Locations, and our note of 5 Oct told
+       PSB we read them so. Tanzania's, swapped in the 28 Sep sheet, come right in this one.
+     - The five spellings PSB corrected on 22 Oct (Michael: "the locations are typos, please
+       update") are corrected. Each must be found as supplied, so a later sheet that already
+       has one right stops the build rather than passing it by.
+
+The regions are no longer here: they are the African Union's, from the portal's seed, in
+content.json (src/regions.ts, THE-417).
 
 Published wave totals are PSB's; 2026 has none. Two waves carry a query: 2022, because
 whether PSB's published tables base on 4,507 or on the 4,206 "Overall 2021" group is open
@@ -40,7 +47,7 @@ import pyreadstat
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SAV = ROOT.parent / "docs" / "adr" / "Ichikowitz Family Foundation (IFF) - Africa Youth Survey Merged Final Data 04.30.26 dashboard 1.sav"
-DEFAULT_XLSX = ROOT.parent / "docs" / "adr" / "Languages and Locations.xlsx"
+DEFAULT_XLSX = ROOT.parent / "docs" / "client-responses" / "Languages and Locations-updt.xlsx"
 CONTENT = ROOT / "src" / "data" / "content.json"
 OUT = ROOT / "src" / "data" / "fieldwork.json"
 
@@ -53,19 +60,20 @@ WAVE_QUERIES = {
           "“Overall 2021” group rather than all 4,507; being checked with PSB.",
     2024: "29 short of the published 5,604; being checked with PSB.",
 }
-# What is open with PSB about a country's supplied languages and locations.
-COUNTRY_QUERIES = {
-    "Tanzania": "The languages and locations appear to have swapped columns in the supplied "
-                "list; being checked with PSB.",
-}
+# Countries whose two cells the 30 Sep sheet has the wrong way round, each with the place that
+# proves it: once swapped, its locations must name it (our note of 5 Oct).
+READ_SWAPPED = {"Mali": "Bamako", "Senegal": "Dakar"}
+# PSB's corrections of 22 Oct: country, column, as supplied, as corrected.
+CORRECTIONS = [
+    ("Cameroon", "locations", "Kibi", "Kribi"),
+    ("Chad", "locations", "N'jamena", "N'Djamena"),
+    ("Chad", "locations", "Sahr", "Sarh"),
+    ("Kenya", "locations", "Mombassa", "Mombasa"),
+    ("Sudan", "locations", "Khatoum North", "Khartoum North"),
+    ("Rwanda", "languages", "KiyarRwanda", "Kinyarwanda"),
+]
 # The file's spellings that differ from the seeds'.
 SEED_NAME = {"Democratic Republic of Congo": "DRC", "Cote d’Ivoire": "Côte d'Ivoire"}
-REGIONS = [
-    ("Coastal West Africa", ["Ghana", "Liberia", "Nigeria", "Togo"]),
-    ("Sahel and Central Africa", ["Burkina Faso", "Chad", "Congo Brazzaville", "DRC"]),
-    ("East Africa and Horn", ["Ethiopia", "Kenya", "Rwanda", "Somalia"]),
-    ("Southern Africa", ["Mozambique", "South Africa", "Zambia", "Zimbabwe"]),
-]
 
 NS = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 
@@ -133,6 +141,24 @@ def workbook(xlsx: Path) -> dict[str, dict[str, str | None]]:
     return out
 
 
+def corrected(wb: dict[str, dict[str, str | None]]) -> list[str]:
+    """Apply READ_SWAPPED and CORRECTIONS to the workbook's rows in place; the refusals, if any."""
+    refusals = []
+    for name, capital in READ_SWAPPED.items():
+        row = wb[name]
+        row["languages"], row["locations"] = row["locations"], row["languages"]
+        if capital not in (row["locations"] or ""):
+            refusals.append(f"{name}: read the other way round, its locations should name {capital}: {row}")
+    for name, column, was, now in CORRECTIONS:
+        text = wb[name][column] or ""
+        word = re.compile(rf"(?<!\w){re.escape(was)}(?!\w)")
+        if not word.search(text):
+            refusals.append(f"{name}: {column} no longer reads {was!r} to correct: {text!r}")
+            continue
+        wb[name][column] = word.sub(now, text)
+    return refusals
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--sav", type=Path, default=DEFAULT_SAV)
@@ -153,15 +179,17 @@ def main() -> int:
     if missing:
         print("REFUSED: workbook has no row for", sorted(missing), file=sys.stderr)
         return 1
-    region_of = {c: name for name, members in REGIONS for c in members}
+    refusals = corrected(wb)
+    if refusals:
+        for line in refusals:
+            print("REFUSED:", line, file=sys.stderr)
+        return 1
     countries = {}
     for name in sorted(seeded):
         countries[name] = {
             "interviews": {str(y): counts[name][y] for y in sorted(counts[name])},
             "languages": wb[name]["languages"],
             "locations": wb[name]["locations"],
-            "region": region_of.get(name),
-            "query": COUNTRY_QUERIES.get(name),
         }
     waves = {}
     for year in sorted(WAVE_OF_JOB.values()):
@@ -173,13 +201,14 @@ def main() -> int:
     data = {
         "source": {
             "interviews": f"Unweighted rows of {args.sav.name}, by wave (job) and country (QCOUNTRY value label)",
-            "languagesAndLocations": f"{args.workbook.name}, supplied by PSB on 28 September 2026, cell text as supplied with whitespace collapsed",
-            "regions": "PSB's four 2026 regional groups, from their reply of 23 September 2026",
+            "languagesAndLocations": f"{args.workbook.name}, supplied by PSB on 30 September 2026, cell text as supplied with whitespace collapsed, "
+                                     f"except that {' and '.join(READ_SWAPPED)} are read the other way round (our note of 5 October 2026) "
+                                     "and the spellings PSB corrected on 22 October 2026 are corrected: "
+                                     + "; ".join(f"{name} {was} to {now}" for name, _, was, now in CORRECTIONS),
             "published": "PSB's published interview totals per wave; none published for 2026",
             "builtBy": "tools/build-fieldwork.py",
         },
         "waves": waves,
-        "regions": [{"name": n, "countries": m} for n, m in REGIONS],
         "countries": countries,
     }
     OUT.write_text(json.dumps(data, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -189,7 +218,8 @@ def main() -> int:
     print("waves:", {y: (w["interviews"], w["published"]) for y, w in waves.items()})
     print("languages awaited:", [n for n, c in countries.items() if c["languages"] is None])
     print("locations awaited:", [n for n, c in countries.items() if c["locations"] is None])
-    print("queries:", [n for n, c in countries.items() if c["query"]], list(WAVE_QUERIES))
+    print("read the other way round:", list(READ_SWAPPED), "· corrected:", [f"{n}: {now}" for n, _, _, now in CORRECTIONS])
+    print("wave queries:", list(WAVE_QUERIES))
     return 0
 
 
