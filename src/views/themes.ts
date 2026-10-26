@@ -264,19 +264,20 @@ function fill(
     left.append(of);
   }
 
-  const badge = document.createElement('span');
   if (figures.delta) {
-    const { points, from } = figures.delta;
-    // Direction from the number printed, not the raw one: a 0.4-point fall
-    // prints as 0, and a red "down" pill reading "0pts" contradicts itself.
-    const shown = roundHalfAway(points);
-    badge.className = `tstat-d ${shown > 0 ? 'up' : shown < 0 ? 'down' : 'flat'}`;
-    badge.textContent = `${fmtPts(points)} since ${from}`;
+    // The change since the first wave, then since the wave before the latest, side by
+    // side as PSB's mock-up of 22 Oct draws them (THE-417); a phone may stack them.
+    const pills = document.createElement('span');
+    pills.className = 'tstat-pills';
+    pills.append(changePill(figures.delta.points, figures.delta.from));
+    if (figures.recent) pills.append(changePill(figures.recent.points, figures.recent.from));
+    left.append(pills);
   } else {
+    const badge = document.createElement('span');
     badge.className = 'tstat-d flat';
     badge.textContent = figures.note ?? '';
+    left.append(badge);
   }
-  left.append(badge);
   // In front of the picture, which sits on the right where the line used to be: PSB's layout of
   // 22 Oct has no line (THE-404).
   slot.prepend(left);
@@ -288,17 +289,35 @@ function fill(
   chip.textContent = 'Illustrative';
   tile.append(chip);
 
-  const shownPoints = figures.delta ? roundHalfAway(figures.delta.points) : 0;
+  // Both changes in words, as the portal's tile reads them: "58% in 2026, up 3 points
+  // since 2020 and down 1 point since 2024".
   const reading = figures.delta
-    ? `${fmtPct(figures.headline)} in ${figures.delta.to}, `
-      + (shownPoints === 0
-        ? `unchanged since ${figures.delta.from}`
-        : `${shownPoints > 0 ? 'up' : 'down'} ${Math.abs(shownPoints)} point${Math.abs(shownPoints) === 1 ? '' : 's'} since ${figures.delta.from}`)
+    ? `${fmtPct(figures.headline)} in ${figures.delta.to}, ${said(figures.delta.points, figures.delta.from)}`
+      + (figures.recent ? ` and ${said(figures.recent.points, figures.recent.from)}` : '')
     : `${fmtPct(figures.headline)}${figures.note ? `, ${figures.note.toLowerCase()}` : ''}`;
   tile.setAttribute(
     'aria-label',
     `${theme.name}. ${caption ?? 'Illustrative figure'}: ${reading}. Illustrative figure, not a survey result.`,
   );
+}
+
+/** One change, "+3pts since 2024", coloured by the number printed. */
+function changePill(points: number, from: number): HTMLSpanElement {
+  // Direction from the number printed, not the raw one: a 0.4-point fall
+  // prints as 0, and a red "down" pill reading "0pts" contradicts itself.
+  const shown = roundHalfAway(points);
+  const pill = document.createElement('span');
+  pill.className = `tstat-d ${shown > 0 ? 'up' : shown < 0 ? 'down' : 'flat'}`;
+  pill.textContent = `${fmtPts(points)} since ${from}`;
+  return pill;
+}
+
+/** A change in words, from the number printed: "up 3 points since 2020", "unchanged since 2024". */
+function said(points: number, from: number): string {
+  const shown = roundHalfAway(points);
+  return shown === 0
+    ? `unchanged since ${from}`
+    : `${shown > 0 ? 'up' : 'down'} ${Math.abs(shown)} point${Math.abs(shown) === 1 ? '' : 's'} since ${from}`;
 }
 
 function arrowIcon(size: number): SVGSVGElement {
