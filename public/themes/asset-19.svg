@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1650.1 754.43">
+  <defs>
+    <style>
+      .cls-1 {
+        stroke: #1f2337;
+      }
+
+      .cls-1, .cls-2, .cls-3 {
+        fill: none;
+        stroke-miterlimit: 10;
+        stroke-width: 16.58px;
+      }
+
+      .cls-4 {
+        fill: #ffc948;
+      }
+
+      .cls-5 {
+        fill: #fff7e9;
+      }
+
+      .cls-2 {
+        stroke: #ffc948;
+      }
+
+      .cls-6 {
+        fill: #ea2f4e;
+      }
+
+      .cls-3 {
+        stroke: #fff7e9;
+      }
+
+      .cls-7 {
+        fill: #f2676b;
+      }
+
+      .cls-8 {
+        fill: #0b82a7;
+      }
+
+      .cls-9 {
+        fill: #1f2337;
+      }
+    </style>
+  </defs>
+  <g id="Afro-Optimism">
+    <g>
+      <polygon class="cls-7" points="1650.1 0 84.8 0 0 754.43 1572.51 754.43 1650.1 0"/>
+      <line class="cls-2" x1="119.89" y1="178.37" x2="400.61" y2="178.37"/>
+      <line class="cls-2" x1="1081.94" y1="312.88" x2="1362.66" y2="312.88"/>
+      <g>
+        <rect class="cls-6" x="222.24" y="561.44" width="1216.45" height="105.27"/>
+        <rect class="cls-9" x="163.75" y="254.4" width="84.8" height="178.37"/>
+        <path class="cls-5" d="M1503.02,631.62H222.72c-30.75,0-54.04-27.78-48.67-58.06l54.03-304.54,87.79-160.08c7.17-13.08,20.91-21.22,35.83-21.22h707.46c17.18,0,32.53,10.75,38.4,26.9l83.79,230.43,345.05,87.72-23.39,198.84Z"/>
+        <g>
+          <ellipse class="cls-9" cx="1250" cy="648.7" rx="105.93" ry="91.8" transform="translate(262.5144 1652.7822) rotate(-72.9051)"/>
+          <ellipse class="cls-5" cx="1250" cy="648.7" rx="55.08" ry="63.56" transform="translate(-135.46 396.1) rotate(-17.09)"/>
+        </g>
+        <g>
+          <ellipse class="cls-9" cx="343.51" cy="648.7" rx="105.93" ry="91.8" transform="translate(-377.51 786.34) rotate(-72.91)"/>
+          <ellipse class="cls-5" cx="343.51" cy="648.7" rx="55.08" ry="63.56" transform="translate(-175.51 129.64) rotate(-17.09)"/>
+        </g>
+        <circle class="cls-4" cx="1462.08" cy="508.8" r="35.09"/>
+        <polygon class="cls-8" points="1181.36 345.05 304.11 345.05 362.6 128.66 1102.03 128.66 1181.36 345.05"/>
+        <line class="cls-3" x1="1020.53" y1="114.04" x2="1073.17" y2="377.22"/>
+        <line class="cls-3" x1="809.99" y1="114.04" x2="809.99" y2="359.67"/>
+        <line class="cls-3" x1="505.88" y1="116.97" x2="459.09" y2="362.6"/>
+        <polygon class="cls-9" points="988.37 415.23 953.28 415.23 970.82 315.81 1005.91 315.81 988.37 415.23"/>
+        <line class="cls-1" x1="845.08" y1="359.67" x2="809.99" y2="605.3"/>
+        <line class="cls-1" x1="542.4" y1="359.67" x2="507.31" y2="605.3"/>
+        <line class="cls-1" x1="1079.01" y1="511.73" x2="248.55" y2="511.73"/>
+        <line class="cls-1" x1="1098.18" y1="359.67" x2="1063.09" y2="605.3"/>
+      </g>
+      <line class="cls-2" x1="932.81" y1="231.01" x2="1541.03" y2="231.01"/>
+      <line class="cls-2" x1="599.45" y1="470.79" x2="119.89" y2="470.79"/>
+      <line class="cls-2" x1="704.72" y1="312.88" x2="388.91" y2="312.88"/>
+      <line class="cls-2" x1="751.51" y1="576.06" x2="1131.65" y2="576.06"/>
+      <line class="cls-2" x1="1041" y1="424" x2="1312.95" y2="424"/>
+    </g>
+  </g>
+</svg>

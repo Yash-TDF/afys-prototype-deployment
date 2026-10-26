@@ -79,6 +79,14 @@ The figures are deterministic: the same question, wave, country and option give
 the same number on every machine and every reload, so a screenshot taken today
 still matches the site tomorrow.
 
+**The landing tiles' pictures** (`public/themes/`, THE-404) are PSB's own, from
+their illustration kit of 13 October, as supplied and not recoloured. Which picture
+goes on which tile is `src/data/tile-pictures.json`: our 14 October proposal, as
+Yash confirmed it for the build on 26 October. Four of the twelve (Multilateral
+order, Safety, News and Information, Climate) are provisional until Rosie answers
+that proposal, and none is a leader's portrait. The final portal's seed carries
+the same choice (`themes.picture_file`).
+
 ## What this settles
 
 **Chart.js draws everything the deck asks for.** Bar, horizontal bar, line,
@@ -280,6 +288,7 @@ tools/verify-the-383.mjs  browser check: no tracked chart's answers total over 1
 tools/verify-the-386.mjs  browser check: lists rank largest first, scales keep their order
 tools/verify-the-401.mjs  browser check: the landing cards' wording, and no line on a stat card
 tools/verify-the-398.mjs  browser check: one line per question on slides 41 and 45; tables fit a phone
+tools/verify-the-404.mjs  browser check: each landing tile's picture, on the right, cropped, no line
 src/content.ts            the deck, typed
 src/illustrative.ts       the generated figures — deleted when the API is wired up
 src/model.ts              chart spec + filters → view model (shaped like the API response)
