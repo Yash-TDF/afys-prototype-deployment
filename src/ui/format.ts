@@ -2,8 +2,8 @@
 //
 // The client asked for whole numbers everywhere (28 Sep). Rounding happens here,
 // at the point of printing, and nowhere earlier: the figures themselves keep
-// their precision, so a bar's width, a table's sort order and a sparkline's
-// shape follow the real value, and a combined figure is rounded once, from the
+// their precision, so a bar's width and a table's sort order follow the real
+// value, and a combined figure is rounded once, from the
 // combination, rather than assembled from parts that were each rounded first.
 // That is also what the production portal will do, from numerators and
 // denominators; and the client's own deck rounds each figure on its own (slide

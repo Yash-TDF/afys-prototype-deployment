@@ -252,11 +252,12 @@ it rather than guessed at.
 14. The "Right Direction 55%" headline card is gone, and stays gone at any
     figure. 55% is the *wrong*-direction number on the report's printed page 18;
     the right-direction figure is 37%. The summary row carries only facts we can
-    source — 28 countries, 4 waves, 12 themes, 14,000+ respondents — and its one
-    sparkline is the real count of countries per wave.
+    source — 28 countries, 4 waves, 12 themes, 14,000+ respondents — and draws
+    no line: its one line, the real count of countries per wave, came off with
+    Rosie's feedback of 8 October (THE-401).
 
-    The theme cards *do* carry a generated headline, a trend delta and a
-    sparkline, because that is the shape the client approved and round zero is
+    The theme cards *do* carry a generated headline and a trend delta, because
+    that is the shape the client approved and round zero is
     asking them to approve a shape. Each is marked in three places: the banner
     above the page, a chip on the card, and the card's own label, which reads the
     figure out and ends "illustrative figure, not a survey result". They are
@@ -294,7 +295,7 @@ src/illustrative.ts       the generated figures — deleted when the API is wire
 src/model.ts              chart spec + filters → view model (shaped like the API response)
 src/aggregate.ts          the only place percentages are combined — never averaged
 src/charts/               Chart.js setup, the value-label plugin, the renderer, hidden answers
-src/ui/                   sparkline · insights · quality · download · toast · drawer · spotlight
+src/ui/                   insights · quality · download · toast · drawer · spotlight
 src/styles/               the stylesheet by section; styles.css is the import list
 src/views/                themes · theme-card · tile · explorer · methodology · filters · dropdown
 ```

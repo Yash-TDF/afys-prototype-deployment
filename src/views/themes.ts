@@ -190,6 +190,9 @@ export function themesView(host: HTMLElement): void {
       img.alt = '';
       img.width = 88;
       img.height = 96;
+      // As the portal's tile: a picture further down loads as it nears the screen. The width and
+      // height above keep its frame meanwhile, so nothing moves when it arrives.
+      img.loading = 'lazy';
       img.decoding = 'async';
       slot.append(img);
     }

@@ -3,6 +3,8 @@
 //   decoration (alt="");
 // - on the right of the figure and inside its tile, in an 88x96 frame, cropped (object-fit: cover)
 //   from the side Yash chose on 26 Oct;
+// - laid out as the portal's tile: the figure at the foot, the picture centred beside it, 8px
+//   apart, and loading lazily;
 // - no line on any tile, as the mock-up has none; the figure, its "since" pill and the
 //   Illustrative chip stay;
 // - the picture is placed before the figures land, so nothing moves when they do;
@@ -48,14 +50,34 @@ for (const width of [1280, 390]) {
   }));
   await page.evaluate(async () => { await document.fonts.ready; });
   await page.waitForTimeout(2000);
+  // The pictures load lazily, as the portal's do: scroll the page through, then wait until every one
+  // has loaded (or report the ones that haven't, below).
+  await page.evaluate(async () => {
+    for (let y = 0; y < document.body.scrollHeight; y += 400) {
+      window.scrollTo(0, y);
+      await new Promise((r) => requestAnimationFrame(r));
+    }
+    window.scrollTo(0, 0);
+  });
+  await page.waitForFunction(() => [...document.querySelectorAll('img.tpic')].every((i) => i.complete && i.naturalWidth > 0),
+    null, { timeout: 10000 }).catch(() => {});
   const tiles = await page.evaluate(() => [...document.querySelectorAll('a.tile')].map((t) => {
     const r = t.getBoundingClientRect();
     const imgs = [...t.querySelectorAll('img.tpic')];
     const img = imgs[0];
     const ir = img?.getBoundingClientRect();
     const left = t.querySelector('.tstat-l')?.getBoundingClientRect();
+    const slot = t.querySelector('.tstats');
+    const sr = slot?.getBoundingClientRect();
+    const ss = slot ? getComputedStyle(slot) : null;
     const cs = img ? getComputedStyle(img) : null;
     return {
+      lazy: img?.loading === 'lazy',
+      layout: [ss?.alignItems, cs?.alignSelf, ss?.columnGap].join(' '),
+      // The figure sits at the foot of the row, and the picture at its middle (below the rule and padding).
+      foot: Boolean(left && sr && Math.abs(left.bottom - sr.bottom) <= 1),
+      centred: Boolean(ir && sr && ss && Math.abs((ir.top + ir.bottom) / 2
+        - (sr.top + parseFloat(ss.borderTopWidth) + parseFloat(ss.paddingTop) + sr.bottom) / 2) <= 1),
       slug: (t.getAttribute('href') ?? '').replace('#/theme/', ''),
       imgs: imgs.length,
       file: img?.getAttribute('src')?.split('/').pop() ?? null,
@@ -84,6 +106,9 @@ for (const width of [1280, 390]) {
   check(`${at}, every frame is 88x96, cropped not stretched, from its chosen side`,
     tiles.every((t) => t.box?.[0] === 88 && t.box?.[1] === 96 && t.fit === 'cover' && t.pos === focusOf(t.file)),
     tiles.filter((t) => !(t.box?.[0] === 88 && t.box?.[1] === 96 && t.fit === 'cover' && t.pos === focusOf(t.file))).map((t) => [t.slug, t.box, t.fit, t.pos]));
+  check(`${at}, laid out as the portal's tile: the figure at the foot, the picture centred beside it, 8px apart, loading lazily`,
+    tiles.every((t) => t.lazy && t.layout === 'flex-end center 8px' && t.foot && t.centred),
+    tiles.filter((t) => !(t.lazy && t.layout === 'flex-end center 8px' && t.foot && t.centred)).map((t) => [t.slug, t.lazy, t.layout, t.foot, t.centred]));
   check(`${at}, no tile draws a line`, tiles.every((t) => t.lines === 0), tiles.filter((t) => t.lines > 0).map((t) => t.slug));
   check(`${at}, every tile with a figure keeps its "since" pill and its Illustrative chip`,
     tiles.every((t) => t.headline === null || (t.pill !== null && t.chip === 'Illustrative')),

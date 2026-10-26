@@ -165,19 +165,15 @@
 .stat-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .stat-left { display: block; min-width: 0; }
 
-.sparkline { width: 80px; height: 40px; flex-shrink: 0; margin-top: 4px; }
-.sparkline polyline { fill: none; stroke: var(--green-mid); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-/* #sparkGrad is defined in index.html, outside the routed element — a def inside
-   a view is destroyed on the first navigation. */
-.sparkline .spark-area { fill: url(#sparkGrad); opacity: 0.15; }
-
 /* The figure row at the foot of a theme card: the figure on the left, the
-   theme's picture on the right, as PSB's mock-up of 22 Oct lays it out (THE-404). */
+   theme's picture on the right, as PSB's mock-up of 22 Oct lays it out (THE-404).
+   Laid out as the portal's tile: the figure at the foot, the picture centred
+   beside it, 8px apart. */
 .tile .tstats {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   margin-top: 22px;
   padding-top: 18px;
   border-top: 1px solid var(--line);
@@ -193,7 +189,7 @@
    The centre suits most; five read better from another side, the same five as
    the portal's: the phone selfie and the speaker from the top, the van from its
    front, the two people and the skyline from the right. */
-.tpic { width: 88px; height: 96px; object-fit: cover; object-position: 50% 50%; flex-shrink: 0; }
+.tpic { width: 88px; height: 96px; object-fit: cover; object-position: 50% 50%; flex-shrink: 0; align-self: center; }
 .tpic[src$="/asset-7.svg"], .tpic[src$="/asset-34.svg"] { object-position: 50% 0%; }
 .tpic[src$="/asset-19.svg"] { object-position: 0% 50%; }
 .tpic[src$="/asset-8.svg"], .tpic[src$="/asset-9.svg"] { object-position: 100% 50%; }
