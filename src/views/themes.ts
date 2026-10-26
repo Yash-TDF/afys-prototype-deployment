@@ -22,7 +22,7 @@
 // see the dynamic import at the foot of this file.
 import { type Theme, countries, fieldwork, inWave, latestWave, themes, waves } from '../content';
 import pictures from '../data/tile-pictures.json';
-import { fmtPct, fmtPts, roundHalfAway } from '../ui/format';
+import { fmtPct, fmtPts, inWords, roundHalfAway } from '../ui/format';
 import type { ThemeCardFigures } from './theme-card';
 
 /**
@@ -43,12 +43,13 @@ export function themesView(host: HTMLElement): void {
   h1.className = 'an';
   h1.textContent = 'Survey Overview';
   const lede = document.createElement('p');
-  lede.className = 'an';
+  lede.className = 'an lede';
   lede.textContent =
-    // No respondent count here: beside the Respondents card (published total plus
-    // the 2026 file count) a "14,000+" read as the whole four-wave total.
-    `Explore findings across ${countries.length} countries, from young people `
-    + `aged 18 to 24 surveyed in ${waves.length} waves since ${waves[0]!.year}.`;
+    // PSB's sentence of 22 Oct (THE-417), on one line at desktop width, every number
+    // computed. No respondent count here: beside the Respondents card (published
+    // total plus the 2026 file count) a "14,000+" read as the whole four-wave total.
+    `Explore findings across ${countries.length} countries, from young people aged 18 to 24 `
+    + `interviewed in ${inWords(waves.length)} waves from ${waves[0]!.year} to ${waves[waves.length - 1]!.year}.`;
   intro.append(h1, lede);
 
   const stats = document.createElement('div');
@@ -63,13 +64,18 @@ export function themesView(host: HTMLElement): void {
   // Each card goes to the part of the Methodology page that backs it up, as the
   // approved prototype's cards opened a drawer. `section` is a section id on that
   // page, not a heading; the Themes card points down this page instead.
-  const facts: { label: string; value: string; sub: string; section: string | null; opens: string }[] = [
+  //
+  // `strong` is the part of `sub` PSB asked for in bold on 22 Oct (THE-417): the
+  // latest wave's countries, its respondents and its year. Always text `sub`
+  // already holds, as the portal's StatCard has it.
+  const facts: { label: string; value: string; sub: string; strong?: string; section: string | null; opens: string }[] = [
     {
       label: 'Countries',
       value: String(countries.length),
       // Two lines, as in Rosie's deck, so the number stays with "countries"
       // (Ishwar, THE-401). `.stat .sub` keeps the line break.
       sub: `Across Sub-Saharan Africa\n${inWave(latestWave).length} countries included in ${latestWave}`,
+      strong: `${inWave(latestWave).length} countries`,
       section: 'coverage',
       opens: 'View the countries surveyed, wave by wave',
     },
@@ -81,14 +87,18 @@ export function themesView(host: HTMLElement): void {
       label: 'Respondents',
       value: n(publishedTotal),
       sub: `${n(latestCount)} respondents in ${latestWave}`,
+      strong: n(latestCount),
       section: 'overview', opens: 'About the study',
     },
     {
       label: 'Survey waves', value: String(waves.length), sub: waves.map((w) => w.year).join(' · '),
+      // The latest wave's year, the last listed.
+      strong: String(latestWave),
       section: 'coverage', opens: 'View the waves',
     },
     {
-      label: 'Key themes', value: String(themes.length), sub: `From hundreds of questions asked since ${waves[0]!.year}`,
+      // PSB's words of 22 Oct, in place of "From hundreds of questions asked since 2020".
+      label: 'Key themes', value: String(themes.length), sub: `From dozens of topics included across the ${inWords(waves.length)} waves`,
       section: null, opens: 'Explore by theme',
     },
   ];
@@ -130,7 +140,14 @@ export function themesView(host: HTMLElement): void {
     value.textContent = fact.value;
     const sub = document.createElement('span');
     sub.className = 'sub';
-    sub.textContent = fact.sub;
+    const at = fact.strong ? fact.sub.indexOf(fact.strong) : -1;
+    if (fact.strong && at !== -1) {
+      const bold = document.createElement('strong');
+      bold.textContent = fact.strong;
+      sub.append(fact.sub.slice(0, at), bold, fact.sub.slice(at + fact.strong.length));
+    } else {
+      sub.textContent = fact.sub;
+    }
     left.append(label, value, sub);
     top.append(left);
 

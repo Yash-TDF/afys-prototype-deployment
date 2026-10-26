@@ -275,7 +275,8 @@ function section(id: string, heading: string, content: HTMLElement, className: s
 
 function overview(): HTMLElement {
   // The published total, 2020 to 2024, is PSB's own figure; the 2026 count is
-  // ours from the file and has no published total to stand against yet.
+  // ours from the file and has no published total to stand against yet. PSB asked
+  // on 22 Oct for the row not to say so (THE-417).
   const latest = fieldwork.waves[String(latestWave)];
   const table = document.createElement('table');
   const tbody = document.createElement('tbody');
@@ -283,7 +284,7 @@ function overview(): HTMLElement {
     ['Respondents', 'Aged 18 to 24'],
     ['Countries', `${countries.length} across ${waves.length} waves`],
     ['Latest wave', `${latestWave} · ${inWave(latestWave).length} countries`],
-    ['Interviews', `${n(publishedTotal())} published, 2020 to 2024 · ${n(latest?.interviews ?? 0)} in ${latestWave} (file count; no published total)`],
+    ['Interviews', `${n(publishedTotal())} published, 2020 to 2024 · ${n(latest?.interviews ?? 0)} in ${latestWave}`],
     ['Fielded by', 'PSB Insights'],
   ];
   for (const [term, value] of rows) {

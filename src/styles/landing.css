@@ -5,6 +5,9 @@
 .hero { margin-bottom: 48px; padding-bottom: 40px; border-bottom: 1px solid var(--line); }
 .hero h1 { font-size: 40px; line-height: 1.1; }
 .hero > p { color: var(--muted); margin: 8px 0 32px; max-width: 62ch; font-size: 15px; line-height: 1.5; }
+/* PSB asked for the sentence on one line (22 Oct, THE-417): the 62ch limit wraps it, so the
+   landing's own is lifted, as the portal's is; on a phone it still wraps to the screen. */
+.hero > p.lede { max-width: none; }
 
 .stat-row {
   display: grid;
@@ -38,6 +41,8 @@
 }
 .stat .value { display: block; font-size: 36px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; color: var(--green); }
 .stat .sub { display: block; color: var(--muted); font-size: 13px; line-height: 1.4; margin-top: 12px; white-space: pre-line; }
+/* The latest wave's countries, respondents and year, bold as PSB asked (22 Oct, THE-417). */
+.stat .sub strong { font-weight: 700; color: var(--ink); }
 .stat .chip { margin-top: 10px; display: inline-block; }
 
 /* A section title is the sans at 22px, not the display serif: the serif is for
