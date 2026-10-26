@@ -11,20 +11,23 @@
 // question counts was the part they did not want, and it is gone. Everything the
 // drawer said about countries and waves is said here once, from the same data.
 //
-// The interview counts, languages, locations and regions come from
-// `fieldwork` (see content.ts): counted from the delivered survey file and
-// supplied by PSB. They are the only figures on the site that are not
-// illustrative, and the page says which they are.
+// The interview counts, languages and locations come from `fieldwork` (see
+// content.ts): counted from the delivered survey file and supplied by PSB. They
+// are the only figures on the site that are not illustrative, and the page says
+// which they are. The regions are the African Union's, from the portal's seed
+// (src/regions.ts), credited to it as PSB asked (THE-417).
 import { countries, fieldwork, inWave, latestWave, waves, type Country } from '../content';
 import { Chart, registerGeo } from '../charts/setup';
 import { BRAND, mix, NO_DATA } from '../charts/palette';
+import { REGION_SOURCE, REGIONS } from '../regions';
 import { showWave } from '../wave-badge';
 
 type FeatureLike = { properties: { name: string; surveyName: string | null; waves: number[] } };
 
 const AWAITED = 'Awaited from PSB';
 const CHECKING = 'Being checked with PSB';
-const UNGROUPED = 'No agreed region yet';
+// Every seeded country has a region today; the portal's words for one without.
+const UNGROUPED = 'To be added';
 const n = (value: number): string => value.toLocaleString('en-GB');
 
 /** PSB's published total across the waves they have published one for. */
@@ -117,7 +120,7 @@ export function methodologyView(host: HTMLElement, params?: URLSearchParams): { 
     // A supplied detail that is being queried with PSB is not shown as fact,
     // here any more than in the table below: both cells say it is being checked.
     const queried = Boolean(facts?.query);
-    row('Region', facts?.region, UNGROUPED);
+    row('Region', country.region, UNGROUPED);
     row('Languages', queried ? null : facts?.languages, queried ? CHECKING : AWAITED);
     row('Locations', queried ? null : facts?.locations, queried ? CHECKING : AWAITED);
     detail.append(dl);
@@ -386,22 +389,22 @@ function coverageTable(): HTMLElement {
   return wrap;
 }
 
-/** PSB's four 2026 groups, and the earlier-wave markets that have no agreed region yet. */
+/**
+ * The African Union's regions, every country of every wave in one, credited to the African Union
+ * with its own page, as PSB asked on 22 Oct (THE-417). Never credited to PSB.
+ */
 function regions(): HTMLElement {
   const wrap = document.createElement('div');
-  const intro = document.createElement('p');
-  intro.textContent = 'The regional grouping PSB gave for the 2026 markets.';
-  wrap.append(intro);
   const grid = document.createElement('div');
   grid.className = 'region-grid';
-  for (const region of fieldwork.regions) {
+  for (const [region, names] of Object.entries(REGIONS)) {
     const box = document.createElement('div');
     box.className = 'region';
-    box.setAttribute('data-region', region.name);
+    box.setAttribute('data-region', region);
     const h3 = document.createElement('h3');
-    h3.textContent = region.name;
+    h3.textContent = region;
     const ul = document.createElement('ul');
-    for (const name of region.countries) {
+    for (const name of names) {
       const li = document.createElement('li');
       li.textContent = name;
       ul.append(li);
@@ -410,14 +413,14 @@ function regions(): HTMLElement {
     grid.append(box);
   }
   wrap.append(grid);
-  const grouped = new Set(fieldwork.regions.flatMap((r) => r.countries));
-  const pending = [...countries].filter((c) => !grouped.has(c.name)).map((c) => c.name).sort((a, b) => a.localeCompare(b));
+  // The portal's wording (RegionTable, THE-414).
   const note = document.createElement('p');
   note.className = 'note';
-  note.setAttribute('data-ungrouped', '');
-  note.textContent =
-    `${pending.length} markets surveyed only in earlier waves have no agreed region yet (open with PSB): `
-    + `${pending.join(', ')}.`;
+  const source = document.createElement('a');
+  source.href = REGION_SOURCE.url;
+  source.rel = 'noopener noreferrer';
+  source.textContent = REGION_SOURCE.name;
+  note.append('Regions as defined by the ', source, '. Explore can show any one of them.');
   wrap.append(note);
   return wrap;
 }
@@ -471,8 +474,9 @@ function figuresNote(): HTMLElement {
     'Every percentage on this site is generated for layout. None of it is a survey '
     + 'result, and nothing here should be read as one. The structure — the themes, '
     + 'the questions, the countries and the waves — comes from the client’s own '
-    + 'Portal Content deck, and the interview counts, languages, locations and regions '
-    + 'on this page are the only figures taken from the survey files and from PSB.';
+    + 'Portal Content deck, and the interview counts, languages and locations on this '
+    + 'page are the only figures taken from the survey files and from PSB. The regions '
+    + 'are the African Union’s.';
   wrap.append(p);
   return wrap;
 }

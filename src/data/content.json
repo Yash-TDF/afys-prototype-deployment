@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-12",
+ "generatedAt": "2026-10-26",
  "source": "afys-portal/db/seeds — structure only, no survey results",
  "waves": [
   {
@@ -27,7 +27,7 @@
   {
    "name": "Angola",
    "iso3": "AGO",
-   "region": null,
+   "region": "Southern",
    "waves": [
     2022
    ]
@@ -35,7 +35,7 @@
   {
    "name": "Botswana",
    "iso3": "BWA",
-   "region": null,
+   "region": "Southern",
    "waves": [
     2024
    ]
@@ -43,7 +43,7 @@
   {
    "name": "Burkina Faso",
    "iso3": "BFA",
-   "region": null,
+   "region": "Western",
    "waves": [
     2026
    ]
@@ -51,7 +51,7 @@
   {
    "name": "Cameroon",
    "iso3": "CMR",
-   "region": null,
+   "region": "Central",
    "waves": [
     2024
    ]
@@ -59,7 +59,7 @@
   {
    "name": "Chad",
    "iso3": "TCD",
-   "region": null,
+   "region": "Central",
    "waves": [
     2024,
     2026
@@ -68,7 +68,7 @@
   {
    "name": "Congo Brazzaville",
    "iso3": "COG",
-   "region": null,
+   "region": "Central",
    "waves": [
     2020,
     2022,
@@ -79,7 +79,7 @@
   {
    "name": "Côte d'Ivoire",
    "iso3": "CIV",
-   "region": null,
+   "region": "Western",
    "waves": [
     2024
    ]
@@ -87,7 +87,7 @@
   {
    "name": "DRC",
    "iso3": "COD",
-   "region": null,
+   "region": "Central",
    "waves": [
     2022,
     2026
@@ -96,7 +96,7 @@
   {
    "name": "Ethiopia",
    "iso3": "ETH",
-   "region": null,
+   "region": "Eastern",
    "waves": [
     2020,
     2022,
@@ -107,7 +107,7 @@
   {
    "name": "Gabon",
    "iso3": "GAB",
-   "region": null,
+   "region": "Central",
    "waves": [
     2020,
     2022,
@@ -117,7 +117,7 @@
   {
    "name": "Ghana",
    "iso3": "GHA",
-   "region": null,
+   "region": "Western",
    "waves": [
     2020,
     2022,
@@ -128,7 +128,7 @@
   {
    "name": "Kenya",
    "iso3": "KEN",
-   "region": null,
+   "region": "Eastern",
    "waves": [
     2020,
     2022,
@@ -139,7 +139,7 @@
   {
    "name": "Liberia",
    "iso3": "LBR",
-   "region": null,
+   "region": "Western",
    "waves": [
     2026
    ]
@@ -147,7 +147,7 @@
   {
    "name": "Malawi",
    "iso3": "MWI",
-   "region": null,
+   "region": "Southern",
    "waves": [
     2020,
     2022,
@@ -157,7 +157,7 @@
   {
    "name": "Mali",
    "iso3": "MLI",
-   "region": null,
+   "region": "Western",
    "waves": [
     2020
    ]
@@ -165,7 +165,7 @@
   {
    "name": "Mozambique",
    "iso3": "MOZ",
-   "region": null,
+   "region": "Southern",
    "waves": [
     2022,
     2026
@@ -174,7 +174,7 @@
   {
    "name": "Namibia",
    "iso3": "NAM",
-   "region": null,
+   "region": "Southern",
    "waves": [
     2024
    ]
@@ -182,7 +182,7 @@
   {
    "name": "Nigeria",
    "iso3": "NGA",
-   "region": null,
+   "region": "Western",
    "waves": [
     2020,
     2022,
@@ -193,7 +193,7 @@
   {
    "name": "Rwanda",
    "iso3": "RWA",
-   "region": null,
+   "region": "Eastern",
    "waves": [
     2020,
     2022,
@@ -204,7 +204,7 @@
   {
    "name": "Senegal",
    "iso3": "SEN",
-   "region": null,
+   "region": "Western",
    "waves": [
     2020
    ]
@@ -212,7 +212,7 @@
   {
    "name": "Somalia",
    "iso3": "SOM",
-   "region": null,
+   "region": "Eastern",
    "waves": [
     2026
    ]
@@ -220,7 +220,7 @@
   {
    "name": "South Africa",
    "iso3": "ZAF",
-   "region": null,
+   "region": "Southern",
    "waves": [
     2020,
     2022,
@@ -231,7 +231,7 @@
   {
    "name": "Sudan",
    "iso3": "SDN",
-   "region": null,
+   "region": "Eastern",
    "waves": [
     2022
    ]
@@ -239,7 +239,7 @@
   {
    "name": "Tanzania",
    "iso3": "TZA",
-   "region": null,
+   "region": "Eastern",
    "waves": [
     2024
    ]
@@ -247,7 +247,7 @@
   {
    "name": "Togo",
    "iso3": "TGO",
-   "region": null,
+   "region": "Western",
    "waves": [
     2020,
     2026
@@ -256,7 +256,7 @@
   {
    "name": "Uganda",
    "iso3": "UGA",
-   "region": null,
+   "region": "Eastern",
    "waves": [
     2022
    ]
@@ -264,7 +264,7 @@
   {
    "name": "Zambia",
    "iso3": "ZMB",
-   "region": null,
+   "region": "Southern",
    "waves": [
     2020,
     2022,
@@ -275,7 +275,7 @@
   {
    "name": "Zimbabwe",
    "iso3": "ZWE",
-   "region": null,
+   "region": "Southern",
    "waves": [
     2020,
     2026
@@ -1097,7 +1097,12 @@
    "surfaced": true,
    "slide": "Deck slide 6",
    "parent": null,
-   "waves": null
+   "waves": [
+    2020,
+    2022,
+    2024,
+    2026
+   ]
   },
   {
    "code": "T02_Q1",
@@ -1599,7 +1604,9 @@
    "surfaced": true,
    "slide": "Deck slide 18",
    "parent": null,
-   "waves": null
+   "waves": [
+    2026
+   ]
   },
   {
    "code": "T05_Q1",

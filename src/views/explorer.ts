@@ -25,9 +25,10 @@ import {
   buildViewModel, DEFAULT_FILTERS, NOT_TRACKED, type CompareBy, type Filters, type ViewModel,
 } from '../model';
 import type { View } from '../main';
+import { REGIONS } from '../regions';
 import { csvEscape, copyText, downloadBlob, saveAs, slug } from '../ui/download';
 import { toast } from '../ui/toast';
-import { filterBar, multiField, REGIONS } from './filters';
+import { filterBar, multiField } from './filters';
 import { enhance } from './dropdown';
 
 import { showWave } from '../wave-badge';
@@ -562,8 +563,10 @@ function parse(params: URLSearchParams, ordered: Question[]): State {
 
   // A region is a name for a set of countries, so when the link names one, the
   // countries come from it and not from the link. Read separately, a link with
-  // `region=West Africa` and no countries — hand-written, or cut short by a chat
-  // client — showed West Africa as selected over a chart of all sixteen.
+  // `region=Southern` and no countries — hand-written, or cut short by a chat
+  // client — showed Southern as selected over a chart of all sixteen. A name that
+  // is not one of the African Union's regions (an old link's "West Africa") is no
+  // selection at all.
   const inRegion = region in REGIONS
     ? inWave(wave).map((c) => c.name).filter((name) => REGIONS[region]!.includes(name))
     : [];
