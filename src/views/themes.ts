@@ -65,17 +65,18 @@ export function themesView(host: HTMLElement): void {
   // approved prototype's cards opened a drawer. `section` is a section id on that
   // page, not a heading; the Themes card points down this page instead.
   //
-  // `strong` is the part of `sub` PSB asked for in bold on 22 Oct (THE-417): the
-  // latest wave's countries, its respondents and its year. Always text `sub`
-  // already holds, as the portal's StatCard has it.
-  const facts: { label: string; value: string; sub: string; strong?: string; section: string | null; opens: string }[] = [
+  // `sub` is in parts, and a `{ strong }` part is what PSB asked for in bold on
+  // 22 Oct (THE-417): the latest wave's countries, its respondents and its year.
+  // Parts, not a bold string found in the joined text, which would bold its first
+  // match, or nothing once the wording moved, without a word (review of #35).
+  type Part = string | { strong: string };
+  const facts: { label: string; value: string; sub: Part[]; section: string | null; opens: string }[] = [
     {
       label: 'Countries',
       value: String(countries.length),
       // Two lines, as in Rosie's deck, so the number stays with "countries"
       // (Ishwar, THE-401). `.stat .sub` keeps the line break.
-      sub: `Across Sub-Saharan Africa\n${inWave(latestWave).length} countries included in ${latestWave}`,
-      strong: `${inWave(latestWave).length} countries`,
+      sub: ['Across Sub-Saharan Africa\n', { strong: `${inWave(latestWave).length} countries` }, ` included in ${latestWave}`],
       section: 'coverage',
       opens: 'View the countries surveyed, wave by wave',
     },
@@ -86,19 +87,18 @@ export function themesView(host: HTMLElement): void {
       // total is a question with her (9 Oct); it changes only if she says so.
       label: 'Respondents',
       value: n(publishedTotal),
-      sub: `${n(latestCount)} respondents in ${latestWave}`,
-      strong: n(latestCount),
+      sub: [{ strong: n(latestCount) }, ` respondents in ${latestWave}`],
       section: 'overview', opens: 'About the study',
     },
     {
-      label: 'Survey waves', value: String(waves.length), sub: waves.map((w) => w.year).join(' · '),
-      // The latest wave's year, the last listed.
-      strong: String(latestWave),
+      label: 'Survey waves', value: String(waves.length),
+      // Every wave's year, the latest's in bold.
+      sub: waves.flatMap((w, i): Part[] => [...(i > 0 ? [' · '] : []), w.year === latestWave ? { strong: String(w.year) } : String(w.year)]),
       section: 'coverage', opens: 'View the waves',
     },
     {
       // PSB's words of 22 Oct, in place of "From hundreds of questions asked since 2020".
-      label: 'Key themes', value: String(themes.length), sub: `From dozens of topics included across the ${inWords(waves.length)} waves`,
+      label: 'Key themes', value: String(themes.length), sub: [`From dozens of topics included across the ${inWords(waves.length)} waves`],
       section: null, opens: 'Explore by theme',
     },
   ];
@@ -140,14 +140,12 @@ export function themesView(host: HTMLElement): void {
     value.textContent = fact.value;
     const sub = document.createElement('span');
     sub.className = 'sub';
-    const at = fact.strong ? fact.sub.indexOf(fact.strong) : -1;
-    if (fact.strong && at !== -1) {
+    sub.append(...fact.sub.map((part) => {
+      if (typeof part === 'string') return part;
       const bold = document.createElement('strong');
-      bold.textContent = fact.strong;
-      sub.append(fact.sub.slice(0, at), bold, fact.sub.slice(at + fact.strong.length));
-    } else {
-      sub.textContent = fact.sub;
-    }
+      bold.textContent = part.strong;
+      return bold;
+    }));
     left.append(label, value, sub);
     top.append(left);
 

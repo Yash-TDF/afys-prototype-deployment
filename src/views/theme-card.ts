@@ -122,7 +122,9 @@ function gridRowTrend(chart: ChartSpec, model: ViewModel):
 function trendFigures(theme: Theme, of: string, years: number[], values: number[]): ThemeCardFigures {
   const last = values.length - 1;
   // The survey wave before the trend's latest, and the trend's own figure for it, if any. Its
-  // first wave is no second change: the first pill already says it.
+  // first wave is no second change: the first pill already says it. A trend with no figure in that
+  // wave (asked in 2022 and 2026, not 2024) has no second pill, rather than one since another year:
+  // "since 2024" means the same on every tile, as on the portal's (THE-416, review of #35).
   const before = waves.map((w) => w.year).filter((year) => year < years[last]!).sort((a, b) => b - a)[0];
   const previous = before === undefined ? -1 : years.indexOf(before);
   return {
