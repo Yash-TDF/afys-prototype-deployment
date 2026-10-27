@@ -10,19 +10,29 @@
 //     The live prototype's third card leads with "RIGHT DIRECTION 55%", which is
 //     the report's *wrong*-direction number — printed page 18 gives 37% right and
 //     55% wrong — and that card is not reproduced here at any figure.
-//   - The theme cards do carry a generated headline, a delta and a sparkline,
-//     which is the shape the client approved. Every one is illustrative and says
-//     so: the banner above, a chip on each card, and the reading spelled out in
-//     each card's own label. They come from the same buildViewModel the explorer
-//     uses, so a card agrees with the chart it leads to.
+//   - The theme cards do carry a generated headline and a delta, which is the
+//     shape the client approved. Every one is illustrative and says so: the
+//     banner above, a chip on each card, and the reading spelled out in each
+//     card's own label. They come from the same buildViewModel the explorer uses,
+//     so a card agrees with the chart it leads to.
+//   - Each card carries its theme's picture on the right, in PSB's layout of
+//     22 Oct (THE-404), where the line used to be: Michael's mock-up has none.
 //
-// This page loads no charting library, and the sparklines are hand-written SVG —
-// that is the point of them. It also does not wait for the figures: see the
-// dynamic import at the foot of this file.
+// This page loads no charting library. It also does not wait for the figures:
+// see the dynamic import at the foot of this file.
 import { type Theme, countries, fieldwork, inWave, latestWave, themes, waves } from '../content';
+import pictures from '../data/tile-pictures.json';
 import { fmtPct, fmtPts, roundHalfAway } from '../ui/format';
-import { sparkline } from '../ui/sparkline';
 import type { ThemeCardFigures } from './theme-card';
+
+/**
+ * Each theme's picture on its tile (THE-404): PSB's illustration kit of 13 Oct, as supplied and not
+ * recoloured, in public/themes/. The choice is our 14 Oct proposal, which Yash confirmed for the build
+ * on 26 Oct; four are provisional until Rosie answers it, and none is a leader's portrait. The
+ * portal's seed carries the same choice (themes.picture_file, scripts/gen_seeds.py THEME_PICTURE);
+ * once that is merged, tools/build-content.mjs can read it from there and this file can go.
+ */
+const PICTURES: Readonly<Record<string, { file: string; provisional: boolean }>> = pictures;
 
 export function themesView(host: HTMLElement): void {
   host.replaceChildren();
@@ -166,9 +176,26 @@ export function themesView(host: HTMLElement): void {
     top.append(tag, arrow);
 
     // Empty, but present and height-reserved in CSS, so the figures landing a
-    // moment later move nothing on the page.
+    // moment later move nothing on the page. The picture goes in now, on the
+    // right, for the same reason; the figures go in front of it.
     const slot = document.createElement('div');
     slot.className = 'tstats';
+    const picture = PICTURES[theme.slug];
+    if (picture) {
+      // Decoration: the tag above names the theme, and the picture carries no figure. Cropped to one
+      // frame, as PSB asked ("where you need to, crop the images"); landing.css sets each one's focus.
+      const img = document.createElement('img');
+      img.className = 'tpic';
+      img.src = `/themes/${picture.file}`;
+      img.alt = '';
+      img.width = 88;
+      img.height = 96;
+      // As the portal's tile: a picture further down loads as it nears the screen. The width and
+      // height above keep its frame meanwhile, so nothing moves when it arrives.
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      slot.append(img);
+    }
 
     tile.append(top, slot);
     grid.append(tile);
@@ -201,7 +228,8 @@ function fill(
     none.className = 'tstat-none';
     none.textContent = `${theme.charts.length} chart${theme.charts.length === 1 ? '' : 's'} from the deck`;
     left.append(none);
-    slot.append(left);
+    // In front of the picture, if the tile has one (THE-404).
+    slot.prepend(left);
     return;
   }
 
@@ -232,24 +260,9 @@ function fill(
     badge.textContent = figures.note ?? '';
   }
   left.append(badge);
-  slot.append(left);
-
-  if (figures.spark.length >= 2) {
-    // Each tile on its own range, from 20% below its lowest value to 20% above its
-    // highest, kept within 0 to 100 (THE-402). This replaces THE-359's one 0-100
-    // scale for all twelve, from the 28 Sep feedback: on it a 2-point move filled
-    // 2% of the box and every line looked flat. Rosie's 8 Oct deck asked for "more
-    // variance", and Ishwar's 9 Oct note promised her this range. Don't put the
-    // shared scale back: the "since" badge beside each line keeps the real scale.
-    // So a line is read within its tile, never against another tile's.
-    const low = Math.min(...figures.spark);
-    const high = Math.max(...figures.spark);
-    const line = sparkline(figures.spark, {
-      width: 78, height: 36, className: 'tspark', activeIndex: figures.activeIndex,
-      domain: [Math.max(0, 0.8 * low), Math.min(100, 1.2 * high)],
-    });
-    if (line) slot.append(line);
-  }
+  // In front of the picture, which sits on the right where the line used to be: PSB's layout of
+  // 22 Oct has no line (THE-404).
+  slot.prepend(left);
 
   // The third of the three places. This page loads no charting library, so there
   // is no renderer chip to inherit — the card carries its own.

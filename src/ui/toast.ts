@@ -1,7 +1,7 @@
 // A single-slot status message.
 //
 // The element lives in index.html rather than in a view, for the same reason the
-// banner and the sparkline gradient do: the router replaces #view wholesale, and
+// banner does: the router replaces #view wholesale, and
 // a toast raised by an action that changes the route would be destroyed before it
 // could be read.
 //

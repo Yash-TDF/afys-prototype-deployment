@@ -324,10 +324,15 @@ if (twelve) {
   }, theme.slug);
   check(`tile ${theme.order} headlines slide 12's first row, ${expectedRow}`, card.of === expectedRow && card.headline !== null,
     `reads ${JSON.stringify(card.of)}, headline ${card.headline}, note ${JSON.stringify(card.note)}`);
+  // The card draws no line since THE-404, so its trend is what it prints: the row's latest figure,
+  // and the change from the row's first wave to its last (to the tenth, as the card keeps it).
+  const first = trendRow[0];
+  const latest = trendRow[trendRow.length - 1];
   check(`tile ${theme.order}'s trend is that row as slide 12 draws it`,
-    trendRow.length >= 2 && same(card.spark, trendRow.map((p) => p.value))
-      && card.delta?.from === trendRow[0].year && card.delta?.to === trendRow[trendRow.length - 1].year,
-    `spark ${JSON.stringify(card.spark)} from ${card.delta?.from} to ${card.delta?.to}; `
+    trendRow.length >= 2 && card.headline === latest.value
+      && Math.abs((card.delta?.points ?? NaN) - (latest.value - first.value)) <= 0.05
+      && card.delta?.from === first.year && card.delta?.to === latest.year,
+    `headline ${card.headline}, change ${card.delta?.points} from ${card.delta?.from} to ${card.delta?.to}; `
     + `slide 12 ${JSON.stringify(trendRow)}`);
   check(`tile ${theme.order} prints a caption for that row, not "Not tracked"`,
     Boolean(card.caption) && card.printedOf === card.caption && !card.printedNone,

@@ -21,14 +21,12 @@ export interface ThemeCardFigures {
   caption: string | null;
   /** Null unless the theme is tracked across at least two waves. */
   delta: { points: number; from: number; to: number } | null;
-  spark: number[];
-  activeIndex: number;
   /** Said on the card in place of a delta, so an absence is never a zero. */
   note: string | null;
 }
 
 const NOTHING: ThemeCardFigures = {
-  headline: null, of: null, caption: null, delta: null, spark: [], activeIndex: -1, note: null,
+  headline: null, of: null, caption: null, delta: null, note: null,
 };
 
 /**
@@ -128,15 +126,13 @@ function trendFigures(theme: Theme, of: string, years: number[], values: number[
       from: years[0]!,
       to: years[last]!,
     },
-    spark: values,
-    activeIndex: last,
     note: null,
   };
 }
 
 export function themeCardFigures(theme: Theme): ThemeCardFigures {
   // Tracked first: it is the only shape that carries a trend, which is what the
-  // card's delta and sparkline are for.
+  // card's delta is for.
   //
   // But "tracked" in the deck means the question was asked in more than one wave,
   // not that this chart's categories are the waves. T09_Q1 is tracked and

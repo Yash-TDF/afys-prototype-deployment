@@ -79,6 +79,14 @@ The figures are deterministic: the same question, wave, country and option give
 the same number on every machine and every reload, so a screenshot taken today
 still matches the site tomorrow.
 
+**The landing tiles' pictures** (`public/themes/`, THE-404) are PSB's own, from
+their illustration kit of 13 October, as supplied and not recoloured. Which picture
+goes on which tile is `src/data/tile-pictures.json`: our 14 October proposal, as
+Yash confirmed it for the build on 26 October. Four of the twelve (Multilateral
+order, Safety, News and Information, Climate) are provisional until Rosie answers
+that proposal, and none is a leader's portrait. The final portal's seed carries
+the same choice (`themes.picture_file`).
+
 ## What this settles
 
 **Chart.js draws everything the deck asks for.** Bar, horizontal bar, line,
@@ -244,11 +252,12 @@ it rather than guessed at.
 14. The "Right Direction 55%" headline card is gone, and stays gone at any
     figure. 55% is the *wrong*-direction number on the report's printed page 18;
     the right-direction figure is 37%. The summary row carries only facts we can
-    source — 28 countries, 4 waves, 12 themes, 14,000+ respondents — and its one
-    sparkline is the real count of countries per wave.
+    source — 28 countries, 4 waves, 12 themes, 14,000+ respondents — and draws
+    no line: its one line, the real count of countries per wave, came off with
+    Rosie's feedback of 8 October (THE-401).
 
-    The theme cards *do* carry a generated headline, a trend delta and a
-    sparkline, because that is the shape the client approved and round zero is
+    The theme cards *do* carry a generated headline and a trend delta, because
+    that is the shape the client approved and round zero is
     asking them to approve a shape. Each is marked in three places: the banner
     above the page, a chip on the card, and the card's own label, which reads the
     figure out and ends "illustrative figure, not a survey result". They are
@@ -280,12 +289,13 @@ tools/verify-the-383.mjs  browser check: no tracked chart's answers total over 1
 tools/verify-the-386.mjs  browser check: lists rank largest first, scales keep their order
 tools/verify-the-401.mjs  browser check: the landing cards' wording, and no line on a stat card
 tools/verify-the-398.mjs  browser check: one line per question on slides 41 and 45; tables fit a phone
+tools/verify-the-404.mjs  browser check: each landing tile's picture, on the right, cropped, no line
 src/content.ts            the deck, typed
 src/illustrative.ts       the generated figures — deleted when the API is wired up
 src/model.ts              chart spec + filters → view model (shaped like the API response)
 src/aggregate.ts          the only place percentages are combined — never averaged
 src/charts/               Chart.js setup, the value-label plugin, the renderer, hidden answers
-src/ui/                   sparkline · insights · quality · download · toast · drawer · spotlight
+src/ui/                   insights · quality · download · toast · drawer · spotlight
 src/styles/               the stylesheet by section; styles.css is the import list
 src/views/                themes · theme-card · tile · explorer · methodology · filters · dropdown
 ```
