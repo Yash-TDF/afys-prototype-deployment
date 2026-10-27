@@ -22,7 +22,7 @@
 // see the dynamic import at the foot of this file.
 import { type Theme, countries, fieldwork, inWave, latestWave, themes, waves } from '../content';
 import pictures from '../data/tile-pictures.json';
-import { fmtPct, fmtPts, roundHalfAway } from '../ui/format';
+import { fmtPct, fmtPts, inWords, roundHalfAway } from '../ui/format';
 import type { ThemeCardFigures } from './theme-card';
 
 /**
@@ -43,12 +43,13 @@ export function themesView(host: HTMLElement): void {
   h1.className = 'an';
   h1.textContent = 'Survey Overview';
   const lede = document.createElement('p');
-  lede.className = 'an';
+  lede.className = 'an lede';
   lede.textContent =
-    // No respondent count here: beside the Respondents card (published total plus
-    // the 2026 file count) a "14,000+" read as the whole four-wave total.
-    `Explore findings across ${countries.length} countries, from young people `
-    + `aged 18 to 24 surveyed in ${waves.length} waves since ${waves[0]!.year}.`;
+    // PSB's sentence of 22 Oct (THE-417), on one line at desktop width, every number
+    // computed. No respondent count here: beside the Respondents card (published
+    // total plus the 2026 file count) a "14,000+" read as the whole four-wave total.
+    `Explore findings across ${countries.length} countries, from young people aged 18 to 24 `
+    + `interviewed in ${inWords(waves.length)} waves from ${waves[0]!.year} to ${waves[waves.length - 1]!.year}.`;
   intro.append(h1, lede);
 
   const stats = document.createElement('div');
@@ -63,13 +64,19 @@ export function themesView(host: HTMLElement): void {
   // Each card goes to the part of the Methodology page that backs it up, as the
   // approved prototype's cards opened a drawer. `section` is a section id on that
   // page, not a heading; the Themes card points down this page instead.
-  const facts: { label: string; value: string; sub: string; section: string | null; opens: string }[] = [
+  //
+  // `sub` is in parts, and a `{ strong }` part is what PSB asked for in bold on
+  // 22 Oct (THE-417): the latest wave's countries, its respondents and its year.
+  // Parts, not a bold string found in the joined text, which would bold its first
+  // match, or nothing once the wording moved, without a word (review of #35).
+  type Part = string | { strong: string };
+  const facts: { label: string; value: string; sub: Part[]; section: string | null; opens: string }[] = [
     {
       label: 'Countries',
       value: String(countries.length),
       // Two lines, as in Rosie's deck, so the number stays with "countries"
       // (Ishwar, THE-401). `.stat .sub` keeps the line break.
-      sub: `Across Sub-Saharan Africa\n${inWave(latestWave).length} countries included in ${latestWave}`,
+      sub: ['Across Sub-Saharan Africa\n', { strong: `${inWave(latestWave).length} countries` }, ` included in ${latestWave}`],
       section: 'coverage',
       opens: 'View the countries surveyed, wave by wave',
     },
@@ -80,15 +87,18 @@ export function themesView(host: HTMLElement): void {
       // total is a question with her (9 Oct); it changes only if she says so.
       label: 'Respondents',
       value: n(publishedTotal),
-      sub: `${n(latestCount)} respondents in ${latestWave}`,
+      sub: [{ strong: n(latestCount) }, ` respondents in ${latestWave}`],
       section: 'overview', opens: 'About the study',
     },
     {
-      label: 'Survey waves', value: String(waves.length), sub: waves.map((w) => w.year).join(' · '),
+      label: 'Survey waves', value: String(waves.length),
+      // Every wave's year, the latest's in bold.
+      sub: waves.flatMap((w, i): Part[] => [...(i > 0 ? [' · '] : []), w.year === latestWave ? { strong: String(w.year) } : String(w.year)]),
       section: 'coverage', opens: 'View the waves',
     },
     {
-      label: 'Key themes', value: String(themes.length), sub: `From hundreds of questions asked since ${waves[0]!.year}`,
+      // PSB's words of 22 Oct, in place of "From hundreds of questions asked since 2020".
+      label: 'Key themes', value: String(themes.length), sub: [`From dozens of topics included across the ${inWords(waves.length)} waves`],
       section: null, opens: 'Explore by theme',
     },
   ];
@@ -130,7 +140,12 @@ export function themesView(host: HTMLElement): void {
     value.textContent = fact.value;
     const sub = document.createElement('span');
     sub.className = 'sub';
-    sub.textContent = fact.sub;
+    sub.append(...fact.sub.map((part) => {
+      if (typeof part === 'string') return part;
+      const bold = document.createElement('strong');
+      bold.textContent = part.strong;
+      return bold;
+    }));
     left.append(label, value, sub);
     top.append(left);
 
@@ -233,10 +248,14 @@ function fill(
     return;
   }
 
+  // The figure and what it measures, kept together: a tile too narrow for the pills beside its
+  // picture moves them onto their own row, and these two stay beside the picture (landing.css).
+  const figure = document.createElement('div');
+  figure.className = 'tstat-fig';
   const headline = document.createElement('span');
   headline.className = 'tstat-v';
   headline.textContent = fmtPct(figures.headline);
-  left.append(headline);
+  figure.append(headline);
 
   // What the number is: a bare "58%" told the client nothing.
   const caption = figures.caption ?? figures.of;
@@ -244,22 +263,24 @@ function fill(
     const of = document.createElement('span');
     of.className = 'tstat-of';
     of.textContent = caption;
-    left.append(of);
+    figure.append(of);
   }
+  left.append(figure);
 
-  const badge = document.createElement('span');
   if (figures.delta) {
-    const { points, from } = figures.delta;
-    // Direction from the number printed, not the raw one: a 0.4-point fall
-    // prints as 0, and a red "down" pill reading "0pts" contradicts itself.
-    const shown = roundHalfAway(points);
-    badge.className = `tstat-d ${shown > 0 ? 'up' : shown < 0 ? 'down' : 'flat'}`;
-    badge.textContent = `${fmtPts(points)} since ${from}`;
+    // The change since the first wave, then since the wave before the latest, side by
+    // side as PSB's mock-up of 22 Oct draws them (THE-417), at every width.
+    const pills = document.createElement('span');
+    pills.className = 'tstat-pills';
+    pills.append(changePill(figures.delta.points, figures.delta.from));
+    if (figures.recent) pills.append(changePill(figures.recent.points, figures.recent.from));
+    left.append(pills);
   } else {
+    const badge = document.createElement('span');
     badge.className = 'tstat-d flat';
     badge.textContent = figures.note ?? '';
+    left.append(badge);
   }
-  left.append(badge);
   // In front of the picture, which sits on the right where the line used to be: PSB's layout of
   // 22 Oct has no line (THE-404).
   slot.prepend(left);
@@ -271,17 +292,35 @@ function fill(
   chip.textContent = 'Illustrative';
   tile.append(chip);
 
-  const shownPoints = figures.delta ? roundHalfAway(figures.delta.points) : 0;
+  // Both changes in words, as the portal's tile reads them: "58% in 2026, up 3 points
+  // since 2020 and down 1 point since 2024".
   const reading = figures.delta
-    ? `${fmtPct(figures.headline)} in ${figures.delta.to}, `
-      + (shownPoints === 0
-        ? `unchanged since ${figures.delta.from}`
-        : `${shownPoints > 0 ? 'up' : 'down'} ${Math.abs(shownPoints)} point${Math.abs(shownPoints) === 1 ? '' : 's'} since ${figures.delta.from}`)
+    ? `${fmtPct(figures.headline)} in ${figures.delta.to}, ${said(figures.delta.points, figures.delta.from)}`
+      + (figures.recent ? ` and ${said(figures.recent.points, figures.recent.from)}` : '')
     : `${fmtPct(figures.headline)}${figures.note ? `, ${figures.note.toLowerCase()}` : ''}`;
   tile.setAttribute(
     'aria-label',
     `${theme.name}. ${caption ?? 'Illustrative figure'}: ${reading}. Illustrative figure, not a survey result.`,
   );
+}
+
+/** One change, "+3pts since 2024", coloured by the number printed. */
+function changePill(points: number, from: number): HTMLSpanElement {
+  // Direction from the number printed, not the raw one: a 0.4-point fall
+  // prints as 0, and a red "down" pill reading "0pts" contradicts itself.
+  const shown = roundHalfAway(points);
+  const pill = document.createElement('span');
+  pill.className = `tstat-d ${shown > 0 ? 'up' : shown < 0 ? 'down' : 'flat'}`;
+  pill.textContent = `${fmtPts(points)} since ${from}`;
+  return pill;
+}
+
+/** A change in words, from the number printed: "up 3 points since 2020", "unchanged since 2024". */
+function said(points: number, from: number): string {
+  const shown = roundHalfAway(points);
+  return shown === 0
+    ? `unchanged since ${from}`
+    : `${shown > 0 ? 'up' : 'down'} ${Math.abs(shown)} point${Math.abs(shown) === 1 ? '' : 's'} since ${from}`;
 }
 
 function arrowIcon(size: number): SVGSVGElement {

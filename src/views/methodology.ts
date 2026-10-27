@@ -11,20 +11,24 @@
 // question counts was the part they did not want, and it is gone. Everything the
 // drawer said about countries and waves is said here once, from the same data.
 //
-// The interview counts, languages, locations and regions come from
-// `fieldwork` (see content.ts): counted from the delivered survey file and
-// supplied by PSB. They are the only figures on the site that are not
-// illustrative, and the page says which they are.
+// The interview counts, languages and locations come from `fieldwork` (see
+// content.ts): counted from the delivered survey file and supplied by PSB. They
+// are the only figures on the site that are not illustrative, and the page says
+// which they are. The regions are the African Union's, from the portal's seed
+// (src/regions.ts), credited to it as PSB asked (THE-417).
 import { countries, fieldwork, inWave, latestWave, waves, type Country } from '../content';
 import { Chart, registerGeo } from '../charts/setup';
 import { BRAND, mix, NO_DATA } from '../charts/palette';
+import { REGION_SOURCE, REGIONS } from '../regions';
+import { inWords } from '../ui/format';
 import { showWave } from '../wave-badge';
 
 type FeatureLike = { properties: { name: string; surveyName: string | null; waves: number[] } };
 
+// Every country has its languages and locations since PSB's sheet of 30 Sep; kept for one without.
 const AWAITED = 'Awaited from PSB';
-const CHECKING = 'Being checked with PSB';
-const UNGROUPED = 'No agreed region yet';
+// Every seeded country has a region today; the portal's words for one without.
+const UNGROUPED = 'To be added';
 const n = (value: number): string => value.toLocaleString('en-GB');
 
 /** PSB's published total across the waves they have published one for. */
@@ -114,17 +118,14 @@ export function methodologyView(host: HTMLElement, params?: URLSearchParams): { 
       if (!value) dd.className = 'awaited';
       dl.append(dt, dd);
     };
-    // A supplied detail that is being queried with PSB is not shown as fact,
-    // here any more than in the table below: both cells say it is being checked.
-    const queried = Boolean(facts?.query);
-    row('Region', facts?.region, UNGROUPED);
-    row('Languages', queried ? null : facts?.languages, queried ? CHECKING : AWAITED);
-    row('Locations', queried ? null : facts?.locations, queried ? CHECKING : AWAITED);
+    row('Region', country.region, UNGROUPED);
+    row('Languages', facts?.languages, AWAITED);
+    row('Locations', facts?.locations, AWAITED);
     detail.append(dl);
     const note = document.createElement('p');
     note.className = 'note';
-    note.textContent = (facts?.query ? `${facts.query} ` : '')
-      + 'Interviews are unweighted counts from the delivered survey file. Languages and locations are as supplied by PSB.';
+    note.textContent =
+      'Interviews are unweighted counts from the delivered survey file. Languages and locations are as supplied by PSB.';
     detail.append(note);
   };
 
@@ -274,7 +275,8 @@ function section(id: string, heading: string, content: HTMLElement, className: s
 
 function overview(): HTMLElement {
   // The published total, 2020 to 2024, is PSB's own figure; the 2026 count is
-  // ours from the file and has no published total to stand against yet.
+  // ours from the file and has no published total to stand against yet. PSB asked
+  // on 22 Oct for the row not to say so (THE-417).
   const latest = fieldwork.waves[String(latestWave)];
   const table = document.createElement('table');
   const tbody = document.createElement('tbody');
@@ -282,7 +284,7 @@ function overview(): HTMLElement {
     ['Respondents', 'Aged 18 to 24'],
     ['Countries', `${countries.length} across ${waves.length} waves`],
     ['Latest wave', `${latestWave} · ${inWave(latestWave).length} countries`],
-    ['Interviews', `${n(publishedTotal())} published, 2020 to 2024 · ${n(latest?.interviews ?? 0)} in ${latestWave} (file count; no published total)`],
+    ['Interviews', `${n(publishedTotal())} published, 2020 to 2024 · ${n(latest?.interviews ?? 0)} in ${latestWave}`],
     ['Fielded by', 'PSB Insights'],
   ];
   for (const [term, value] of rows) {
@@ -386,22 +388,23 @@ function coverageTable(): HTMLElement {
   return wrap;
 }
 
-/** PSB's four 2026 groups, and the earlier-wave markets that have no agreed region yet. */
+/**
+ * The African Union's regions, every country of every wave in one, credited to the African Union
+ * with its own page, as PSB asked on 22 Oct (THE-417). Never credited to PSB.
+ */
 function regions(): HTMLElement {
   const wrap = document.createElement('div');
-  const intro = document.createElement('p');
-  intro.textContent = 'The regional grouping PSB gave for the 2026 markets.';
-  wrap.append(intro);
   const grid = document.createElement('div');
   grid.className = 'region-grid';
-  for (const region of fieldwork.regions) {
+  const alphabetically = (list: Country[]): string[] => list.map((c) => c.name).sort((a, b) => a.localeCompare(b));
+  for (const region of REGIONS) {
     const box = document.createElement('div');
     box.className = 'region';
-    box.setAttribute('data-region', region.name);
+    box.setAttribute('data-region', region);
     const h3 = document.createElement('h3');
-    h3.textContent = region.name;
+    h3.textContent = region;
     const ul = document.createElement('ul');
-    for (const name of region.countries) {
+    for (const name of alphabetically(countries.filter((c) => c.region === region))) {
       const li = document.createElement('li');
       li.textContent = name;
       ul.append(li);
@@ -410,19 +413,32 @@ function regions(): HTMLElement {
     grid.append(box);
   }
   wrap.append(grid);
-  const grouped = new Set(fieldwork.regions.flatMap((r) => r.countries));
-  const pending = [...countries].filter((c) => !grouped.has(c.name)).map((c) => c.name).sort((a, b) => a.localeCompare(b));
+  // Every seeded country has a region today. One without is named here, as its panel on the map
+  // says "To be added", rather than missing from the list without a word (review of #35).
+  const unplaced = alphabetically(countries.filter((c) => !c.region));
+  if (unplaced.length > 0) {
+    const none = document.createElement('p');
+    none.className = 'note';
+    none.setAttribute('data-no-region', '');
+    none.textContent = `Region to be added: ${unplaced.join(', ')}.`;
+    wrap.append(none);
+  }
+  // The portal's wording (RegionTable, THE-414).
   const note = document.createElement('p');
   note.className = 'note';
-  note.setAttribute('data-ungrouped', '');
-  note.textContent =
-    `${pending.length} markets surveyed only in earlier waves have no agreed region yet (open with PSB): `
-    + `${pending.join(', ')}.`;
+  const source = document.createElement('a');
+  source.href = REGION_SOURCE.url;
+  source.rel = 'noopener noreferrer';
+  source.textContent = REGION_SOURCE.name;
+  note.append('Regions as defined by the ', source, '. Explore can show any one of them.');
   wrap.append(note);
   return wrap;
 }
 
-/** Languages and locations per country, exactly as PSB supplied them; gaps are said, not filled. */
+/**
+ * Languages and locations per country, as PSB supplied them on 30 Sep with the spellings they
+ * corrected on 22 Oct (tools/build-fieldwork.py); a gap is said, not filled.
+ */
 function fieldworkTable(): HTMLElement {
   const wrap = document.createElement('div');
   const table = document.createElement('table');
@@ -438,13 +454,10 @@ function fieldworkTable(): HTMLElement {
     const tdWaves = document.createElement('td');
     tdWaves.className = 'waves';
     tdWaves.textContent = country.waves.join(', ');
-    // A row PSB is being asked about shows neither cell as fact.
-    const queried = Boolean(facts?.query);
     const cell = (value: string | null | undefined): HTMLTableCellElement => {
       const td = document.createElement('td');
-      const shown = queried ? null : value;
-      td.textContent = shown ?? (queried ? CHECKING : AWAITED);
-      if (!shown) td.className = 'awaited';
+      td.textContent = value ?? AWAITED;
+      if (!value) td.className = 'awaited';
       return td;
     };
     tr.append(th, tdWaves, cell(facts?.languages), cell(facts?.locations));
@@ -452,14 +465,11 @@ function fieldworkTable(): HTMLElement {
   }
   table.append(thead, tbody);
   wrap.append(table);
+  // PSB's answer of 22 Oct, in place of the note that asked: "All interviews face to face in all
+  // waves. … Please update and remove comment."
   const note = document.createElement('p');
   note.className = 'note';
-  const queried = Object.entries(fieldwork.countries).filter(([, c]) => c.query).map(([name, c]) => `${name}: ${c.query}`);
-  note.textContent =
-    'As supplied by PSB on 28 September 2026, spellings included; those we would ask PSB to confirm are Kibi, '
-    + "N'jamena, Sahr, KiyarRwanda, Mombassa and Khatoum North. The method used in each wave (face to face or "
-    + 'telephone) and whether coverage was national or urban are awaited. '
-    + queried.join(' ');
+  note.textContent = `All interviews were face to face, in all ${inWords(waves.length)} waves.`;
   wrap.append(note);
   return wrap;
 }
@@ -471,8 +481,9 @@ function figuresNote(): HTMLElement {
     'Every percentage on this site is generated for layout. None of it is a survey '
     + 'result, and nothing here should be read as one. The structure — the themes, '
     + 'the questions, the countries and the waves — comes from the client’s own '
-    + 'Portal Content deck, and the interview counts, languages, locations and regions '
-    + 'on this page are the only figures taken from the survey files and from PSB.';
+    + 'Portal Content deck, and the interview counts, languages and locations on this '
+    + 'page are the only figures taken from the survey files and from PSB. The regions '
+    + 'are the African Union’s.';
   wrap.append(p);
   return wrap;
 }

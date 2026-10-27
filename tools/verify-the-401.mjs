@@ -3,7 +3,9 @@
 // - no stat card draws a line (the Countries card's went);
 // - the Countries card reads "Across Sub-Saharan Africa · 16 countries included in 2026";
 // - the Respondents card's text is only "4,901 respondents in 2026";
-// - "THEMES" becomes "KEY THEMES", "From hundreds of questions asked since 2020";
+// - "THEMES" becomes "KEY THEMES", now reading "From dozens of topics included across the four
+//   waves", PSB's words of 22 Oct (THE-417), in place of Rosie's "From hundreds of questions
+//   asked since 2020";
 // - the "12 themes" label above the tiles goes.
 //
 // Read-only for the repo. Run with the prototype served (`pnpm exec vite`), then
@@ -25,7 +27,7 @@ const WANT = {
   respondentsSub: '4,901 respondents in 2026',
   respondentsValue: '14,311',
   themesLabel: 'KEY THEMES',
-  themesSub: 'From hundreds of questions asked since 2020',
+  themesSub: 'From dozens of topics included across the four waves',
   themesValue: '12',
   heading: 'Explore by Theme',
 };
@@ -52,20 +54,35 @@ const landing = (page) => page.evaluate(() => {
       fits = [...range.getClientRects()].every((r) => r.left >= box.left - 0.5 && r.right <= box.right + 0.5);
     }
     // Where a count of countries is painted: on one line with its noun, and below
-    // the text before it.
+    // the text before it. Measured across the line's text nodes, since the count is
+    // in bold, an element of its own, since THE-417.
     let count = null;
-    const text = sub?.firstChild;
-    const at = text?.textContent?.search(/\d+ countries/) ?? -1;
+    const nodes = [];
+    if (sub) {
+      const walk = document.createTreeWalker(sub, NodeFilter.SHOW_TEXT);
+      for (let node = walk.nextNode(); node; node = walk.nextNode()) nodes.push(node);
+    }
+    const whole = nodes.map((node) => node.textContent).join('');
+    const at = whole.search(/\d+ countries/);
     if (at > 0) {
+      // A character offset in the whole line, as a node and an offset in it.
+      const point = (offset) => {
+        let left = offset;
+        for (const node of nodes) {
+          if (left <= node.textContent.length) return [node, left];
+          left -= node.textContent.length;
+        }
+        return [nodes.at(-1), nodes.at(-1).textContent.length];
+      };
       const top = (from, to) => {
         const r = document.createRange();
-        r.setStart(text, from);
-        r.setEnd(text, to);
+        r.setStart(...point(from));
+        r.setEnd(...point(to));
         return [...r.getClientRects()].filter((x) => x.width > 0).map((x) => Math.round(x.top));
       };
-      const number = top(at, at + text.textContent.slice(at).indexOf('countries') + 'countries'.length);
+      const number = top(at, at + whole.slice(at).indexOf('countries') + 'countries'.length);
       // The words before the count, without the space, dot or break between them.
-      const before = top(0, text.textContent.slice(0, at).replace(/[\s·]+$/, '').length);
+      const before = top(0, whole.slice(0, at).replace(/[\s·]+$/, '').length);
       count = { withNoun: new Set(number).size === 1, ownLine: number.length > 0 && before.length > 0 && Math.min(...number) > Math.max(...before) };
     }
     return {

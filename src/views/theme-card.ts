@@ -8,7 +8,7 @@
 // The approved prototype derives these from `Math.sin(idx * 17 + 3)` against a
 // hardcoded array of twelve numbers, unrelated to any question, and returns three
 // waves where we have four. None of that survives.
-import { type ChartSpec, type Theme, latestWave, question, rowName } from '../content';
+import { type ChartSpec, type Theme, latestWave, question, rowName, waves } from '../content';
 import { combine } from '../aggregate';
 import { type ViewModel, buildViewModel, DEFAULT_FILTERS, partsFor } from '../model';
 
@@ -21,12 +21,19 @@ export interface ThemeCardFigures {
   caption: string | null;
   /** Null unless the theme is tracked across at least two waves. */
   delta: { points: number; from: number; to: number } | null;
+  /**
+   * The change since the survey wave before the latest ("since 2024"), from the same line as
+   * `delta`, as PSB's mock-up of 22 Oct asks (THE-417) and the portal's tile draws it (THE-416).
+   * Null where the line has no figure for that wave, or where that wave is its first, since
+   * `delta` already says that.
+   */
+  recent: { points: number; from: number } | null;
   /** Said on the card in place of a delta, so an absence is never a zero. */
   note: string | null;
 }
 
 const NOTHING: ThemeCardFigures = {
-  headline: null, of: null, caption: null, delta: null, note: null,
+  headline: null, of: null, caption: null, delta: null, recent: null, note: null,
 };
 
 /**
@@ -111,9 +118,15 @@ function gridRowTrend(chart: ChartSpec, model: ViewModel):
   return { label, years: kept.map((p) => p.year), values: kept.map((p) => p.value as number) };
 }
 
-/** A trend's figures for the card: the latest value, and the change since the first. */
+/** A trend's figures for the card: the latest value, the change since the first, and since the wave before the latest. */
 function trendFigures(theme: Theme, of: string, years: number[], values: number[]): ThemeCardFigures {
   const last = values.length - 1;
+  // The survey wave before the trend's latest, and the trend's own figure for it, if any. Its
+  // first wave is no second change: the first pill already says it. A trend with no figure in that
+  // wave (asked in 2022 and 2026, not 2024) has no second pill, rather than one since another year:
+  // "since 2024" means the same on every tile, as on the portal's (THE-416, review of #35).
+  const before = waves.map((w) => w.year).filter((year) => year < years[last]!).sort((a, b) => b - a)[0];
+  const previous = before === undefined ? -1 : years.indexOf(before);
   return {
     headline: values[last]!,
     of,
@@ -126,6 +139,9 @@ function trendFigures(theme: Theme, of: string, years: number[], values: number[
       from: years[0]!,
       to: years[last]!,
     },
+    recent: previous > 0
+      ? { points: Math.round((values[last]! - values[previous]!) * 10) / 10, from: before! }
+      : null,
     note: null,
   };
 }

@@ -5,22 +5,17 @@
 //   - The country list is the countries surveyed in the selected wave, not all
 //     twenty-eight. Offering a country that was never asked produces an empty
 //     chart, and an empty chart is indistinguishable from a real finding of zero.
-//   - There is no "North Africa" region. The survey does not cover it; the
-//     prototype the client saw offered it, which is a promise we cannot keep.
+//   - The regions are the African Union's, from the portal's seed (src/regions.ts),
+//     as PSB asked on 22 Oct (THE-417). A wave offers only the regions it surveyed
+//     a country in, so Northern, where the survey has none, is never offered.
 //   - What counts as an applied filter is written down once, in FIELDS below.
 //     The approved prototype lists its filters in three places — the pill row,
 //     the count, and the clear-everything button — and they have already drifted
 //     apart there. Adding one here touches one list.
 import { countries, inWave, waves, type Country } from '../content';
 import type { CompareBy, Filters } from '../model';
+import { REGIONS } from '../regions';
 import { enhance, multiPicker } from './dropdown';
-
-export const REGIONS: Record<string, string[]> = {
-  'West Africa': ['Benin', 'Burkina Faso', "Côte d'Ivoire", 'Gambia', 'Ghana', 'Guinea', 'Liberia', 'Mali', 'Mauritania', 'Niger', 'Nigeria', 'Senegal', 'Sierra Leone', 'Togo'],
-  'East Africa': ['Burundi', 'Djibouti', 'Eritrea', 'Ethiopia', 'Kenya', 'Rwanda', 'Somalia', 'South Sudan', 'Sudan', 'Tanzania', 'Uganda'],
-  'Central Africa': ['Angola', 'Cameroon', 'Central African Republic', 'Chad', 'Congo Brazzaville', 'DRC', 'Equatorial Guinea', 'Gabon'],
-  'Southern Africa': ['Botswana', 'Eswatini', 'Lesotho', 'Madagascar', 'Malawi', 'Mauritius', 'Mozambique', 'Namibia', 'South Africa', 'Zambia', 'Zimbabwe'],
-};
 
 export interface FilterOptions {
   /** Hide the wave control where a chart plots every wave anyway. */
@@ -63,8 +58,10 @@ const FIELDS: FilterField[] = [
   {
     key: 'scope',
     // Region and country set the same underlying list, so they share one pill:
-    // "West Africa" if that is how it was chosen, otherwise the countries.
-    pill: (f) => f.region
+    // "Southern region" if that is how it was chosen, otherwise the countries. The
+    // African Union's names are one word each, so the pill says what they are, as
+    // the portal's does.
+    pill: (f) => (f.region ? `${f.region} region` : null)
       || (f.countries.length === 1 ? f.countries[0]!
         : f.countries.length > 1 ? `${f.countries.length} countries` : null),
     clear: (f) => ({ ...f, region: '', countries: [] }),
@@ -138,8 +135,8 @@ export function filterBar(
   }
 
   const surveyed = inWave(current.wave);
-  const regionOptions = Object.keys(REGIONS)
-    .filter((region) => surveyed.some((c) => REGIONS[region]!.includes(c.name)))
+  const regionOptions = REGIONS
+    .filter((region) => surveyed.some((c) => c.region === region))
     .map((region) => ({ value: region, label: region }));
 
   bar.append(select(
@@ -147,7 +144,7 @@ export function filterBar(
     [{ value: '', label: 'All regions' }, ...regionOptions],
     current.region,
     (value) => {
-      const names = value ? surveyed.filter((c) => REGIONS[value]!.includes(c.name)).map((c) => c.name) : [];
+      const names = value ? surveyed.filter((c) => c.region === value).map((c) => c.name) : [];
       onChange({ ...current, countries: names, region: value });
     },
   ));
@@ -157,7 +154,7 @@ export function filterBar(
     surveyed.map((c) => c.name),
     current.countries,
     // Choosing countries by hand drops the region: the two set the same list, and
-    // a pill still claiming "West Africa" over a hand-picked selection would be
+    // a pill still claiming "Southern region" over a hand-picked selection would be
     // describing something that is no longer true.
     (names) => onChange({ ...current, countries: names, region: '' }),
   ));
@@ -200,7 +197,7 @@ export function filterBar(
 function rescope(current: Filters, wave: number): Pick<Filters, 'countries' | 'region'> {
   const surveyed = inWave(wave);
   if (current.region) {
-    const names = surveyed.filter((c) => REGIONS[current.region]!.includes(c.name)).map((c) => c.name);
+    const names = surveyed.filter((c) => c.region === current.region).map((c) => c.name);
     return names.length > 0
       ? { countries: names, region: current.region }
       : { countries: [], region: '' };

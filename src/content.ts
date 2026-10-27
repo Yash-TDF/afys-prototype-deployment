@@ -96,22 +96,20 @@ export const likeForLike = (years: number[]): Country[] =>
 
 /**
  * Who was asked, counted and as supplied. Built by tools/build-fieldwork.py
- * from three sources it names in `source`: the delivered four-wave survey file
- * (interviews per country and wave, unweighted rows), PSB's languages-and-locations
- * list of 28 September (cell text as supplied, gaps left as null), and PSB's four
- * regional groups of 23 September. The generator refuses to write unless the
- * file's country-waves equal the seeded membership above, so a count here can
- * never disagree with `countries[].waves`. These are counts of interviews, not
- * survey results, and the only figures on the site that are not illustrative.
+ * from two sources it names in `source`: the delivered four-wave survey file
+ * (interviews per country and wave, unweighted rows), and PSB's updated
+ * languages-and-locations list of 30 September, with the corrections PSB asked
+ * for on 22 October (THE-417). The generator refuses to write unless the file's
+ * country-waves equal the seeded membership above, so a count here can never
+ * disagree with `countries[].waves`. These are counts of interviews, not survey
+ * results, and the only figures on the site that are not illustrative. The
+ * regions are each country's own, from the seed (src/regions.ts).
  */
 export interface CountryFieldwork {
   /** Interviews achieved, keyed by wave year as a string. */
   interviews: Record<string, number>;
   languages: string | null;
   locations: string | null;
-  region: string | null;
-  /** What is open with PSB about this country's supplied detail; the page shows it as being checked. */
-  query: string | null;
 }
 export interface WaveFieldwork {
   interviews: number;
@@ -122,7 +120,6 @@ export interface WaveFieldwork {
 export interface Fieldwork {
   source: Record<string, string>;
   waves: Record<string, WaveFieldwork>;
-  regions: { name: string; countries: string[] }[];
   countries: Record<string, CountryFieldwork>;
 }
 export const fieldwork = fieldworkRaw as Fieldwork;

@@ -36,6 +36,7 @@ Other scripts:
 | `node tools/verify-the-386.mjs` | in a browser: lists drawn as bars rank largest first, with Don't know, Other and None last, and a list over time draws its three largest answers, checked against every answer it leaves out; answer scales keep their order |
 | `node tools/verify-the-401.mjs` | in a browser: the landing page's four cards read as Rosie's 8 Oct deck asks, and no stat card draws a line, at 1280 and 390px |
 | `node tools/verify-the-398.mjs` | in a browser: slides 41 and 45 draw one line per question, refuse a split by sex, share no base, and their tiles read their first line; at phone width no table runs off the screen |
+| `node tools/verify-the-417.mjs` | in a browser: PSB's 22 Oct feedback, every point: the footer, the landing's wording and bold, each tile's change since 2024, the African Union's regions on Methodology and in Explore, the Interviews row, and the corrected fieldwork, at 1280 and 390px |
 
 `pnpm content` reads `../afys-portal/db/seeds/*.sql` and the portal's
 `pipeline/mappings/crosswave.csv`, so the two directories have to sit side by
@@ -227,7 +228,9 @@ it rather than guessed at.
 2. Tile detail pages exist, with the deck's own charts and caveats on them
 3. A methodology view exists — who was asked, in which wave, on a map
 4. Ranked and radar views are gone; nothing in the deck asks for them
-5. "North Africa" is gone from the region filter; the survey does not cover it
+5. "North Africa" is gone from the region filter; the survey does not cover it.
+   The regions are the African Union's, from the portal's seed, for every wave
+   (THE-417)
 6. Country lists follow the selected wave, so a country that was never asked
    cannot be selected into an empty chart
 7. Cross-wave charts carry the like-for-like restriction as a footnote
@@ -290,6 +293,8 @@ tools/verify-the-386.mjs  browser check: lists rank largest first, scales keep t
 tools/verify-the-401.mjs  browser check: the landing cards' wording, and no line on a stat card
 tools/verify-the-398.mjs  browser check: one line per question on slides 41 and 45; tables fit a phone
 tools/verify-the-404.mjs  browser check: each landing tile's picture, on the right, cropped, no line
+tools/verify-the-417.mjs  browser check: PSB's feedback of 22 Oct, every point
+src/regions.ts            the African Union's regions, from the seed
 src/content.ts            the deck, typed
 src/illustrative.ts       the generated figures — deleted when the API is wired up
 src/model.ts              chart spec + filters → view model (shaped like the API response)
