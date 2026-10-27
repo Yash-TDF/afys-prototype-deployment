@@ -21,12 +21,28 @@ export function regionsInOrder(regions: Iterable<string>): string[] {
 }
 
 /**
- * Each region's countries, every wave's, alphabetically, regions in the African Union's order. A
- * country with no region is left out rather than put somewhere.
+ * The regions the survey's countries are in, every wave's, in the African Union's order. A region's
+ * countries are those whose own `region` names it: each country carries one, so there is no second
+ * list to keep. A country with no region is in none of them.
  */
-export const REGIONS: Readonly<Record<string, string[]>> = Object.fromEntries(
-  regionsInOrder(countries.flatMap((c) => (c.region ? [c.region] : []))).map((region) => [
-    region,
-    countries.filter((c) => c.region === region).map((c) => c.name).sort((a, b) => a.localeCompare(b)),
-  ]),
-);
+export const REGIONS: readonly string[] = regionsInOrder(countries.flatMap((c) => (c.region ? [c.region] : [])));
+
+/**
+ * The four regions the review link offered before PSB asked for the African Union's, by the AU region
+ * each became, so a link shared with one still opens on a region rather than on every country (review
+ * of #35, Yash 27 Oct). In every wave each holds the same countries surveyed as before, except 2022's
+ * Angola, which the old list put in Central Africa and the AU puts in Southern. A Map, not an object:
+ * a link's text is looked up in it, and an object answers to `toString` too.
+ */
+const FORMER = new Map([
+  ['West Africa', 'Western'],
+  ['East Africa', 'Eastern'],
+  ['Central Africa', 'Central'],
+  ['Southern Africa', 'Southern'],
+]);
+
+/** The region a link names, by its name or a former one; null for anything that isn't one. */
+export function regionNamed(name: string): string | null {
+  const region = FORMER.get(name) ?? name;
+  return REGIONS.includes(region) ? region : null;
+}

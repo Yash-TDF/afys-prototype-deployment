@@ -10,13 +10,17 @@
 //   theme page draws;
 // - Methodology: the African Union's regions for every country, past waves included, in the AU's
 //   order and credited to it with its link; no Northern; no "no agreed region yet" note; the
-//   map's country panel names each country's region;
+//   map's country panel names each country's region; a country without a region is named, not
+//   left out;
 // - the Study overview's Interviews row has no "(file count; no published total)";
 // - Languages and locations: Michael's five spellings corrected; Tanzania, Mali and Senegal the
 //   right way round; nothing awaited or being checked; face to face in all four waves; the old
 //   comment gone;
 // - Explore: the Region field offers each wave's AU regions, earlier waves included; choosing one
-//   selects exactly its countries surveyed in that wave, and it stays chosen.
+//   selects exactly its countries surveyed in that wave, and it stays chosen. A link naming one of the
+//   four regions the review link offered before (West Africa and so on) opens on the AU region it
+//   became, and one naming anything else, `toString` included, opens on every country without an
+//   error (review of #35).
 //
 // Read-only for the repo. Run with the prototype served (`pnpm exec vite`), then
 //   node tools/verify-the-417.mjs [--url http://localhost:5173]
@@ -282,6 +286,7 @@ for (const width of [1280, 1100, 768, 390]) {
       regionsText: sec?.textContent ?? '',
       au: [...(sec?.querySelectorAll('a') ?? [])].map((a) => [a.getAttribute('href'), a.textContent]),
       ungrouped: Boolean(document.querySelector('[data-ungrouped]')),
+      noRegion: document.querySelector('[data-no-region]')?.textContent ?? null,
       overview: rows(document.getElementById('m-overview')),
       fieldwork: rows(fw),
       fieldworkText: fw?.textContent ?? '',
@@ -296,6 +301,11 @@ for (const width of [1280, 1100, 768, 390]) {
     m.au.some(([href, text]) => href === AU_URL && text === 'African Union') && !/PSB gave|grouping PSB/i.test(m.regionsText), { au: m.au });
   check('the note on earlier-wave markets with "no agreed region yet" is gone',
     !m.ungrouped && !/no agreed region/i.test(m.page), m.ungrouped);
+  // None has one today; the line is there so that one without a region is said, not dropped.
+  const unplaced = content.countries.filter((c) => !c.region).map((c) => c.name);
+  check(`a country without a region is named under the regions, not left out (${unplaced.length} today)`,
+    unplaced.length === 0 ? m.noRegion === null : m.noRegion !== null && unplaced.every((name) => m.noRegion.includes(name)),
+    { noRegion: m.noRegion, unplaced });
   const interviews = m.overview.find(([term]) => term === 'Interviews')?.[1] ?? null;
   const published = Object.values(fieldwork.waves).reduce((s, w) => s + (w.published ?? 0), 0);
   check('the Study overview\'s Interviews row no longer says "(file count; no published total)"',
@@ -337,9 +347,8 @@ for (const width of [1280, 1100, 768, 390]) {
 }
 
 // ---- Explore -------------------------------------------------------------------------------
-{
-  const page = await open(1280, '#/explore');
-  const field = () => page.evaluate(() => {
+// The Region field, the countries chosen, the filter pills and the link, as Explore shows them.
+const regionField = (page) => page.evaluate(() => {
     const label = [...document.querySelectorAll('label.field')].find((l) => l.querySelector('span')?.textContent === 'Region');
     const select = label?.querySelector('select');
     const trigger = [...document.querySelectorAll('.picker-trigger')].find((b) => (b.getAttribute('aria-label') ?? '').startsWith('Country:'));
@@ -350,8 +359,12 @@ for (const width of [1280, 1100, 768, 390]) {
       countries: trigger ? trigger.getAttribute('aria-label').replace(/^Country: /, '') : null,
       pills: [...document.querySelectorAll('.ftag')].map((b) => b.textContent.replace('×', '').trim()),
       hash: location.hash,
+      drawn: Boolean(document.querySelector('.explorer-header')),
     };
   });
+{
+  const page = await open(1280, '#/explore');
+  const field = () => regionField(page);
   const offered = {};
   for (const year of years) {
     await page.goto(`${BASE}/#/explore?wave=${year}`);
@@ -389,6 +402,41 @@ for (const width of [1280, 1100, 768, 390]) {
   const first = await field();
   check('the Region field\'s default reads "All regions"', first.first === 'All regions', first.first);
   await page.close();
+}
+
+// A link from before the African Union's regions names one of the four the review link offered, and
+// opens on the region it became, with that region's countries surveyed in the link's wave (review of
+// #35, Yash 27 Oct). A name that is no region opens on every country and doesn't break the page: the
+// first four below are names every plain object answers to.
+const FORMER = [['West Africa', 'Western'], ['East Africa', 'Eastern'], ['Central Africa', 'Central'], ['Southern Africa', 'Southern']];
+{
+  const wrong = [];
+  for (const name of ['toString', 'constructor', '__proto__', 'hasOwnProperty', 'Atlantis']) {
+    const before = errors.length;
+    const page = await open(1280, `#/explore?region=${encodeURIComponent(name)}`);
+    const now = await regionField(page);
+    if (errors.length !== before || !now.drawn || now.value !== '' || now.pills.length !== 0) wrong.push({ name, now, errors: errors.slice(before) });
+    await page.close();
+  }
+  check('a link naming no region (toString, constructor, __proto__, hasOwnProperty, Atlantis) opens Explore on every country, without a page error',
+    wrong.length === 0, wrong);
+  const missed = [];
+  let reached = 0;
+  for (const [old, region] of FORMER) {
+    for (const year of years) {
+      const want = inWave(year).filter((c) => c.region === region).map((c) => c.name).sort();
+      const page = await open(1280, `#/explore?wave=${year}&region=${encodeURIComponent(old)}`);
+      const now = await regionField(page);
+      const chosen = (now.countries ?? '').split(', ').filter(Boolean).sort();
+      if (want.length > 0) reached += 1;
+      if (!(want.length > 0 && now.value === region && now.pills.includes(`${region} region`) && JSON.stringify(chosen) === JSON.stringify(want))) {
+        missed.push({ old, year, want, now });
+      }
+      await page.close();
+    }
+  }
+  check(`a link naming one of the four former regions opens on the African Union region it became, in each wave (${reached} of ${FORMER.length * years.length} links have a region to reach)`,
+    missed.length === 0 && reached === FORMER.length * years.length, missed);
 }
 
 check('no page errors', errors.length === 0, errors);

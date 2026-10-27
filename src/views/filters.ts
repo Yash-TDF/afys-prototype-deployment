@@ -135,8 +135,8 @@ export function filterBar(
   }
 
   const surveyed = inWave(current.wave);
-  const regionOptions = Object.keys(REGIONS)
-    .filter((region) => surveyed.some((c) => REGIONS[region]!.includes(c.name)))
+  const regionOptions = REGIONS
+    .filter((region) => surveyed.some((c) => c.region === region))
     .map((region) => ({ value: region, label: region }));
 
   bar.append(select(
@@ -144,7 +144,7 @@ export function filterBar(
     [{ value: '', label: 'All regions' }, ...regionOptions],
     current.region,
     (value) => {
-      const names = value ? surveyed.filter((c) => REGIONS[value]!.includes(c.name)).map((c) => c.name) : [];
+      const names = value ? surveyed.filter((c) => c.region === value).map((c) => c.name) : [];
       onChange({ ...current, countries: names, region: value });
     },
   ));
@@ -197,7 +197,7 @@ export function filterBar(
 function rescope(current: Filters, wave: number): Pick<Filters, 'countries' | 'region'> {
   const surveyed = inWave(wave);
   if (current.region) {
-    const names = surveyed.filter((c) => REGIONS[current.region]!.includes(c.name)).map((c) => c.name);
+    const names = surveyed.filter((c) => c.region === current.region).map((c) => c.name);
     return names.length > 0
       ? { countries: names, region: current.region }
       : { countries: [], region: '' };

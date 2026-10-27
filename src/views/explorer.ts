@@ -25,7 +25,7 @@ import {
   buildViewModel, DEFAULT_FILTERS, NOT_TRACKED, type CompareBy, type Filters, type ViewModel,
 } from '../model';
 import type { View } from '../main';
-import { REGIONS } from '../regions';
+import { regionNamed } from '../regions';
 import { csvEscape, copyText, downloadBlob, saveAs, slug } from '../ui/download';
 import { toast } from '../ui/toast';
 import { filterBar, multiField } from './filters';
@@ -555,7 +555,7 @@ function parse(params: URLSearchParams, ordered: Question[]): State {
   const kind = params.get('chart');
   const waveParam = Number(params.get('wave'));
   const gender = params.get('gender');
-  const region = params.get('region') ?? '';
+  const region = regionNamed(params.get('region') ?? '');
   const compare = params.get('cmp');
 
   const wave = waves.some((w) => w.year === waveParam) ? waveParam : DEFAULT_FILTERS.wave;
@@ -564,12 +564,10 @@ function parse(params: URLSearchParams, ordered: Question[]): State {
   // A region is a name for a set of countries, so when the link names one, the
   // countries come from it and not from the link. Read separately, a link with
   // `region=Southern` and no countries — hand-written, or cut short by a chat
-  // client — showed Southern as selected over a chart of all sixteen. A name that
-  // is not one of the African Union's regions (an old link's "West Africa") is no
-  // selection at all.
-  const inRegion = region in REGIONS
-    ? inWave(wave).map((c) => c.name).filter((name) => REGIONS[region]!.includes(name))
-    : [];
+  // client — showed Southern as selected over a chart of all sixteen. An old link's
+  // "West Africa" is read as the African Union region it became (src/regions.ts);
+  // a name that is no region at all is no selection.
+  const inRegion = region === null ? [] : inWave(wave).filter((c) => c.region === region).map((c) => c.name);
 
   return settle({
     code: ordered.some((q) => q.code === code) ? code! : ordered[0]!.code,
@@ -584,7 +582,7 @@ function parse(params: URLSearchParams, ordered: Question[]): State {
         : params.getAll('country').filter((name) => surveyed.has(name)),
       gender: GENDERS.includes(gender as Filters['gender']) ? gender as Filters['gender'] : 'all',
       // A region with nobody surveyed in this wave is not a selection.
-      region: inRegion.length > 0 ? region : '',
+      region: inRegion.length > 0 ? region! : '',
       compare: COMPARES.includes(compare as CompareBy) ? compare as CompareBy : 'none',
     },
     // Repeated, like the countries. settle() keeps only answers this chart has.

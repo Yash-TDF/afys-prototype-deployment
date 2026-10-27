@@ -396,14 +396,15 @@ function regions(): HTMLElement {
   const wrap = document.createElement('div');
   const grid = document.createElement('div');
   grid.className = 'region-grid';
-  for (const [region, names] of Object.entries(REGIONS)) {
+  const alphabetically = (list: Country[]): string[] => list.map((c) => c.name).sort((a, b) => a.localeCompare(b));
+  for (const region of REGIONS) {
     const box = document.createElement('div');
     box.className = 'region';
     box.setAttribute('data-region', region);
     const h3 = document.createElement('h3');
     h3.textContent = region;
     const ul = document.createElement('ul');
-    for (const name of names) {
+    for (const name of alphabetically(countries.filter((c) => c.region === region))) {
       const li = document.createElement('li');
       li.textContent = name;
       ul.append(li);
@@ -412,6 +413,16 @@ function regions(): HTMLElement {
     grid.append(box);
   }
   wrap.append(grid);
+  // Every seeded country has a region today. One without is named here, as its panel on the map
+  // says "To be added", rather than missing from the list without a word (review of #35).
+  const unplaced = alphabetically(countries.filter((c) => !c.region));
+  if (unplaced.length > 0) {
+    const none = document.createElement('p');
+    none.className = 'note';
+    none.setAttribute('data-no-region', '');
+    none.textContent = `Region to be added: ${unplaced.join(', ')}.`;
+    wrap.append(none);
+  }
   // The portal's wording (RegionTable, THE-414).
   const note = document.createElement('p');
   note.className = 'note';
