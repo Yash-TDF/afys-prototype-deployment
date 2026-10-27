@@ -20,9 +20,10 @@ Sources
      - Mali's and Senegal's two cells are read the other way round: that sheet has their
        places under Languages and their languages under Locations, and our note of 5 Oct told
        PSB we read them so. Tanzania's, swapped in the 28 Sep sheet, come right in this one.
-     - The five spellings PSB corrected on 22 Oct (Michael: "the locations are typos, please
-       update") are corrected. Each must be found as supplied, so a later sheet that already
-       has one right stops the build rather than passing it by.
+     - The six spellings PSB corrected on 22 Oct (Michael: "the locations are typos, please
+       update") are corrected: five places and one language, Rwanda's Kinyarwanda, all six in
+       CORRECTIONS below. Each must be found as supplied, so a later sheet that already has one
+       right stops the build rather than passing it by.
 
 The regions are no longer here: they are the African Union's, from the portal's seed, in
 content.json (src/regions.ts, THE-417).

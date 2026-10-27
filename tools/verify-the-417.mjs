@@ -13,9 +13,9 @@
 //   map's country panel names each country's region; a country without a region is named, not
 //   left out;
 // - the Study overview's Interviews row has no "(file count; no published total)";
-// - Languages and locations: Michael's five spellings corrected; Tanzania, Mali and Senegal the
-//   right way round; nothing awaited or being checked; face to face in all four waves; the old
-//   comment gone;
+// - Languages and locations: Michael's six spellings corrected (five places, one language);
+//   Tanzania, Mali and Senegal the right way round; nothing awaited or being checked; face to face
+//   in all four waves; the old comment gone;
 // - Explore: the Region field offers each wave's AU regions, earlier waves included; choosing one
 //   selects exactly its countries surveyed in that wave, and it stays chosen. A link naming one of the
 //   four regions the review link offered before (West Africa and so on) opens on the AU region it
@@ -312,7 +312,7 @@ for (const width of [1280, 1100, 768, 390]) {
     interviews === `${n(published)} published, 2020 to 2024 · ${n(fieldwork.waves[String(latest)].interviews)} in ${latest}`, interviews);
   const rowOf = Object.fromEntries(m.fieldwork.map(([name, , languages, locations]) => [name, { languages, locations }]));
   const spellings = SPELLINGS.filter(([country, column, now, was]) => !rowOf[country]?.[column]?.includes(now) || was.test(rowOf[country]?.[column] ?? ''));
-  check('Michael\'s five spellings are corrected: Kribi, N\'Djamena and Sarh, Mombasa, Khartoum North, Kinyarwanda',
+  check('Michael\'s six spellings are corrected: Kribi, N\'Djamena and Sarh, Mombasa, Khartoum North, Kinyarwanda',
     spellings.length === 0, spellings.map(([c, col]) => [c, col, rowOf[c]?.[col]]));
   const round = ROUND.filter(([country, place, language]) => !rowOf[country]?.locations.includes(place) || !rowOf[country]?.languages.includes(language));
   check('Tanzania, Mali and Senegal read the right way round: places as locations, languages as languages',
