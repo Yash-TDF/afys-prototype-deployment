@@ -4,7 +4,8 @@
 //   "2026" are bold in their cards; Key themes reads "From dozens of topics included across the
 //   four waves";
 // - each tile shows its change since the wave before its latest ("since 2024") beside its first,
-//   on one row at 1280, coloured by the number printed and read out in the tile's label, and only
+//   on one row at every width (Yash, 27 Oct: a narrow tile gives them their own row under the
+//   picture rather than stacking them), coloured by the number printed and read out in the tile's label, and only
 //   where the trend has a figure for that wave that isn't its first. Each pair matches a line its
 //   theme page draws;
 // - Methodology: the African Union's regions for every country, past waves included, in the AU's
@@ -19,7 +20,8 @@
 //
 // Read-only for the repo. Run with the prototype served (`pnpm exec vite`), then
 //   node tools/verify-the-417.mjs [--url http://localhost:5173]
-// At 1280 and 390px where layout matters. Exits 1 on any failure.
+// At 1280 and 390px where layout matters; the tiles also at 1100 and 768, where a tile is narrower than
+// at 1280. Exits 1 on any failure.
 import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
 
@@ -155,7 +157,7 @@ const said = (shown, from) => (shown === 0
 const direction = (shown) => (shown > 0 ? 'up' : shown < 0 ? 'down' : 'flat');
 const PILL = /^([+-]?\d+)pts? since (\d{4})$/;
 const tilesAt = {};
-for (const width of [1280, 390]) {
+for (const width of [1280, 1100, 768, 390]) {
   const page = await open(width, '#/');
   tilesAt[width] = await page.evaluate(() => [...document.querySelectorAll('a.tile')].map((t) => {
     const r = t.getBoundingClientRect();
@@ -205,10 +207,8 @@ for (const width of [1280, 390]) {
   const two = tiles.filter((t) => t.pills.length === 2);
   check(`${at}, the check reached tiles with two pills (${two.length}) and every tile kept its Illustrative chip`,
     two.length > 0 && tiles.every((t) => t.headline === null || t.chip === 'Illustrative'), tiles.map((t) => [t.slug, t.pills.length, t.chip]));
-  if (width === 1280) {
-    check(`${at}, every tile's two pills share one row`, two.every((t) => Math.abs(t.pills[0].top - t.pills[1].top) <= 1),
-      two.filter((t) => Math.abs(t.pills[0].top - t.pills[1].top) > 1).map((t) => [t.slug, t.pills]));
-  }
+  check(`${at}, every tile's two pills share one row`, two.every((t) => Math.abs(t.pills[0].top - t.pills[1].top) <= 1),
+    two.filter((t) => Math.abs(t.pills[0].top - t.pills[1].top) > 1).map((t) => [t.slug, t.pills]));
   check(`${at}, the figures' text stays inside its tile, and there's no sideways scroll`,
     tiles.every((t) => t.inside) && overflow <= 0, { overflow, outside: tiles.filter((t) => !t.inside).map((t) => t.slug) });
   await page.close();

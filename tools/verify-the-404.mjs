@@ -4,7 +4,8 @@
 // - on the right of the figure and inside its tile, in an 88x96 frame, cropped (object-fit: cover)
 //   from the side Yash chose on 26 Oct;
 // - laid out as the portal's tile: the figure at the foot, the picture centred beside it, 8px
-//   apart, and loading lazily;
+//   apart, and loading lazily. A tile narrower than at 1280 gives the change (pills or note) its
+//   own row under both, so the pills keep theirs (THE-417, Yash 27 Oct);
 // - no line on any tile, as the mock-up has none; the figure, its "since" pill and the
 //   Illustrative chip stay;
 // - the picture is placed before the figures land, so nothing moves when they do;
@@ -12,7 +13,7 @@
 //
 // Read-only for the repo. Run with the prototype served (`pnpm exec vite`), then
 //   node tools/verify-the-404.mjs [--url http://localhost:5173]
-// At 1280 and 390px. Exits 1 on any failure.
+// At 1280, 768 and 390px. Exits 1 on any failure.
 import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
 
@@ -37,7 +38,7 @@ const check = (name, pass, detail) => {
   console.log(`${pass ? 'PASS' : 'FAIL'}  ${name}${pass ? '' : ` — ${JSON.stringify(detail).slice(0, 400)}`}`);
 };
 
-for (const width of [1280, 390]) {
+for (const width of [1280, 768, 390]) {
   const page = await browser.newPage({ viewport: { width, height: 1100 } });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const errors = [];
@@ -71,13 +72,24 @@ for (const width of [1280, 390]) {
     const sr = slot?.getBoundingClientRect();
     const ss = slot ? getComputedStyle(slot) : null;
     const cs = img ? getComputedStyle(img) : null;
+    // The figure and its caption, and the change under them (pills, or a note). In a tile narrower
+    // than at 1280 the change has its own row, under the figure and the picture.
+    const fig = (t.querySelector('.tstat-fig') ?? t.querySelector('.tstat-l'))?.getBoundingClientRect();
+    const change = (t.querySelector('.tstat-pills') ?? t.querySelector('.tstat-l > .tstat-d'))?.getBoundingClientRect();
+    const own = Boolean(change && ir && change.top >= ir.bottom - 0.5);
+    // The row the figure shares with the picture: below the rule and padding, down to the slot's foot,
+    // or with the change on its own row, down to the lower of the figure and the picture.
+    const rowTop = sr && ss ? sr.top + parseFloat(ss.borderTopWidth) + parseFloat(ss.paddingTop) : null;
+    const rowBottom = own ? Math.max(fig?.bottom ?? 0, ir.bottom) : sr?.bottom;
     return {
       lazy: img?.loading === 'lazy',
       layout: [ss?.alignItems, cs?.alignSelf, ss?.columnGap].join(' '),
-      // The figure sits at the foot of the row, and the picture at its middle (below the rule and padding).
-      foot: Boolean(left && sr && Math.abs(left.bottom - sr.bottom) <= 1),
-      centred: Boolean(ir && sr && ss && Math.abs((ir.top + ir.bottom) / 2
-        - (sr.top + parseFloat(ss.borderTopWidth) + parseFloat(ss.paddingTop) + sr.bottom) / 2) <= 1),
+      own,
+      // The figure sits at the foot of its row, and the picture at the row's middle. With the change on
+      // its own row, that row is at the slot's foot.
+      foot: Boolean(sr && (own ? fig && Math.abs(fig.bottom - rowBottom) <= 1 && Math.abs(change.bottom - sr.bottom) <= 1
+        : left && Math.abs(left.bottom - sr.bottom) <= 1)),
+      centred: Boolean(ir && rowTop !== null && Math.abs((ir.top + ir.bottom) / 2 - (rowTop + rowBottom) / 2) <= 1),
       slug: (t.getAttribute('href') ?? '').replace('#/theme/', ''),
       imgs: imgs.length,
       file: img?.getAttribute('src')?.split('/').pop() ?? null,
@@ -86,7 +98,7 @@ for (const width of [1280, 390]) {
       box: ir ? [Math.round(ir.width), Math.round(ir.height)] : null,
       fit: cs?.objectFit,
       pos: cs?.objectPosition,
-      right: Boolean(ir && left && ir.left >= left.right - 0.5),
+      right: Boolean(ir && fig && fig.width > 0 && ir.left >= fig.right - 0.5),
       inside: Boolean(ir && ir.left >= r.left && ir.right <= r.right + 0.5 && ir.top >= r.top && ir.bottom <= r.bottom + 0.5),
       lines: t.querySelectorAll('svg polyline').length,
       headline: t.querySelector('.tstat-v')?.textContent ?? null,
@@ -109,6 +121,8 @@ for (const width of [1280, 390]) {
   check(`${at}, laid out as the portal's tile: the figure at the foot, the picture centred beside it, 8px apart, loading lazily`,
     tiles.every((t) => t.lazy && t.layout === 'flex-end center 8px' && t.foot && t.centred),
     tiles.filter((t) => !(t.lazy && t.layout === 'flex-end center 8px' && t.foot && t.centred)).map((t) => [t.slug, t.lazy, t.layout, t.foot, t.centred]));
+  check(`${at}, the change (pills or note) sits ${width < 1280 ? 'on its own row, under the figure and the picture' : 'under the figure, beside the picture'}`,
+    tiles.every((t) => t.headline === null || t.own === (width < 1280)), tiles.filter((t) => t.headline !== null && t.own !== (width < 1280)).map((t) => t.slug));
   check(`${at}, no tile draws a line`, tiles.every((t) => t.lines === 0), tiles.filter((t) => t.lines > 0).map((t) => t.slug));
   check(`${at}, every tile with a figure keeps its "since" pill and its Illustrative chip`,
     tiles.every((t) => t.headline === null || (t.pill !== null && t.chip === 'Illustrative')),

@@ -61,6 +61,9 @@
 
 .tile {
   position: relative;
+  /* A container, so the figure row can lay itself out by the tile's own width: the grid's
+     columns, not the window, decide it (see .tstat-pills). */
+  container-type: inline-size;
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -199,6 +202,7 @@
 .tpic[src$="/asset-19.svg"] { object-position: 0% 50%; }
 .tpic[src$="/asset-8.svg"], .tpic[src$="/asset-9.svg"] { object-position: 100% 50%; }
 .tstat-l { display: grid; gap: 4px; min-width: 0; }
+.tstat-fig { display: grid; gap: 4px; min-width: 0; }
 .tstat-v { font-size: 26px; font-weight: 800; color: var(--green); line-height: 1; letter-spacing: -0.02em; }
 /* What the number measures, in a sentence: "African Continent is going in the right direction". */
 .tstat-of { font-size: 12px; line-height: 1.3; color: var(--muted); font-weight: 500; }
@@ -216,8 +220,22 @@
 .tstat-d.down { background: rgba(232, 83, 106, 0.10); color: var(--rose); }
 .tstat-d.flat { background: var(--tag); color: var(--muted); }
 /* The two changes side by side, as PSB's mock-up of 22 Oct draws them (THE-417), with the
-   portal's gap (#97). At 1280 a tile's figure has about 237px beside its picture; a phone may
-   stack them. */
+   portal's gap (#97). At 1280 a tile's figure has about 235px beside its picture, and the widest
+   pair needs 230px. */
 .tstat-pills { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+
+/* A tile narrower than at 1280px wide has too little room beside its picture, and the pills
+   stacked: at 768 and 390, and from 1072 to about 1270px wide, where the grid draws three
+   narrower columns. There the change takes its own row, under the figure and the picture, so the
+   pills stay side by side (Yash, 27 Oct). The figure stays at the foot of the picture's row, and
+   the reserved height grows by that row (115 + 8 + a 24px pill), so nothing moves when the
+   figures land. */
+@container (max-width: 330px) {
+  .tile .tstats { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: start; min-height: 147px; }
+  .tile .tstat-l { display: contents; }
+  .tile .tpic { grid-column: 2; grid-row: 1; }
+  .tile .tstat-fig, .tile .tstat-none { grid-column: 1; grid-row: 1; }
+  .tile .tstat-pills, .tile .tstat-l > .tstat-d { grid-column: 1 / -1; grid-row: 2; margin-top: 0; }
+}
 
 .tile .chip { align-self: flex-start; margin-top: 14px; }

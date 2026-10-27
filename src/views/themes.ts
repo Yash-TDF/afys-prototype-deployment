@@ -250,10 +250,14 @@ function fill(
     return;
   }
 
+  // The figure and what it measures, kept together: a tile too narrow for the pills beside its
+  // picture moves them onto their own row, and these two stay beside the picture (landing.css).
+  const figure = document.createElement('div');
+  figure.className = 'tstat-fig';
   const headline = document.createElement('span');
   headline.className = 'tstat-v';
   headline.textContent = fmtPct(figures.headline);
-  left.append(headline);
+  figure.append(headline);
 
   // What the number is: a bare "58%" told the client nothing.
   const caption = figures.caption ?? figures.of;
@@ -261,12 +265,13 @@ function fill(
     const of = document.createElement('span');
     of.className = 'tstat-of';
     of.textContent = caption;
-    left.append(of);
+    figure.append(of);
   }
+  left.append(figure);
 
   if (figures.delta) {
     // The change since the first wave, then since the wave before the latest, side by
-    // side as PSB's mock-up of 22 Oct draws them (THE-417); a phone may stack them.
+    // side as PSB's mock-up of 22 Oct draws them (THE-417), at every width.
     const pills = document.createElement('span');
     pills.className = 'tstat-pills';
     pills.append(changePill(figures.delta.points, figures.delta.from));
