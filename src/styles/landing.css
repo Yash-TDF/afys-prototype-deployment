@@ -196,11 +196,10 @@
    88x96 as in the portal, so the pills beside it keep their row (Yash, 26 Oct).
    The centre suits most; five read better from another side, the same five as
    the portal's: the phone selfie and the speaker from the top, the van from its
-   front, the two people and the skyline from the right. */
+   front, the two people and the skyline from the right. Those five sides are
+   each picture's `focus` in tile-pictures.json, set on the picture itself, so a
+   new picture needs no rule here (review of #34). */
 .tpic { width: 88px; height: 96px; object-fit: cover; object-position: 50% 50%; flex-shrink: 0; align-self: center; }
-.tpic[src$="/asset-7.svg"], .tpic[src$="/asset-34.svg"] { object-position: 50% 0%; }
-.tpic[src$="/asset-19.svg"] { object-position: 0% 50%; }
-.tpic[src$="/asset-8.svg"], .tpic[src$="/asset-9.svg"] { object-position: 100% 50%; }
 .tstat-l { display: grid; gap: 4px; min-width: 0; }
 .tstat-fig { display: grid; gap: 4px; min-width: 0; }
 .tstat-v { font-size: 26px; font-weight: 800; color: var(--green); line-height: 1; letter-spacing: -0.02em; }

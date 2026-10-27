@@ -2,7 +2,7 @@
 // - one picture per tile, the file src/data/tile-pictures.json names for its theme, loaded, as
 //   decoration (alt="");
 // - on the right of the figure and inside its tile, in an 88x96 frame, cropped (object-fit: cover)
-//   from the side Yash chose on 26 Oct;
+//   from the side tile-pictures.json gives it (`focus`, as Yash chose on 26 Oct), the centre otherwise;
 // - laid out as the portal's tile: the figure at the foot, the picture centred beside it, 8px
 //   apart, and loading lazily. A tile narrower than at 1280 gives the change (pills or note) its
 //   own row under both, so the pills keep theirs (THE-417, Yash 27 Oct);
@@ -24,9 +24,10 @@ const urlAt = argv.indexOf('--url');
 const BASE = (urlAt >= 0 ? argv[urlAt + 1] : (process.env.BASE_URL ?? 'http://localhost:5173')).replace(/\/$/, '');
 
 const PICTURES = JSON.parse(readFileSync(new URL('../src/data/tile-pictures.json', import.meta.url), 'utf8'));
-// The side each picture is cropped from (Yash, 26 Oct, the same as the portal's); the centre otherwise.
-const FOCUS = { 'asset-7.svg': '50% 0%', 'asset-34.svg': '50% 0%', 'asset-19.svg': '0% 50%', 'asset-8.svg': '100% 50%', 'asset-9.svg': '100% 50%' };
-const focusOf = (file) => FOCUS[file] ?? '50% 50%';
+// The side each picture is cropped from: its `focus` in tile-pictures.json, the centre otherwise.
+// Read from the data the page reads, so a new picture needs no edit here (review of #34); that the
+// crops are the portal's too is docs/THE-404's check, which reads the portal's CSS.
+const focusOf = (slug) => PICTURES[slug]?.focus ?? '50% 50%';
 
 const browser = await pw.chromium.launch(process.env.CHROME_PATH
   ? { headless: true, executablePath: process.env.CHROME_PATH }
@@ -116,8 +117,8 @@ for (const width of [1280, 768, 390]) {
   check(`${at}, each picture sits right of the figure, inside its tile`, tiles.every((t) => t.right && t.inside),
     tiles.filter((t) => !t.right || !t.inside).map((t) => t.slug));
   check(`${at}, every frame is 88x96, cropped not stretched, from its chosen side`,
-    tiles.every((t) => t.box?.[0] === 88 && t.box?.[1] === 96 && t.fit === 'cover' && t.pos === focusOf(t.file)),
-    tiles.filter((t) => !(t.box?.[0] === 88 && t.box?.[1] === 96 && t.fit === 'cover' && t.pos === focusOf(t.file))).map((t) => [t.slug, t.box, t.fit, t.pos]));
+    tiles.every((t) => t.box?.[0] === 88 && t.box?.[1] === 96 && t.fit === 'cover' && t.pos === focusOf(t.slug)),
+    tiles.filter((t) => !(t.box?.[0] === 88 && t.box?.[1] === 96 && t.fit === 'cover' && t.pos === focusOf(t.slug))).map((t) => [t.slug, t.box, t.fit, t.pos]));
   check(`${at}, laid out as the portal's tile: the figure at the foot, the picture centred beside it, 8px apart, loading lazily`,
     tiles.every((t) => t.lazy && t.layout === 'flex-end center 8px' && t.foot && t.centred),
     tiles.filter((t) => !(t.lazy && t.layout === 'flex-end center 8px' && t.foot && t.centred)).map((t) => [t.slug, t.lazy, t.layout, t.foot, t.centred]));
