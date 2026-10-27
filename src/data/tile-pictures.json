@@ -1,14 +1,14 @@
 {
-  "afro-optimism": { "file": "asset-6.svg", "provisional": false },
-  "foreign-relations": { "file": "asset-23.svg", "provisional": false },
-  "the-multilateral-order": { "file": "asset-31.svg", "provisional": true },
-  "democracy-and-governance": { "file": "asset-32.svg", "provisional": false },
-  "safety-security-and-extremism": { "file": "asset-37.svg", "provisional": true },
-  "identity-and-emigration": { "file": "asset-19.svg", "provisional": false },
-  "identity-and-social-justice": { "file": "asset-8.svg", "provisional": false },
-  "connected-africa": { "file": "asset-7.svg", "provisional": false },
-  "news-trust-and-the-fake-news-crisis": { "file": "asset-45.svg", "provisional": true },
-  "government-satisfaction": { "file": "asset-34.svg", "provisional": false },
-  "climate-change": { "file": "asset-48.svg", "provisional": true },
-  "environmental-realities": { "file": "asset-9.svg", "provisional": false }
+  "afro-optimism": { "file": "asset-6.svg" },
+  "foreign-relations": { "file": "asset-23.svg" },
+  "the-multilateral-order": { "file": "asset-31.svg" },
+  "democracy-and-governance": { "file": "asset-32.svg" },
+  "safety-security-and-extremism": { "file": "asset-37.svg" },
+  "identity-and-emigration": { "file": "asset-19.svg", "focus": "0% 50%" },
+  "identity-and-social-justice": { "file": "asset-8.svg", "focus": "100% 50%" },
+  "connected-africa": { "file": "asset-7.svg", "focus": "50% 0%" },
+  "news-trust-and-the-fake-news-crisis": { "file": "asset-45.svg" },
+  "government-satisfaction": { "file": "asset-34.svg", "focus": "50% 0%" },
+  "climate-change": { "file": "asset-48.svg" },
+  "environmental-realities": { "file": "asset-9.svg", "focus": "100% 50%" }
 }

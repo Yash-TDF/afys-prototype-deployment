@@ -28,11 +28,17 @@ import type { ThemeCardFigures } from './theme-card';
 /**
  * Each theme's picture on its tile (THE-404): PSB's illustration kit of 13 Oct, as supplied and not
  * recoloured, in public/themes/. The choice is our 14 Oct proposal, which Yash confirmed for the build
- * on 26 Oct; four are provisional until Rosie answers it, and none is a leader's portrait. The
- * portal's seed carries the same choice (themes.picture_file, scripts/gen_seeds.py THEME_PICTURE);
- * once that is merged, tools/build-content.mjs can read it from there and this file can go.
+ * on 26 Oct, and none is a leader's portrait. Four stand in until Rosie answers it (the-multilateral-
+ * order, safety-security-and-extremism, news-trust-and-the-fake-news-crisis, climate-change): that is
+ * hers to settle in the proposal, not the tile's to say, so the tile doesn't mark them (review of #34).
+ *
+ * `focus` is the side a picture is cropped from where the centre doesn't suit it, as Yash chose on
+ * 26 Oct and as the portal crops the same files. It sits with the file, so a new picture brings its
+ * crop with it (review of #34). The portal's seed carries the same files (themes.picture_file,
+ * scripts/gen_seeds.py THEME_PICTURE); once that is merged, tools/build-content.mjs can read them
+ * from there, and only the crops need stay here.
  */
-const PICTURES: Readonly<Record<string, { file: string; provisional: boolean }>> = pictures;
+const PICTURES: Readonly<Record<string, { file: string; focus?: string }>> = pictures;
 
 export function themesView(host: HTMLElement): void {
   host.replaceChildren();
@@ -198,10 +204,12 @@ export function themesView(host: HTMLElement): void {
     const picture = PICTURES[theme.slug];
     if (picture) {
       // Decoration: the tag above names the theme, and the picture carries no figure. Cropped to one
-      // frame, as PSB asked ("where you need to, crop the images"); landing.css sets each one's focus.
+      // frame, as PSB asked ("where you need to, crop the images"), from the side its `focus` gives;
+      // landing.css's centre otherwise.
       const img = document.createElement('img');
       img.className = 'tpic';
       img.src = `/themes/${picture.file}`;
+      if (picture.focus) img.style.objectPosition = picture.focus;
       img.alt = '';
       img.width = 88;
       img.height = 96;
