@@ -335,7 +335,8 @@ if (twelve) {
     `headline ${card.headline}, change ${card.delta?.points} from ${card.delta?.from} to ${card.delta?.to}; `
     + `slide 12 ${JSON.stringify(trendRow)}`);
   check(`tile ${theme.order} prints a caption for that row, not "Not tracked"`,
-    Boolean(card.caption) && card.printedOf === card.caption && !card.printedNone,
+    // The caption, then since THE-416 " · N countries asked in every wave" where there is a change.
+    Boolean(card.caption) && (card.printedOf ?? '').split(' · ')[0] === card.caption && !card.printedNone,
     `caption ${JSON.stringify(card.caption)}, printed ${JSON.stringify(card.printedOf)}, none ${JSON.stringify(card.printedNone)}`);
 } else {
   check('tile 3 headlines slide 12\'s first row', true,

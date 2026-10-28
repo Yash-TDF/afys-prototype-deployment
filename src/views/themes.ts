@@ -265,12 +265,16 @@ function fill(
   headline.textContent = fmtPct(figures.headline);
   figure.append(headline);
 
-  // What the number is: a bare "58%" told the client nothing.
+  // What the number is: a bare "58%" told the client nothing. Where there is a change, with the
+  // countries both changes compare, on screen as on the portal's tile: "… · 8 countries asked in
+  // every wave", the set its chart compares, which can be fewer than the latest wave surveyed
+  // (THE-416, Yash 28 Oct).
   const caption = figures.caption ?? figures.of;
+  const compared = figures.delta && figures.countries ? everyWave(figures.countries) : null;
   if (caption) {
     const of = document.createElement('span');
     of.className = 'tstat-of';
-    of.textContent = caption;
+    of.textContent = compared ? `${caption} · ${compared}` : caption;
     figure.append(of);
   }
   left.append(figure);
@@ -300,10 +304,11 @@ function fill(
   chip.textContent = 'Illustrative';
   tile.append(chip);
 
-  // Both changes in words, as the portal's tile reads them: "58% in 2026, up 3 points
-  // since 2020 and down 1 point since 2024".
+  // Both changes in words, as the portal's tile reads them: "58% in 2026, across the 8 countries
+  // asked in every wave, up 3 points since 2020 and down 1 point since 2024".
+  const where = compared && figures.countries ? `, across the ${figures.countries} ${figures.countries === 1 ? 'country' : 'countries'} asked in every wave` : '';
   const reading = figures.delta
-    ? `${fmtPct(figures.headline)} in ${figures.delta.to}, ${said(figures.delta.points, figures.delta.from)}`
+    ? `${fmtPct(figures.headline)} in ${figures.delta.to}${where}, ${said(figures.delta.points, figures.delta.from)}`
       + (figures.recent ? ` and ${said(figures.recent.points, figures.recent.from)}` : '')
     : `${fmtPct(figures.headline)}${figures.note ? `, ${figures.note.toLowerCase()}` : ''}`;
   tile.setAttribute(
@@ -311,6 +316,9 @@ function fill(
     `${theme.name}. ${caption ?? 'Illustrative figure'}: ${reading}. Illustrative figure, not a survey result.`,
   );
 }
+
+/** "8 countries asked in every wave", "1 country asked in every wave", as the portal's tile says it. */
+const everyWave = (n: number): string => `${n} ${n === 1 ? 'country' : 'countries'} asked in every wave`;
 
 /** One change, "+3pts since 2024", coloured by the number printed. */
 function changePill(points: number, from: number): HTMLSpanElement {

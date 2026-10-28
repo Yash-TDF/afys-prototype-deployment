@@ -170,6 +170,7 @@ for (const width of [1280, 1100, 768, 390]) {
       slug: (t.getAttribute('href') ?? '').replace('#/theme/', ''),
       label: t.getAttribute('aria-label') ?? '',
       headline: t.querySelector('.tstat-v')?.textContent ?? null,
+      of: t.querySelector('.tstat-of')?.textContent ?? null,
       note: t.querySelector('.tstat-l > .tstat-d')?.textContent ?? null,
       pills: pills.map((p) => ({ text: p.textContent, cls: p.className, top: Math.round(p.getBoundingClientRect().top) })),
       inside: [...t.querySelectorAll('.tstat-l *')].every((el) => {
@@ -209,6 +210,28 @@ for (const width of [1280, 1100, 768, 390]) {
   check(`${at}, each tile with a trend has its change since its first wave, and its change since the wave before its latest exactly where the trend starts earlier; each pill coloured by its printed number and read out in the tile's label`,
     wrong.length === 0, wrong);
   const two = tiles.filter((t) => t.pills.length === 2);
+  // THE-416 (Yash, 28 Oct): a tile with a change names the countries both changes compare, as the
+  // portal's tile does: those surveyed in every wave of its trend, from its first pill's year to
+  // its latest. A tile without a change names none.
+  if (width === 1280) {
+    const named = [];
+    for (const t of tiles) {
+      if (t.headline === null) continue;
+      if (t.pills.length === 0) {
+        if (/asked in every wave/.test(`${t.of} ${t.label}`)) named.push([t.slug, 'a tile without a change names a set', t.of]);
+        continue;
+      }
+      const from = Number(t.pills[0].text.match(PILL)?.[2]);
+      const to = Number(t.label.match(/ in (\d{4}),/)?.[1]);
+      const span = years.filter((y) => y >= from && y <= to);
+      const n = content.countries.filter((c) => span.every((y) => c.waves.includes(y))).length;
+      const set = `${n} ${n === 1 ? 'country' : 'countries'} asked in every wave`;
+      if (!t.of?.endsWith(` · ${set}`)) named.push([t.slug, `caption should end "· ${set}"`, t.of]);
+      if (!t.label.includes(` in ${to}, across the ${set},`)) named.push([t.slug, 'the label does not name the set', t.label]);
+    }
+    check(`${at}, each tile with a change names the countries both changes compare beside its figure and in its label, and a tile without one names none (THE-416)`,
+      named.length === 0, named);
+  }
   check(`${at}, the check reached tiles with two pills (${two.length}) and every tile kept its Illustrative chip`,
     two.length > 0 && tiles.every((t) => t.headline === null || t.chip === 'Illustrative'), tiles.map((t) => [t.slug, t.pills.length, t.chip]));
   check(`${at}, every tile's two pills share one row`, two.every((t) => Math.abs(t.pills[0].top - t.pills[1].top) <= 1),
