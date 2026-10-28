@@ -66,7 +66,7 @@
 
 /* Quieter than the three section links, because it is not navigation — nobody
    comes here to sign out. Same shape, so it still reads as part of the row. */
-.site-nav a.sign-out { font-size: 13px; color: var(--faint); }
+.site-nav a.sign-out { font-size: 13px; color: var(--muted); }
 .site-nav a.sign-out:hover { color: var(--ink); }
 
 .wave-pill {
@@ -91,7 +91,7 @@ main:focus { outline: none; }
   max-width: 1360px;
   margin: 0 auto;
   padding: 0 40px 48px;
-  color: var(--faint);
+  color: var(--muted);
   font-size: 12.5px;
 }
 .site-footer p { margin: 2px 0; }

@@ -28,12 +28,17 @@
   --ground: #faf8f4;
   --card: #fefdfb;
   --ink: #1e293b;
-  --muted: #7c8794;
+  /* Secondary text: 5.2:1 on the page, 5.4 on cards (THE-234; was #7c8794, 3.4:1). */
+  --muted: #5f6a77;
   --faint: #a8b0ba;
   --green: #1a3a2a;
   --green-mid: #2f7a5a;
   --gold: #d4a338;
   --rose: #e8536a;
+  /* Text in the green and the rose, where the plain colours are too pale on their tinted grounds
+     (THE-234): --green-mid on --mint is 4.4:1, --rose on its tint 3.1. */
+  --green-ink: #2a6a4e;
+  --rose-ink: #a04a54;
   --line: rgba(0, 0, 0, 0.05);
   --line-strong: rgba(0, 0, 0, 0.1);
   --tag: #f0ece4;

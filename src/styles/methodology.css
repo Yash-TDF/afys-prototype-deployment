@@ -27,12 +27,12 @@
 .country-detail ul { list-style: none; padding: 0; margin: 0; font-size: 13.5px; }
 .country-detail li { padding: 7px 0; border-bottom: 1px solid var(--line); }
 .country-detail li.asked { color: var(--green-mid); font-weight: 600; }
-.country-detail li.not-asked { color: var(--faint); }
+.country-detail li.not-asked { color: var(--muted); }
 .country-detail .note { margin-top: 12px; font-size: 12px; color: var(--muted); }
 .country-detail dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 14px 0 0; font-size: 13px; }
 .country-detail dt { color: var(--muted); font-weight: 500; }
 .country-detail dd { margin: 0; color: var(--ink); }
-.country-detail dd.awaited { color: var(--faint); font-style: italic; }
+.country-detail dd.awaited { color: var(--muted); font-style: italic; }
 
 /* The sections that were the "About the data" drawer, now on this page. Every one
    is the same card the coverage table has always been (chart.css gives .coverage
@@ -53,14 +53,14 @@
 .method-sec.text-table td { vertical-align: top; font-variant-numeric: normal; }
 .method-sec.text-table th[scope="row"] { color: var(--muted); font-weight: 500; white-space: nowrap; }
 .method-sec.text-table td.value { color: var(--green); font-weight: 600; }
-.method-sec td.awaited { color: var(--faint); font-style: italic; }
+.method-sec td.awaited { color: var(--muted); font-style: italic; }
 .method-sec td.waves { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 /* The coverage table's totals: interviews achieved against what PSB published. */
 .coverage tr.total th, .coverage tr.total td { border-top: 2px solid var(--line); font-weight: 700; color: var(--green); }
 .coverage tr.published td { color: var(--muted); }
 .coverage td.count { color: var(--ink); }
-.coverage td.count.flag { color: var(--rose); }
+.coverage td.count.flag { color: var(--rose-ink); }
 
 /* The region boxes lift on hover like the landing tiles they resemble. */
 .region-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-top: 12px; }

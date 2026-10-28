@@ -215,8 +215,8 @@
   font-weight: 600;
   width: fit-content;
 }
-.tstat-d.up { background: var(--mint); color: var(--green-mid); }
-.tstat-d.down { background: rgba(232, 83, 106, 0.10); color: var(--rose); }
+.tstat-d.up { background: var(--mint); color: var(--green-ink); }
+.tstat-d.down { background: rgba(232, 83, 106, 0.10); color: var(--rose-ink); }
 .tstat-d.flat { background: var(--tag); color: var(--muted); }
 /* The two changes side by side, as PSB's mock-up of 22 Oct draws them (THE-417), with the
    portal's gap (#97). At 1280 a tile's figure has about 235px beside its picture, and the widest
