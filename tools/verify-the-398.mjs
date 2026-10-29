@@ -132,7 +132,8 @@ for (const [slide, want] of Object.entries(SLIDES)) {
     const last = line?.data.filter((v) => v !== null).at(-1);
     const shown = last === undefined ? null : `${Math.sign(last) * Math.round(Math.abs(last))}%`;
     check(`the ${want.tile} tile reads slide ${slide}'s first line, with its caption`,
-      Boolean(tile && line) && tile.value === shown && tile.caption === want.caption,
+      // The caption, then since THE-416 " · N countries asked in every wave".
+      Boolean(tile && line) && tile.value === shown && tile.caption?.split(' · ')[0] === want.caption,
       `tile ${tile?.value} "${tile?.caption}" | chart's first line ${line?.label} ends at ${last}`);
   }
   await page.close();

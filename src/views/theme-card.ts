@@ -8,7 +8,7 @@
 // The approved prototype derives these from `Math.sin(idx * 17 + 3)` against a
 // hardcoded array of twelve numbers, unrelated to any question, and returns three
 // waves where we have four. None of that survives.
-import { type ChartSpec, type Theme, latestWave, question, rowName, waves } from '../content';
+import { type ChartSpec, type Theme, latestWave, likeForLike, question, rowName, waves } from '../content';
 import { combine } from '../aggregate';
 import { type ViewModel, buildViewModel, DEFAULT_FILTERS, partsFor } from '../model';
 
@@ -30,10 +30,16 @@ export interface ThemeCardFigures {
   recent: { points: number; from: number } | null;
   /** Said on the card in place of a delta, so an absence is never a zero. */
   note: string | null;
+  /**
+   * How many countries both changes compare: those surveyed in every wave of the trend, the set its
+   * chart compares (content.likeForLike). Named on the card beside the figure, as the portal's tile
+   * names its like-for-like set (THE-416, Yash 28 Oct: the two keep matching). Null with no change.
+   */
+  countries: number | null;
 }
 
 const NOTHING: ThemeCardFigures = {
-  headline: null, of: null, caption: null, delta: null, recent: null, note: null,
+  headline: null, of: null, caption: null, delta: null, recent: null, note: null, countries: null,
 };
 
 /**
@@ -143,6 +149,7 @@ function trendFigures(theme: Theme, of: string, years: number[], values: number[
       ? { points: Math.round((values[last]! - values[previous]!) * 10) / 10, from: before! }
       : null,
     note: null,
+    countries: likeForLike(years).length,
   };
 }
 
