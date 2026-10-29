@@ -38,15 +38,24 @@
 .skip-link:focus { transform: translateY(0); outline: 2px solid var(--gold); outline-offset: 2px; }
 
 /* One ring, everywhere. --accent is the green by default and the theme's colour
-   inside a theme, so the ring belongs to the page it is drawn on. */
+   inside a theme, so the ring belongs to the page it is drawn on. Darkened as a theme's colour is
+   as text: five of the deck's colours are too pale to see as a ring on cream (THE-234). An older
+   Safari without color-mix() draws it green. */
 button:focus-visible,
 a:focus-visible,
 [role="button"]:focus-visible,
 [tabindex="0"]:focus-visible,
 summary:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--green);
   outline-offset: 2px;
   border-radius: inherit;
+}
+@supports (color: color-mix(in srgb, red 50%, white)) {
+  button:focus-visible,
+  a:focus-visible,
+  [role="button"]:focus-visible,
+  [tabindex="0"]:focus-visible,
+  summary:focus-visible { outline-color: color-mix(in srgb, var(--accent) 50%, black); }
 }
 
 /* Only where the ring above replaces it. :focus-visible still applies, so this

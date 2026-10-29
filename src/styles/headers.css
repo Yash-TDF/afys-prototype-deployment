@@ -44,7 +44,9 @@
 @supports (color: color-mix(in srgb, red 50%, white)) {
   .tile .theme-tag, .theme-pill {
     background: color-mix(in srgb, var(--accent) 14%, #ffffff);
-    color: color-mix(in srgb, var(--accent) 62%, #1a3a2a);
+    /* A theme's colour as text, darkened halfway to black: it keeps its hue (gold stays a dark gold)
+       at 5.2:1 or more for every theme (THE-234, Yash 28 Oct). */
+    color: color-mix(in srgb, var(--accent) 50%, black);
   }
   .theme-pill { border-color: color-mix(in srgb, var(--accent) 24%, transparent); }
 }
