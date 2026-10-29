@@ -146,9 +146,7 @@ export function insightRow(model: ViewModel): HTMLElement | null {
 
   const row = document.createElement('div');
   row.className = 'insights';
-  // The figures are generated, and the chip beside the title already says so.
-  // Pointing at it keeps that one statement covering these too.
-  row.setAttribute('aria-label', 'Readings from the illustrative figures on this chart');
+  row.setAttribute('aria-label', 'Readings from this chart');
 
   for (const insight of found) {
     const chip = document.createElement('span');

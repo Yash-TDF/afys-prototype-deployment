@@ -592,7 +592,7 @@ function table(model: ViewModel, colours: string[]): HTMLDetailsElement {
 
   const el = document.createElement('table');
   const caption = document.createElement('caption');
-  caption.textContent = `${model.title} — illustrative figures, ${baseText(model)}`;
+  caption.textContent = `${model.title}, ${baseText(model)}`;
   el.append(caption);
 
   // Only where the categories are separate samples, and only where every series
@@ -715,7 +715,7 @@ function summarise(model: ViewModel, kind: ChartType): string {
   return `${kind === 'map' ? 'Map' : 'Chart'}: ${model.title}. `
     + `${model.series.length} series${SPLIT[model.seriesKind]} `
     + `across ${model.categories.length} categories, `
-    + `ranging from ${fmtPct(low)} to ${fmtPct(high)}. Illustrative figures. `
+    + `ranging from ${fmtPct(low)} to ${fmtPct(high)}. `
     + 'The same values follow as a table.';
 }
 
@@ -747,8 +747,8 @@ function notes(model: ViewModel, requested: ChartType, hidden: readonly string[]
   // One "Base: 412" under six organisations claimed one denominator for six
   // questions (review of #20).
   out.push(model.categoryKind === 'rows'
-    ? 'Each row is a separate question with its own base (illustrative).'
-    : `Base: ${model.base.toLocaleString('en-GB')} respondents (illustrative).`);
+    ? 'Each row is a separate question with its own base.'
+    : `Base: ${model.base.toLocaleString('en-GB')} respondents.`);
   return out;
 }
 
@@ -842,15 +842,12 @@ function drawFigure(
   const head = document.createElement('figcaption');
   const title = document.createElement('h3');
   title.textContent = model.title;
-  const chip = document.createElement('span');
-  chip.className = 'chip';
-  chip.textContent = 'Illustrative';
   // Every figure here is generated, so the badge never grades the base — see
   // ui/quality.ts for why putting a margin of error on a hashed number would be
   // the most confident sentence on the page attached to the least real figure.
   // A wave nobody was asked in has no base: the badge read "Base of 1,042" over a
   // sentence saying Germany was not asked (THE-382).
-  head.append(title, chip);
+  head.append(title);
   if (!model.notAsked) head.append(badgeElement(sampleBadge(model.base, { illustrative: true })));
   if (model.showing) {
     const showing = document.createElement('p');

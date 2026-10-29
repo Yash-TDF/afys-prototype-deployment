@@ -21,10 +21,6 @@
          whatever the reader was on. main already carries tabindex="-1" so it can
          take focus without becoming a tab stop. -->
     <button type="button" class="skip-link">Skip to content</button>
-    <div class="illustrative-banner" role="note">
-      <strong>Illustrative prototype.</strong> Every figure on this site is
-      generated for layout purposes. None of it is a survey result.
-    </div>
     <header class="site-header">
       <a class="wordmark" href="#/">
         <img src="brand/ays.svg" alt="African Youth Survey" />
@@ -47,9 +43,11 @@
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
     <footer class="site-footer">
       <img class="footer-logo" src="brand/iff.svg" alt="Ichikowitz Family Foundation" />
-      <!-- PSB's wording of 22 Oct (THE-417), as the portal's. Its figures are still said to be
-           illustrative by the banner above and the chip on every tile and chart. -->
+      <!-- PSB's wording of 22 Oct (THE-417), as the portal's. The line under it is the one
+           place the site says its figures are illustrative: once, not on every chart
+           (Nimit, 28 Oct; THE-421). A downloaded CSV says it once too. -->
       <p>© 2026 Ichikowitz Family Foundation. Research by PSB Insights. All rights reserved.</p>
+      <p class="footer-note">Figures shown are illustrative.</p>
     </footer>
     <script type="module" src="/src/main.ts"></script>
   </body>

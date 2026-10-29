@@ -1,13 +1,3 @@
-/* The one thing that is ours, not theirs. It stays loud: this prototype's
-   numbers are generated, and the last one's were mistaken for findings. */
-.illustrative-banner {
-  background: var(--warn-bg);
-  color: var(--warn-ink);
-  padding: 9px 22px;
-  font-size: 13px;
-  border-bottom: 1px solid #f2e3bd;
-}
-
 .site-header {
   display: flex;
   align-items: center;

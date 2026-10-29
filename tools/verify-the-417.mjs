@@ -1,5 +1,6 @@
 // PSB's feedback of 22 Oct on the review link (THE-417), every point of it:
-// - the footer is PSB's one line, both old lines gone; the illustrative banner stays;
+// - the footer is PSB's one line, both old lines gone, then the one line saying the figures are
+//   illustrative, which replaced the banner (THE-421);
 // - the landing's subtitle is PSB's sentence, on one line at 1280; "16 countries", "4,901" and
 //   "2026" are bold in their cards; Key themes reads "From dozens of topics included across the
 //   four waves";
@@ -41,6 +42,7 @@ const fieldwork = read('../src/data/fieldwork.json');
 
 // PSB's words of 22 Oct, as THE-417 records them.
 const FOOTER = '© 2026 Ichikowitz Family Foundation. Research by PSB Insights. All rights reserved.';
+const FOOTER_NOTE = 'Figures shown are illustrative.'; // THE-421
 const LEDE = 'Explore findings across 28 countries, from young people aged 18 to 24 interviewed in four waves from 2020 to 2026.';
 const KEY_THEMES = 'From dozens of topics included across the four waves';
 const FACE_TO_FACE = 'All interviews were face to face, in all four waves.';
@@ -109,9 +111,9 @@ async function open(width, hash) {
     links: document.querySelectorAll('.site-footer a').length,
     banner: document.querySelector('.illustrative-banner')?.textContent.replace(/\s+/g, ' ').trim() ?? null,
   }));
-  check('the footer is PSB\'s one line, as plain text, and both old lines are gone',
-    shell.footer.length === 1 && shell.footer[0] === FOOTER && shell.links === 0, shell);
-  check('the "Illustrative prototype" banner is still at the top', Boolean(shell.banner?.startsWith('Illustrative prototype.')), shell.banner);
+  check('the footer is PSB\'s one line, as plain text, and both old lines are gone; then THE-421\'s line',
+    shell.footer.length === 2 && shell.footer[0] === FOOTER && shell.footer[1] === FOOTER_NOTE && shell.links === 0, shell);
+  check('there is no banner at the top: the footer says it once (THE-421)', shell.banner === null, shell.banner);
   await page.close();
 }
 
@@ -232,8 +234,8 @@ for (const width of [1280, 1100, 768, 390]) {
     check(`${at}, each tile with a change names the countries both changes compare beside its figure and in its label, and a tile without one names none (THE-416)`,
       named.length === 0, named);
   }
-  check(`${at}, the check reached tiles with two pills (${two.length}) and every tile kept its Illustrative chip`,
-    two.length > 0 && tiles.every((t) => t.headline === null || t.chip === 'Illustrative'), tiles.map((t) => [t.slug, t.pills.length, t.chip]));
+  check(`${at}, the check reached tiles with two pills (${two.length}) and no tile has an Illustrative chip (THE-421)`,
+    two.length > 0 && tiles.every((t) => t.chip === null), tiles.map((t) => [t.slug, t.pills.length, t.chip]));
   check(`${at}, every tile's two pills share one row`, two.every((t) => Math.abs(t.pills[0].top - t.pills[1].top) <= 1),
     two.filter((t) => Math.abs(t.pills[0].top - t.pills[1].top) > 1).map((t) => [t.slug, t.pills]));
   check(`${at}, the figures' text stays inside its tile, and there's no sideways scroll`,

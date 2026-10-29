@@ -11,9 +11,8 @@
 //     the report's *wrong*-direction number — printed page 18 gives 37% right and
 //     55% wrong — and that card is not reproduced here at any figure.
 //   - The theme cards do carry a generated headline and a delta, which is the
-//     shape the client approved. Every one is illustrative and says so: the
-//     banner above, a chip on each card, and the reading spelled out in each
-//     card's own label. They come from the same buildViewModel the explorer uses,
+//     shape the client approved. The footer says once that the figures are
+//     illustrative (THE-421). They come from the same buildViewModel the explorer uses,
 //     so a card agrees with the chart it leads to.
 //   - Each card carries its theme's picture on the right, in PSB's layout of
 //     22 Oct (THE-404), where the line used to be: Michael's mock-up has none.
@@ -297,13 +296,6 @@ function fill(
   // 22 Oct has no line (THE-404).
   slot.prepend(left);
 
-  // The third of the three places. This page loads no charting library, so there
-  // is no renderer chip to inherit — the card carries its own.
-  const chip = document.createElement('span');
-  chip.className = 'chip';
-  chip.textContent = 'Illustrative';
-  tile.append(chip);
-
   // Both changes in words, as the portal's tile reads them: "58% in 2026, across the 8 countries
   // asked in every wave, up 3 points since 2020 and down 1 point since 2024".
   const where = compared && figures.countries ? `, across the ${figures.countries} ${figures.countries === 1 ? 'country' : 'countries'} asked in every wave` : '';
@@ -313,7 +305,7 @@ function fill(
     : `${fmtPct(figures.headline)}${figures.note ? `, ${figures.note.toLowerCase()}` : ''}`;
   tile.setAttribute(
     'aria-label',
-    `${theme.name}. ${caption ?? 'Illustrative figure'}: ${reading}. Illustrative figure, not a survey result.`,
+    `${theme.name}. ${caption ?? 'Headline figure'}: ${reading}.`,
   );
 }
 

@@ -85,7 +85,6 @@ export function methodologyView(host: HTMLElement, params?: URLSearchParams): { 
   host.append(section('coverage', 'Coverage and interviews by wave', coverageTable(), 'an a3'));
   host.append(section('regions', 'Regions', regions(), 'an a4'));
   host.append(section('fieldwork', 'Languages and locations', fieldworkTable(), 'text-table an a5'));
-  host.append(section('figures', 'The figures', figuresNote(), 'an a6'));
 
   const showCountry = (country: Country | null): void => {
     detail.replaceChildren();
@@ -474,16 +473,3 @@ function fieldworkTable(): HTMLElement {
   return wrap;
 }
 
-function figuresNote(): HTMLElement {
-  const wrap = document.createElement('div');
-  const p = document.createElement('p');
-  p.textContent =
-    'Every percentage on this site is generated for layout. None of it is a survey '
-    + 'result, and nothing here should be read as one. The structure — the themes, '
-    + 'the questions, the countries and the waves — comes from the client’s own '
-    + 'Portal Content deck, and the interview counts, languages and locations on this '
-    + 'page are the only figures taken from the survey files and from PSB. The regions '
-    + 'are the African Union’s.';
-  wrap.append(p);
-  return wrap;
-}
