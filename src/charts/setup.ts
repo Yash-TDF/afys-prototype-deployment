@@ -208,9 +208,6 @@ export function setupCharts(): void {
   Chart.defaults.plugins.tooltip.padding = 10;
   Chart.defaults.plugins.tooltip.cornerRadius = 4;
   Chart.defaults.plugins.tooltip.displayColors = false;
-  // On every tooltip, because a screenshot of one chart travels without the
-  // banner that says the rest of it.
-  Chart.defaults.plugins.tooltip.callbacks.afterBody = () => 'Illustrative figure — not a survey result';
   // Chart.js prints the raw value; the page prints whole numbers. A pie parses
   // to a number, a bar to a point on whichever axis carries the value. The map
   // has its own label callback and is not affected.

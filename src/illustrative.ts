@@ -4,8 +4,10 @@
 // files arrive, which means it has to show numbers. Three rules keep that from
 // turning into the thing we are trying to avoid:
 //
-//   1. Nothing here is a survey result, and the page says so in three places —
-//      the banner, a chip on every chart, and the tooltip.
+//   1. Nothing here is a survey result, and the page says so once, in the footer
+//      ("Figures shown are illustrative."), as a downloaded CSV does in its first
+//      line. It used to be said on every chart, tile and tooltip, and the client
+//      asked for that to go (Nimit, 28 Oct; THE-421).
 //   2. The figures are deterministic. The same question, wave, country and option
 //      produce the same number on every load and every machine, so a screenshot
 //      taken today matches the site tomorrow and nobody chases a "change".

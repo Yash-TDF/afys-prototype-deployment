@@ -54,11 +54,10 @@ export function sampleBadge(base: number, opts: { illustrative: boolean }): Badg
 
   if (opts.illustrative) {
     return {
-      label: 'Illustrative base',
+      label: 'Base',
       tone: 'neutral',
-      tip: `Base of ${n}, generated for layout. Not a survey result, so no margin `
-        + 'of error is shown. With real figures this badge reports the margin of '
-        + 'error and whether the base carries a country-level comparison.',
+      // No margin of error: the figures are generated, and the footer says so once (THE-421).
+      tip: `Base of ${n} respondents.`,
     };
   }
 

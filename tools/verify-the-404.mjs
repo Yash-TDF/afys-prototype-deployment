@@ -6,8 +6,8 @@
 // - laid out as the portal's tile: the figure at the foot, the picture centred beside it, 8px
 //   apart, and loading lazily. A tile narrower than at 1280 gives the change (pills or note) its
 //   own row under both, so the pills keep theirs (THE-417, Yash 27 Oct);
-// - no line on any tile, as the mock-up has none; the figure, its "since" pill and the
-//   Illustrative chip stay;
+// - no line on any tile, as the mock-up has none; the figure and its "since" pill stay, and
+//   no tile carries an Illustrative chip: the footer says it once (THE-421);
 // - the picture is placed before the figures land, so nothing moves when they do;
 // - no sideways scroll and no page errors.
 //
@@ -125,9 +125,9 @@ for (const width of [1280, 768, 390]) {
   check(`${at}, the change (pills or note) sits ${width < 1280 ? 'on its own row, under the figure and the picture' : 'under the figure, beside the picture'}`,
     tiles.every((t) => t.headline === null || t.own === (width < 1280)), tiles.filter((t) => t.headline !== null && t.own !== (width < 1280)).map((t) => t.slug));
   check(`${at}, no tile draws a line`, tiles.every((t) => t.lines === 0), tiles.filter((t) => t.lines > 0).map((t) => t.slug));
-  check(`${at}, every tile with a figure keeps its "since" pill and its Illustrative chip`,
-    tiles.every((t) => t.headline === null || (t.pill !== null && t.chip === 'Illustrative')),
-    tiles.filter((t) => t.headline !== null && (t.pill === null || t.chip !== 'Illustrative')).map((t) => t.slug));
+  check(`${at}, every tile with a figure keeps its "since" pill, and no tile has an Illustrative chip (THE-421)`,
+    tiles.every((t) => t.chip === null && (t.headline === null || t.pill !== null)),
+    tiles.filter((t) => t.chip !== null || (t.headline !== null && t.pill === null)).map((t) => [t.slug, t.chip]));
   check(`${at}, the picture is placed before the figures land, and doesn't move when they do`,
     early.every((y, i) => y !== null && y === tiles[i].imgTop), { early, after: tiles.map((t) => t.imgTop) });
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

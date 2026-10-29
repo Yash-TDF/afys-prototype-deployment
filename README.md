@@ -4,10 +4,10 @@ The revised clickable prototype. It exists to get the **shape** of the portal
 approved — the themes, the tile pages, the explorer, the methodology view — before
 the production front end is built against it.
 
-**Every figure on this site is generated.** Nothing here is a survey result. That
-is said in the banner, on every chart, in every tooltip and at the top of every
-CSV it exports, because the last prototype's invented numbers were mistaken for
-findings once already.
+**Every figure on this site is generated.** Nothing here is a survey result. The
+site says so once, in the footer ("Figures shown are illustrative."), and every
+CSV it exports says so in its first line. It used to say it on every chart, tile
+and tooltip too; the client asked for those to go (Nimit, 28 Oct; THE-421).
 
 This is throwaway. It is not in `afys-portal`, it shares no code with it, and none
 of it ships. What survives is the decisions it settles.
@@ -37,6 +37,7 @@ Other scripts:
 | `node tools/verify-the-401.mjs` | in a browser: the landing page's four cards read as Rosie's 8 Oct deck asks, and no stat card draws a line, at 1280 and 390px |
 | `node tools/verify-the-398.mjs` | in a browser: slides 41 and 45 draw one line per question, refuse a split by sex, share no base, and their tiles read their first line; at phone width no table runs off the screen |
 | `node tools/verify-the-417.mjs` | in a browser: PSB's 22 Oct feedback, every point: the footer, the landing's wording and bold, each tile's change since 2024, the African Union's regions on Methodology and in Explore, the Interviews row, and the corrected fieldwork, at 1280 and 390px |
+| `node tools/verify-the-421.mjs` | in a browser: each page says once, in the footer, that its figures are illustrative, counting labels and captions too; no banner, chip or tooltip line; Methodology has no "The figures"; a downloaded CSV says it once; `--figures` writes the charts' values to compare two runs |
 
 `pnpm content` reads `../afys-portal/db/seeds/*.sql` and the portal's
 `pipeline/mappings/crosswave.csv`, so the two directories have to sit side by
@@ -261,9 +262,8 @@ it rather than guessed at.
 
     The theme cards *do* carry a generated headline and a trend delta, because
     that is the shape the client approved and round zero is
-    asking them to approve a shape. Each is marked in three places: the banner
-    above the page, a chip on the card, and the card's own label, which reads the
-    figure out and ends "illustrative figure, not a survey result". They are
+    asking them to approve a shape. The footer says once that they are
+    illustrative (THE-421). They are
     computed by the same `buildViewModel` the explorer uses, so a card and the
     chart it leads to cannot disagree.
 15. The explorer lets a reader hide answers (the client's 28 September ask), from
@@ -294,6 +294,7 @@ tools/verify-the-401.mjs  browser check: the landing cards' wording, and no line
 tools/verify-the-398.mjs  browser check: one line per question on slides 41 and 45; tables fit a phone
 tools/verify-the-404.mjs  browser check: each landing tile's picture, on the right, cropped, no line
 tools/verify-the-417.mjs  browser check: PSB's feedback of 22 Oct, every point
+tools/verify-the-421.mjs  browser check: the figures are said to be illustrative once, in the footer
 src/regions.ts            the African Union's regions, from the seed
 src/content.ts            the deck, typed
 src/illustrative.ts       the generated figures — deleted when the API is wired up

@@ -50,19 +50,6 @@ figure.chart { margin: 0; }
 .chart figcaption h3 { font-size: 17px; font-weight: 600; line-height: 1.45; color: var(--green); }
 .chart figcaption .showing { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 12.5px; }
 
-.chip {
-  background: var(--warn-bg);
-  color: var(--warn-ink);
-  border-radius: 100px;
-  padding: 4px 11px;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  font-style: normal;
-  transition: background 0.25s var(--ease), color 0.25s var(--ease);
-}
-
 .canvas { position: relative; height: 300px; }
 /* A whole number of pixels wide, always. Chart.js floors the canvas it draws but
    compares against the container's real width, so inside a card with a 0.8px
@@ -189,9 +176,8 @@ figure.chart { margin: 0; }
 
 /* Insight chips ------------------------------------------------------------ */
 
-/* Named .insight, not .chip. The prototype calls these .chip, which here is the
-   "Illustrative" badge beside every title — the one element the three-places
-   rule depends on. Two meanings for one class is how that stops being reliable. */
+/* Named .insight, not .chip: .chip was the "Illustrative" badge beside every title,
+   until the footer became the one place that says so (THE-421). */
 .insights {
   display: flex;
   flex-wrap: wrap;

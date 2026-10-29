@@ -43,7 +43,6 @@
 .stat .sub { display: block; color: var(--muted); font-size: 13px; line-height: 1.4; margin-top: 12px; white-space: pre-line; }
 /* The latest wave's countries, respondents and year, bold as PSB asked (22 Oct, THE-417). */
 .stat .sub strong { font-weight: 700; color: var(--ink); }
-.stat .chip { margin-top: 10px; display: inline-block; }
 
 /* A section title is the sans at 22px, not the display serif: the serif is for
    the one title a page has. */
@@ -237,4 +236,3 @@
   .tile .tstat-pills, .tile .tstat-l > .tstat-d { grid-column: 1 / -1; grid-row: 2; margin-top: 0; }
 }
 
-.tile .chip { align-self: flex-start; margin-top: 14px; }

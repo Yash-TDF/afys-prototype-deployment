@@ -676,14 +676,15 @@ function provenance(model: ViewModel, question: Question, filters: Filters, hidd
     : filters.gender === 'all' ? 'all respondents' : filters.gender === 'male' ? 'men only' : 'women only';
 
   return [
-    'ILLUSTRATIVE FIGURES — GENERATED FOR LAYOUT, NOT SURVEY RESULTS',
+    // Once, first: the file leaves the site without the footer that says it (THE-421).
+    'Figures are illustrative, not survey results.',
     `Question: ${question.code} — ${question.text}`,
     `Chart: ${model.title}${model.showing ? ` (${model.showing})` : ''}`,
     waveLine,
     `Countries: ${scope}`,
     `Gender: ${gender}`,
     ...(model.compare !== 'none' ? [`Compared by: ${model.compare}`] : []),
-    `Base: ${model.base.toLocaleString('en-GB')} respondents (illustrative)`,
+    `Base: ${model.base.toLocaleString('en-GB')} respondents`,
     ...(question.baseType === 'filtered' && question.baseText ? [`Asked only of: ${question.baseText}`] : []),
     ...(model.likeForLike ? [model.likeForLike] : []),
     ...(model.compareNote ? [model.compareNote] : []),
